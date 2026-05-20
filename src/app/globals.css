@@ -1,0 +1,72 @@
+@import "tailwindcss";
+
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-fadeIn {
+  animation: fadeIn 0.4s ease-out;
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* ── Clerk auth component visibility fixes ──────────────────────────
+   Clerk loads its component CSS from its CDN at runtime. These selectors
+   use the cl- prefix Clerk applies to every element.
+──────────────────────────────────────────────────────────────────── */
+
+/* Hide entire Clerk footer (branding + action links).
+   We render our own sign-in/sign-up toggle links outside the component. */
+[class*="cl-footer"] {
+  display: none !important;
+}
+
+/* Also hide any stray badge / dev-mode elements */
+[class*="cl-badge"],
+[class*="cl-powered"],
+[class*="cl-devMode"],
+[class*="cl-development-mode"] {
+  display: none !important;
+}
+
+/* Footer action links — "Don't have an account? Sign up" */
+[class*="cl-footerActionText"] {
+  color: #a1a1aa !important;
+}
+
+/* "or" divider */
+[class*="cl-dividerText"] {
+  color: #71717a !important;
+}
+
+/* Form field labels */
+[class*="cl-formFieldLabel"] {
+  color: #e4e4e7 !important;
+}
+
+/* Header title & subtitle */
+[class*="cl-headerTitle"] {
+  color: #ffffff !important;
+}
+[class*="cl-headerSubtitle"] {
+  color: #d4d4d8 !important;
+}
+
+/* Social button text */
+[class*="cl-socialButtonsBlockButtonText"] {
+  color: #ffffff !important;
+}
+
+/* Identity preview text */
+[class*="cl-identityPreview"] * {
+  color: #e4e4e7 !important;
+}
+
