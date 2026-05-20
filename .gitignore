@@ -61,6 +61,12 @@ supabase/.env
 *.tsbuildinfo
 next-env.d.ts
 
+# ── Internal project documentation (not for public repo) ─────────────
+CLAUDE.md
+AGENTS.md
+PRD.md
+.agents/
+
 # ── OS artifacts ──────────────────────────────────────────────────────
 .DS_Store
 Thumbs.db
