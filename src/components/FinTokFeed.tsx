@@ -27,7 +27,7 @@ interface QuizQuestion {
 }
 
 interface Card {
-  id: number;
+  id: string | number;
   level: Level;
   topic: string;
   title: string;
@@ -42,6 +42,7 @@ interface Card {
   quiz: QuizQuestion;
   source: string;
   sourceUrl: string;
+  generated?: boolean;
 }
 
 const LEVEL_META: Record<Level, { color: string; bg: string; emoji: string; order: number }> = {
@@ -420,12 +421,14 @@ interface FinTokFeedProps {
 
 export function FinTokFeed({ userId = "guest" }: FinTokFeedProps) {
   const [active, setActive] = useState(0);
-  const [liked, setLiked] = useState<Record<number, boolean>>({});
-  const [saved, setSaved] = useState<Record<number, boolean>>({});
-  const [quizAnswers, setQuizAnswers] = useState<Record<number, number | null>>({});
-  const [showQuiz, setShowQuiz] = useState<Record<number, boolean>>({});
-  const [completed, setCompleted] = useState<Record<number, boolean>>({});
-  const [showSource, setShowSource] = useState<Record<number, boolean>>({});
+  const [liked, setLiked] = useState<Record<string, boolean>>({});
+  const [saved, setSaved] = useState<Record<string, boolean>>({});
+  const [quizAnswers, setQuizAnswers] = useState<Record<string, number | null>>({});
+  const [generatedCards, setGeneratedCards] = useState<Card[]>([]);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [showQuiz, setShowQuiz] = useState<Record<string, boolean>>({});
+  const [completed, setCompleted] = useState<Record<string, boolean>>({});
+  const [showSource, setShowSource] = useState<Record<string, boolean>>({});
   const feedRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -447,7 +450,7 @@ export function FinTokFeed({ userId = "guest" }: FinTokFeedProps) {
       const isFirstVisit = !previousSession;
       if (onboarding && isFirstVisit && feedRef.current) {
         const targetIdx = STRUGGLE_TO_START_CARD[onboarding.struggle] ?? 0;
-        if (targetIdx > 0 && targetIdx < CARDS.length) {
+        if (targetIdx > 0 && targetIdx < ALL_CARDS.length) {
           // Defer to after layout so heights are correct
           requestAnimationFrame(() => {
             if (feedRef.current) {
@@ -458,7 +461,36 @@ export function FinTokFeed({ userId = "guest" }: FinTokFeedProps) {
         }
       }
     } catch {}
+
+    // Fetch dynamically-generated cards from /api/cards. These are
+    // grounded in Pinecone via Gemini and appended after the curated
+    // 12 cards to extend the feed beyond hardcoded content.
+    let cancelled = false;
+    setLoadingMore(true);
+    fetch("/api/cards", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ limit: 8 }),
+    })
+      .then((r) => (r.ok ? r.json() : null))
+      .then((data) => {
+        if (cancelled || !data?.cards) return;
+        setGeneratedCards(data.cards as Card[]);
+      })
+      .catch(() => {
+        // Silent fail — user still has the 12 curated cards
+      })
+      .finally(() => {
+        if (!cancelled) setLoadingMore(false);
+      });
+
+    return () => {
+      cancelled = true;
+    };
   }, [userId]);
+
+  // Merged feed: curated foundation + dynamically generated extras
+  const ALL_CARDS: Card[] = [...CARDS, ...generatedCards];
 
   const persist = useCallback((updates: object) => {
     try {
@@ -470,22 +502,22 @@ export function FinTokFeed({ userId = "guest" }: FinTokFeedProps) {
   const handleScroll = useCallback(() => {
     if (!feedRef.current) return;
     const idx = Math.round(feedRef.current.scrollTop / feedRef.current.clientHeight);
-    if (idx !== active && idx >= 0 && idx < CARDS.length) setActive(idx);
+    if (idx !== active && idx >= 0 && idx < ALL_CARDS.length) setActive(idx);
   }, [active]);
 
-  const handleLike = (id: number) => {
+  const handleLike = (id: string | number) => {
     const next = { ...liked, [id]: !liked[id] };
     setLiked(next);
     persist({ liked: next });
   };
 
-  const handleSave = (id: number) => {
+  const handleSave = (id: string | number) => {
     const next = { ...saved, [id]: !saved[id] };
     setSaved(next);
     persist({ saved: next });
   };
 
-  const handleAnswer = (cardId: number, answer: number, correct: number) => {
+  const handleAnswer = (cardId: string | number, answer: number, correct: number) => {
     setQuizAnswers(p => ({ ...p, [cardId]: answer }));
     if (answer === correct && !completed[cardId]) {
       const next = { ...completed, [cardId]: true };
@@ -516,9 +548,15 @@ export function FinTokFeed({ userId = "guest" }: FinTokFeedProps) {
           <span className="text-zinc-400 text-xs font-medium">For You</span>
         </div>
         <div className="flex items-center gap-1.5 pointer-events-auto">
+          {loadingMore && (
+            <div className="flex items-center gap-1 px-2 py-1 bg-black/40 backdrop-blur-sm rounded-full border border-fuchsia-500/30">
+              <div className="w-2 h-2 rounded-full bg-fuchsia-400 animate-pulse" />
+              <span className="text-[10px] font-bold text-fuchsia-300">Generating</span>
+            </div>
+          )}
           <div className="flex items-center gap-1 px-2 py-1 bg-black/40 backdrop-blur-sm rounded-full border border-zinc-700/50">
             <Sparkles className="w-3 h-3 text-emerald-400" />
-            <span className="text-[10px] font-bold text-emerald-400">{completedCount}/{CARDS.length} mastered</span>
+            <span className="text-[10px] font-bold text-emerald-400">{completedCount}/{ALL_CARDS.length} mastered</span>
           </div>
         </div>
       </div>
@@ -529,7 +567,7 @@ export function FinTokFeed({ userId = "guest" }: FinTokFeedProps) {
         onScroll={handleScroll}
         className="h-full overflow-y-scroll snap-y snap-mandatory no-scrollbar"
       >
-        {CARDS.map((card, idx) => {
+        {ALL_CARDS.map((card, idx) => {
           const isActive = active === idx;
           const meta = LEVEL_META[card.level];
           const quizOpen = showQuiz[card.id];
@@ -557,6 +595,11 @@ export function FinTokFeed({ userId = "guest" }: FinTokFeedProps) {
                     {meta.emoji} {card.level}
                   </span>
                   <span className="text-[10px] text-zinc-400 font-medium uppercase tracking-wider">{card.topic}</span>
+                  {card.generated && (
+                    <span className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-fuchsia-500/10 border border-fuchsia-500/30 text-fuchsia-300 text-[9px] font-black uppercase tracking-wider">
+                      <Sparkles className="w-2.5 h-2.5" /> AI
+                    </span>
+                  )}
                 </div>
 
                 {/* Main content area */}
@@ -703,7 +746,7 @@ export function FinTokFeed({ userId = "guest" }: FinTokFeedProps) {
                   {/* Progress indicator */}
                   <div className="flex items-center gap-2 pb-1">
                     <div className="flex gap-1 flex-1">
-                      {CARDS.map((c, i) => {
+                      {ALL_CARDS.map((c, i) => {
                         const isCurrentLevel = c.level === card.level;
                         return (
                           <div
@@ -717,7 +760,7 @@ export function FinTokFeed({ userId = "guest" }: FinTokFeedProps) {
                     </div>
                     <div className="flex items-center gap-1 text-[8px] text-zinc-500">
                       <ChevronRight className="w-3 h-3" />
-                      <span>{idx + 1}/{CARDS.length}</span>
+                      <span>{idx + 1}/{ALL_CARDS.length}</span>
                     </div>
                   </div>
                 </div>
