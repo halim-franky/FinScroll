@@ -522,7 +522,19 @@ export function FinTokFeed({ userId = "guest" }: FinTokFeedProps) {
     if (answer === correct && !completed[cardId]) {
       const next = { ...completed, [cardId]: true };
       setCompleted(next);
-      persist({ completed: next });
+
+      // Append to weeklyLog for the weekly challenge widget
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY(userId)) ?? "{}";
+        const existing = JSON.parse(raw);
+        const weeklyLog: number[] = Array.isArray(existing.weeklyLog) ? existing.weeklyLog : [];
+        weeklyLog.push(Date.now());
+        persist({ completed: next, weeklyLog });
+      } catch {
+        persist({ completed: next });
+      }
+
+      // Update streak (unchanged)
       try {
         const today = new Date().toDateString();
         const last = localStorage.getItem("fs_streak_date");

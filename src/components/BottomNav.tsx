@@ -2,13 +2,16 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { TrendingUp, Flame, Calculator, MessageCircle } from "lucide-react";
+import {
+  TrendingUp, Flame, Calculator, MessageCircle, BarChart3,
+} from "lucide-react";
 
 const tabs = [
   { href: "/feed", icon: TrendingUp, label: "Learn" },
   { href: "/roast", icon: Flame, label: "Roast" },
   { href: "/calculate", icon: Calculator, label: "Wealth" },
-  { href: "/chat", icon: MessageCircle, label: "AI Coach" },
+  { href: "/chat", icon: MessageCircle, label: "Coach" },
+  { href: "/stats", icon: BarChart3, label: "Stats" },
 ] as const;
 
 export function BottomNav() {
