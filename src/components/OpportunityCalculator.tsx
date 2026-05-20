@@ -1,9 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   DollarSign, Landmark, TrendingUp, Zap, Clock,
 } from "lucide-react";
+import { readOnboarding } from "./OnboardingModal";
 
 const assets = [
   {
@@ -90,11 +91,23 @@ function SliderRow({ icon: Icon, label, value, min, max, step, current, hint, on
   );
 }
 
-export function OpportunityCalculator() {
+interface Props {
+  userId?: string;
+}
+
+export function OpportunityCalculator({ userId = "guest" }: Props) {
   const [startingCapital, setStartingCapital] = useState(500);
   const [scrollHours, setScrollHours] = useState(4);
   const [hourlyValue, setHourlyValue] = useState(3);
   const [selectedAsset, setSelectedAsset] = useState(1);
+
+  // Pre-fill from onboarding answer if available
+  useEffect(() => {
+    const onboarding = readOnboarding(userId);
+    if (onboarding && !onboarding.skipped) {
+      setScrollHours(onboarding.scrollHours);
+    }
+  }, [userId]);
 
   const asset = assets[selectedAsset];
   const dailySavings = scrollHours * hourlyValue;

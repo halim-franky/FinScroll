@@ -1,6 +1,8 @@
+import { currentUser } from "@clerk/nextjs/server";
 import { OpportunityCalculator } from "@/components/OpportunityCalculator";
 
-export default function CalculatePage() {
+export default async function CalculatePage() {
+  const user = await currentUser();
   return (
     <div className="h-[calc(100dvh-5rem)] overflow-y-auto">
       <div className="px-4 pt-6 pb-4">
@@ -12,7 +14,7 @@ export default function CalculatePage() {
             See what your scroll time is costing you in compound wealth.
           </p>
         </div>
-        <OpportunityCalculator />
+        <OpportunityCalculator userId={user?.id ?? "guest"} />
       </div>
     </div>
   );

@@ -6,6 +6,16 @@ import {
   ChevronDown, ChevronUp, ExternalLink, MessageSquare,
   ChevronRight, Sparkles,
 } from "lucide-react";
+import { readOnboarding, type Struggle } from "./OnboardingModal";
+
+// Pick the most relevant starting card index based on the user's
+// onboarding answer. Card IDs come from the CARDS array below.
+const STRUGGLE_TO_START_CARD: Record<Struggle, number> = {
+  saving: 0,     // Card 1: The 50/30/20 Rule
+  debt: 1,       // Card 2: Emergency fund — break the debt cycle
+  investing: 4,  // Card 5: Index funds — first real investment
+  all: 0,        // Default: start from the beginning
+};
 
 type Level = "Beginner" | "Intermediate" | "Advanced" | "Quant";
 
@@ -426,6 +436,26 @@ export function FinTokFeed({ userId = "guest" }: FinTokFeedProps) {
         setLiked(s.liked ?? {});
         setSaved(s.saved ?? {});
         setCompleted(s.completed ?? {});
+      }
+    } catch {}
+
+    // First-time visitors: jump to the card most relevant to their
+    // onboarding answer (Saving → 50/30/20, Debt → Emergency fund, etc.)
+    try {
+      const onboarding = readOnboarding(userId);
+      const previousSession = localStorage.getItem(STORAGE_KEY(userId));
+      const isFirstVisit = !previousSession;
+      if (onboarding && isFirstVisit && feedRef.current) {
+        const targetIdx = STRUGGLE_TO_START_CARD[onboarding.struggle] ?? 0;
+        if (targetIdx > 0 && targetIdx < CARDS.length) {
+          // Defer to after layout so heights are correct
+          requestAnimationFrame(() => {
+            if (feedRef.current) {
+              feedRef.current.scrollTop = feedRef.current.clientHeight * targetIdx;
+              setActive(targetIdx);
+            }
+          });
+        }
       }
     } catch {}
   }, [userId]);
