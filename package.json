@@ -16,6 +16,7 @@
     "@langchain/pinecone": "^1.0.2",
     "@langchain/textsplitters": "^1.0.1",
     "@pinecone-database/pinecone": "^7.2.0",
+    "@supabase/supabase-js": "^2.106.1",
     "cheerio": "^1.2.0",
     "dotenv": "^17.4.2",
     "lucide-react": "^1.16.0",

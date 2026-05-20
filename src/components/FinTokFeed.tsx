@@ -7,6 +7,7 @@ import {
   ChevronRight, Sparkles,
 } from "lucide-react";
 import { readOnboarding, type Struggle } from "./OnboardingModal";
+import { pushStateDebounced } from "@/lib/cloudSync";
 
 // Pick the most relevant starting card index based on the user's
 // onboarding answer. Card IDs come from the CARDS array below.
@@ -497,6 +498,8 @@ export function FinTokFeed({ userId = "guest" }: FinTokFeedProps) {
       const raw = localStorage.getItem(STORAGE_KEY(userId)) ?? "{}";
       localStorage.setItem(STORAGE_KEY(userId), JSON.stringify({ ...JSON.parse(raw), ...updates }));
     } catch {}
+    // Fire-and-forget cloud sync — degrades gracefully if Supabase isn't set up
+    pushStateDebounced(userId);
   }, [userId]);
 
   const handleScroll = useCallback(() => {

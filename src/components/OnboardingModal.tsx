@@ -6,6 +6,7 @@ import {
   PiggyBank, CreditCard, TrendingUp, Layers,
   Target, Briefcase, Shield, Hammer,
 } from "lucide-react";
+import { pushStateDebounced } from "@/lib/cloudSync";
 
 // ── Type definitions ─────────────────────────────────────────────
 export type Struggle = "saving" | "debt" | "investing" | "all";
@@ -66,6 +67,8 @@ export function OnboardingModal({ userId, onComplete }: Props) {
         JSON.stringify(data)
       );
     } catch {}
+    // Fire-and-forget cloud sync — degrades gracefully if Supabase isn't set up
+    pushStateDebounced(userId, 500);
     onComplete(data);
   };
 
