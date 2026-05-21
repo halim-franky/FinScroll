@@ -37,7 +37,7 @@ function ScrollCostCounter() {
 const features = [
   {
     icon: TrendingUp, color: "emerald", title: "FinTok Feed",
-    description: "TikTok-style vertical scroll cards — but every fact is grounded in SEC publications & peer-reviewed research. Same format, zero speculation.",
+    description: "TikTok-style vertical scroll cards. Every fact is grounded in SEC publications and peer-reviewed research. Same format, zero speculation.",
   },
   {
     icon: Flame, color: "rose", title: "Finfluencer Roast",
@@ -101,7 +101,7 @@ export function LandingContent() {
           </h1>
           <p className="mt-6 text-base sm:text-lg text-zinc-400 max-w-2xl mx-auto leading-relaxed hero-reveal hero-reveal-5">
             The average Gen-Z spends <strong className="text-zinc-200">6.5 hours/day</strong> scrolling content that makes them poorer.
-            FinScroll turns your worst habit into your most powerful financial education tool — using the{" "}
+            FinScroll turns your worst habit into your most powerful financial education tool, using the{" "}
             <strong className="text-zinc-200">same addictive scroll mechanics</strong> that trap you, to set you free.
           </p>
           <div className="hero-reveal hero-reveal-5">
@@ -140,13 +140,12 @@ export function LandingContent() {
           <span className="text-xs font-black uppercase tracking-widest text-rose-400">The Problem</span>
         </div>
         <h2 className="text-3xl sm:text-4xl font-black tracking-tighter text-zinc-50 mb-4">
-          TikTok is your financial advisor.<br />
-          <span className="text-rose-400">That&apos;s terrifying.</span>
+          Compound interest is undefeated.<br />
+          <span className="text-rose-400">Right now, it&apos;s working against you.</span>
         </h2>
         <p className="text-zinc-400 max-w-2xl leading-relaxed mx-auto">
-          Gen-Z gets financial advice from 22-year-olds in Lamborghinis promoting leverage, meme coins, and day trading schemes.
-          Meanwhile, 95% of day traders lose money (SEC data), and the time spent scrolling is opportunity cost compounding against you.
-          No existing app directly connects these two problems in a format younger users actually engage with.
+          You were never taught how money actually works. Inflation didn&apos;t wait. Wages didn&apos;t keep up.
+          Every year you delay, compound interest works against you, not for you.
         </p>
       </section>
 
@@ -187,7 +186,7 @@ export function LandingContent() {
           <h2 className="text-3xl font-black tracking-tighter text-zinc-50 mb-10 text-center">How it works</h2>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
             {[
-              { step: "1", title: "Scroll & Learn", desc: "Swipe through bite-sized finance cards in the FinTok feed. Same format as TikTok — but every fact is SEC-verified." },
+              { step: "1", title: "Scroll & Learn", desc: "Swipe through bite-sized finance cards in the FinTok feed. Same format as TikTok, but every fact is SEC-verified." },
               { step: "2", title: "Quiz to Unlock", desc: "Answer the knowledge check on each card. Correct answers build your streak and advance your level." },
               { step: "3", title: "See Your Real Cost", desc: "The Opportunity Calculator shows exactly how much compound wealth your scroll hours are costing you over 30 years." },
             ].map((item) => (

@@ -73,7 +73,7 @@ export function FinfluencerRoast() {
         {
           id: Date.now().toString(),
           claim: userClaim,
-          roast: `Couldn't roast this one right now — my brain is overheating 🔥 (${msg})`,
+          roast: `Couldn't roast this one right now, my brain is overheating 🔥 (${msg})`,
         },
         ...prev,
       ]);
@@ -272,7 +272,7 @@ export function FinfluencerRoast() {
       {/* Footer note */}
       <p className="text-center text-[10px] text-zinc-600 leading-relaxed pt-4">
         Every debunk is grounded in SEC publications or peer-reviewed academic research.<br />
-        We don&apos;t roast people — we roast the claims that hurt them.
+        We don&apos;t roast people. We roast the claims that hurt them.
       </p>
     </div>
   );

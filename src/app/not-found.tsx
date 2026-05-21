@@ -29,7 +29,7 @@ export default function NotFound() {
       </h2>
 
       <p className="relative mt-4 text-zinc-400 max-w-md text-sm sm:text-base leading-relaxed">
-        This page doesn&apos;t exist — but the time you just spent looking for it
+        This page doesn&apos;t exist, but the time you just spent looking for it
         cost you about <span className="text-rose-400 font-bold">$0.0003</span> in
         compound wealth. Let&apos;s get you back to learning.
       </p>
