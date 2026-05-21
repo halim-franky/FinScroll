@@ -5,26 +5,35 @@ import { getSupabase } from "@/lib/supabase";
 import { rateLimit } from "@/lib/rateLimit";
 
 // ── Schemas ──────────────────────────────────────────────────────────
-const OnboardingSchema = z.object({
-  struggle: z.enum(["saving", "debt", "investing", "all"]),
-  scroll_hours: z.number().int().min(1).max(24),
-  goal: z.enum(["first_1k", "first_investment", "pay_debt", "emergency_fund"]),
-  skipped: z.boolean(),
-});
+// .strict() rejects any unknown keys (e.g. attacker submitting `user_id`)
+// instead of silently stripping. Belt-and-suspenders defense — even though
+// the route also overwrites user_id from the Clerk session.
+const OnboardingSchema = z
+  .object({
+    struggle: z.enum(["saving", "debt", "investing", "all"]),
+    scroll_hours: z.number().int().min(1).max(24),
+    goal: z.enum(["first_1k", "first_investment", "pay_debt", "emergency_fund"]),
+    skipped: z.boolean(),
+  })
+  .strict();
 
-const ProgressSchema = z.object({
-  streak: z.number().int().min(0).max(10_000).optional(),
-  streak_date: z.string().nullable().optional(),
-  completed: z.record(z.string().max(100), z.boolean()).optional(),
-  liked: z.record(z.string().max(100), z.boolean()).optional(),
-  saved: z.record(z.string().max(100), z.boolean()).optional(),
-  weekly_log: z.array(z.number().int().min(0)).max(1000).optional(),
-});
+const ProgressSchema = z
+  .object({
+    streak: z.number().int().min(0).max(10_000).optional(),
+    streak_date: z.string().nullable().optional(),
+    completed: z.record(z.string().max(100), z.boolean()).optional(),
+    liked: z.record(z.string().max(100), z.boolean()).optional(),
+    saved: z.record(z.string().max(100), z.boolean()).optional(),
+    weekly_log: z.array(z.number().int().min(0)).max(1000).optional(),
+  })
+  .strict();
 
-const StateUpdateSchema = z.object({
-  onboarding: OnboardingSchema.optional(),
-  progress: ProgressSchema.optional(),
-});
+const StateUpdateSchema = z
+  .object({
+    onboarding: OnboardingSchema.optional(),
+    progress: ProgressSchema.optional(),
+  })
+  .strict();
 
 // ── GET — pull state ─────────────────────────────────────────────────
 export async function GET() {
@@ -102,7 +111,10 @@ export async function POST(req: Request) {
       const { error } = await supabase
         .from("user_onboarding")
         .upsert(
-          { user_id: userId, ...parsed.data.onboarding },
+          // user_id MUST come last so even a malformed payload cannot override
+          // the server-verified Clerk userId. Combined with .strict() above,
+          // this provides two independent guards against user-id spoofing.
+          { ...parsed.data.onboarding, user_id: userId },
           { onConflict: "user_id" }
         );
       if (error) throw error;
@@ -112,7 +124,7 @@ export async function POST(req: Request) {
       const { error } = await supabase
         .from("user_progress")
         .upsert(
-          { user_id: userId, ...parsed.data.progress },
+          { ...parsed.data.progress, user_id: userId },
           { onConflict: "user_id" }
         );
       if (error) throw error;
