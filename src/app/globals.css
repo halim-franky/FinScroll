@@ -10,6 +10,21 @@
   animation: fadeIn 0.4s ease-out;
 }
 
+@keyframes heroReveal {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.hero-reveal {
+  opacity: 0;
+  animation: heroReveal 0.7s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+.hero-reveal-1 { animation-delay: 0.05s; }
+.hero-reveal-2 { animation-delay: 0.15s; }
+.hero-reveal-3 { animation-delay: 0.25s; }
+.hero-reveal-4 { animation-delay: 0.35s; }
+.hero-reveal-5 { animation-delay: 0.45s; }
+
 .no-scrollbar::-webkit-scrollbar {
   display: none;
 }

@@ -783,6 +783,41 @@ export function FinTokFeed({ userId = "guest" }: FinTokFeedProps) {
             </div>
           );
         })}
+
+        {/* Skeleton placeholder while dynamic cards are generating */}
+        {loadingMore && generatedCards.length === 0 && (
+          <div
+            className="relative w-full snap-start shrink-0 flex flex-col bg-gradient-to-b from-fuchsia-950 via-zinc-900 to-zinc-950"
+            style={{ height: "100dvh" }}
+          >
+            <div className="absolute inset-0 bg-black/30" />
+            <div className="relative z-10 flex flex-col h-full pt-16 pb-20 px-4 gap-4">
+              <div className="flex items-center gap-2 mb-3">
+                <div className="h-6 w-28 rounded-full bg-fuchsia-500/15 border border-fuchsia-500/30 animate-pulse" />
+                <div className="h-3 w-20 rounded bg-zinc-800 animate-pulse" />
+              </div>
+              <div className="flex-1 flex flex-col justify-center gap-4">
+                <div className="text-center space-y-2">
+                  <div className="text-5xl text-center animate-pulse">✨</div>
+                  <div className="h-7 w-3/4 mx-auto rounded bg-zinc-800 animate-pulse" />
+                  <div className="h-4 w-1/2 mx-auto rounded bg-zinc-900 animate-pulse" />
+                </div>
+                <div className="p-4 bg-black/50 border border-zinc-700/60 rounded-2xl backdrop-blur-md space-y-2">
+                  <div className="h-3 w-full rounded bg-zinc-800 animate-pulse" />
+                  <div className="h-3 w-11/12 rounded bg-zinc-800 animate-pulse" />
+                  <div className="h-3 w-9/12 rounded bg-zinc-800 animate-pulse" />
+                </div>
+                <div className="h-12 w-full rounded-2xl bg-yellow-500/10 border border-yellow-500/20 animate-pulse" />
+              </div>
+              <div className="space-y-2">
+                <div className="h-10 w-full rounded-xl bg-zinc-900/80 border border-zinc-800 animate-pulse" />
+                <div className="text-center text-[11px] text-fuchsia-300/80 font-bold uppercase tracking-widest animate-pulse">
+                  AI is researching SEC sources...
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

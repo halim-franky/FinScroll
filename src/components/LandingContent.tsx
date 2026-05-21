@@ -94,18 +94,20 @@ export function LandingContent() {
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_50%_at_50%_-20%,rgba(16,185,129,0.12),transparent)]" />
         <div className="max-w-5xl mx-auto px-4 sm:px-6 pt-20 pb-24 text-center relative">
           <h1 className="text-5xl sm:text-7xl font-black tracking-tighter text-zinc-50 leading-none">
-            Stop<br />
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-rose-400 to-orange-500">Doomscrolling.</span>
-            <br />Start<br />
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-teal-400">Wealth-Building.</span>
+            <span className="block hero-reveal hero-reveal-1">Stop</span>
+            <span className="block hero-reveal hero-reveal-2 text-transparent bg-clip-text bg-gradient-to-r from-rose-400 to-orange-500">Doomscrolling.</span>
+            <span className="block hero-reveal hero-reveal-3">Start</span>
+            <span className="block hero-reveal hero-reveal-4 text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-teal-400">Wealth-Building.</span>
           </h1>
-          <p className="mt-6 text-base sm:text-lg text-zinc-400 max-w-2xl mx-auto leading-relaxed">
+          <p className="mt-6 text-base sm:text-lg text-zinc-400 max-w-2xl mx-auto leading-relaxed hero-reveal hero-reveal-5">
             The average Gen-Z spends <strong className="text-zinc-200">6.5 hours/day</strong> scrolling content that makes them poorer.
             FinScroll turns your worst habit into your most powerful financial education tool — using the{" "}
             <strong className="text-zinc-200">same addictive scroll mechanics</strong> that trap you, to set you free.
           </p>
-          <ScrollCostCounter />
-          <div className="mt-8 flex items-center justify-center">
+          <div className="hero-reveal hero-reveal-5">
+            <ScrollCostCounter />
+          </div>
+          <div className="mt-8 flex items-center justify-center hero-reveal hero-reveal-5">
             <Link
               href="/sign-up"
               className="flex items-center gap-2 px-8 py-4 bg-emerald-500 hover:bg-emerald-400 text-zinc-950 font-extrabold text-base rounded-2xl transition-all shadow-[0_0_30px_rgba(16,185,129,0.3)] hover:shadow-[0_0_40px_rgba(16,185,129,0.5)]"
