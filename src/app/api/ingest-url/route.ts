@@ -3,7 +3,7 @@ import { auth } from "@clerk/nextjs/server";
 import { z } from "zod";
 import { scrapeUrl } from "@/services/scraper";
 import { ingestDocuments } from "@/services/ingestion";
-import { rateLimit } from "@/lib/rateLimit";
+import { rateLimit, rateLimitResponse } from "@/lib/rateLimit";
 
 const ingestUrlSchema = z.object({
   url: z.string().url("Must be a valid URL"),
@@ -17,9 +17,9 @@ export async function POST(req: Request) {
   }
 
   // Rate limit: 5 URL ingestions per minute per user
-  const { allowed } = rateLimit(`ingest-url:${userId}`, 5, 60_000);
-  if (!allowed) {
-    return NextResponse.json({ error: "Rate limit exceeded." }, { status: 429 });
+  const result = rateLimit(`ingest-url:${userId}`, 5, 60_000);
+  if (!result.allowed) {
+    return rateLimitResponse(result);
   }
 
   try {

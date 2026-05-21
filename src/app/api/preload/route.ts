@@ -3,7 +3,7 @@ import { auth } from "@clerk/nextjs/server";
 import { scrapeUrl } from "@/services/scraper";
 import { ingestDocuments } from "@/services/ingestion";
 import { AcademicService } from "@/services/academic";
-import { rateLimit } from "@/lib/rateLimit";
+import { rateLimit, rateLimitResponse } from "@/lib/rateLimit";
 
 // Curated high-quality financial education resources from the SEC
 const SEED_URLS = [
@@ -20,12 +20,9 @@ export async function POST() {
   }
 
   // Rate limit: 2 full preloads per hour per user
-  const { allowed } = rateLimit(`preload:${userId}`, 2, 3_600_000);
-  if (!allowed) {
-    return NextResponse.json(
-      { error: "Preload rate limit exceeded. Please wait before running again." },
-      { status: 429 }
-    );
+  const result = rateLimit(`preload:${userId}`, 2, 3_600_000);
+  if (!result.allowed) {
+    return rateLimitResponse(result, "Preload rate limit exceeded. Please wait before running again.");
   }
 
   const results = [];

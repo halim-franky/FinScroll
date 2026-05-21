@@ -2,7 +2,9 @@ import { NextResponse } from "next/server";
 import { auth } from "@clerk/nextjs/server";
 import { z } from "zod";
 import { generateCardBatch } from "@/services/cardGenerator";
-import { rateLimit, getClientIp } from "@/lib/rateLimit";
+import {
+  rateLimit, globalRateLimit, getClientIp, rateLimitResponse,
+} from "@/lib/rateLimit";
 
 const RequestSchema = z
   .object({
@@ -20,17 +22,20 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  // Rate limit: 10 batch requests per minute per IP (card generation is expensive)
+  // ── Global quota: card generation is the most expensive endpoint
+  // (Pinecone search × N seeds + Gemini call per seed). Hard ceiling of
+  // 60 generations per minute protects free-tier quota even if 100 users
+  // simultaneously hit the endpoint from different IPs.
+  const global = globalRateLimit("llm_cards", 60, 60_000);
+  if (!global.allowed) {
+    return rateLimitResponse(global, "Card generation is at capacity. Try again shortly.");
+  }
+
+  // ── Per-IP limit: 10 batches per minute per caller
   const ip = getClientIp(req);
-  const { allowed, resetIn } = rateLimit(`cards:${ip}`, 10, 60_000);
-  if (!allowed) {
-    return NextResponse.json(
-      { error: "Too many card generation requests. Please wait." },
-      {
-        status: 429,
-        headers: { "Retry-After": String(Math.ceil(resetIn / 1000)) },
-      }
-    );
+  const perIp = rateLimit(`cards:${ip}`, 10, 60_000);
+  if (!perIp.allowed) {
+    return rateLimitResponse(perIp, "Too many card generation requests. Please wait.");
   }
 
   let body: unknown;

@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { semanticSearch } from "@/services/search";
-import { rateLimit, getClientIp } from "@/lib/rateLimit";
+import { rateLimit, getClientIp, rateLimitResponse } from "@/lib/rateLimit";
 
 const searchSchema = z.object({
   query: z.string().min(1, "Query cannot be empty").max(500, "Query is too long"),
@@ -11,12 +11,9 @@ const searchSchema = z.object({
 export async function POST(req: Request) {
   // Rate limiting: 30 requests per minute per IP
   const ip = getClientIp(req);
-  const { allowed } = rateLimit(`search:${ip}`, 30, 60_000);
-  if (!allowed) {
-    return NextResponse.json(
-      { error: "Too many requests. Please wait before trying again." },
-      { status: 429 }
-    );
+  const result = rateLimit(`search:${ip}`, 30, 60_000);
+  if (!result.allowed) {
+    return rateLimitResponse(result);
   }
 
   let body: unknown;

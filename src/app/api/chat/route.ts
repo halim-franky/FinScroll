@@ -1,7 +1,9 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { generateChatResponse } from "@/services/chat";
-import { rateLimit, getClientIp } from "@/lib/rateLimit";
+import {
+  rateLimit, globalRateLimit, getClientIp, rateLimitResponse,
+} from "@/lib/rateLimit";
 
 const chatSchema = z.object({
   message: z
@@ -11,21 +13,21 @@ const chatSchema = z.object({
 });
 
 export async function POST(req: Request) {
-  const ip = getClientIp(req);
-  const { allowed, remaining, resetIn } = rateLimit(`chat:${ip}`, 20, 60_000);
-
-  if (!allowed) {
-    return NextResponse.json(
-      { error: "Too many requests. Please wait before trying again." },
-      {
-        status: 429,
-        headers: {
-          "Retry-After": String(Math.ceil(resetIn / 1000)),
-          "X-RateLimit-Remaining": "0",
-        },
-      }
-    );
+  // ── Global quota: protects Gemini API spend across ALL callers
+  // 300 chat completions per minute is a sensible ceiling for the
+  // demo / free-tier; raise once you have a paid LLM plan.
+  const global = globalRateLimit("llm_chat", 300, 60_000);
+  if (!global.allowed) {
+    return rateLimitResponse(global, "Chat is at capacity right now. Try again in a moment.");
   }
+
+  // ── Per-IP limit
+  const ip = getClientIp(req);
+  const perIp = rateLimit(`chat:${ip}`, 20, 60_000);
+  if (!perIp.allowed) {
+    return rateLimitResponse(perIp);
+  }
+  const { remaining } = perIp;
 
   let body: unknown;
   try {

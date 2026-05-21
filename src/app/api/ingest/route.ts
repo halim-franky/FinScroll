@@ -3,7 +3,7 @@ import { auth } from "@clerk/nextjs/server";
 import { z } from "zod";
 import { sanitizeStringArray } from "@/lib/security";
 import { ingestDocuments } from "@/services/ingestion";
-import { rateLimit, getClientIp } from "@/lib/rateLimit";
+import { rateLimit, rateLimitResponse } from "@/lib/rateLimit";
 
 const IngestRequestSchema = z.object({
   texts: z.array(z.string()).min(1, "At least one text string is required."),
@@ -18,9 +18,9 @@ export async function POST(request: Request) {
   }
 
   // Rate limit: 5 ingestion requests per minute per user
-  const { allowed } = rateLimit(`ingest:${userId}`, 5, 60_000);
-  if (!allowed) {
-    return NextResponse.json({ error: "Rate limit exceeded." }, { status: 429 });
+  const result = rateLimit(`ingest:${userId}`, 5, 60_000);
+  if (!result.allowed) {
+    return rateLimitResponse(result);
   }
 
   try {

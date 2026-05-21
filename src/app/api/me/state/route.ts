@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { auth } from "@clerk/nextjs/server";
 import { z } from "zod";
 import { getSupabase } from "@/lib/supabase";
-import { rateLimit } from "@/lib/rateLimit";
+import { rateLimit, rateLimitResponse } from "@/lib/rateLimit";
 
 // ── Schemas ──────────────────────────────────────────────────────────
 // .strict() rejects any unknown keys (e.g. attacker submitting `user_id`)
@@ -80,9 +80,9 @@ export async function POST(req: Request) {
   }
 
   // Per-user rate limit: 30 writes per minute (reasonable for debounced sync)
-  const { allowed } = rateLimit(`state:${userId}`, 30, 60_000);
-  if (!allowed) {
-    return NextResponse.json({ error: "Rate limit exceeded." }, { status: 429 });
+  const result = rateLimit(`state:${userId}`, 30, 60_000);
+  if (!result.allowed) {
+    return rateLimitResponse(result);
   }
 
   let body: unknown;
