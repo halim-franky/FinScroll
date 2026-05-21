@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { auth } from "@clerk/nextjs/server";
+import * as Sentry from "@sentry/nextjs";
 import { z } from "zod";
 import { scrapeUrl } from "@/services/scraper";
 import { ingestDocuments } from "@/services/ingestion";
@@ -44,6 +45,10 @@ export async function POST(req: Request) {
       );
     }
     const message = error instanceof Error ? error.message : "Failed to process URL";
+    Sentry.captureException(error, {
+      tags: { route: "api/ingest-url" },
+      user: { id: userId },
+    });
     return NextResponse.json({ error: message }, { status: 500 });
   }
 }

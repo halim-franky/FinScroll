@@ -9,6 +9,7 @@
  * already renders, so they slot in alongside the curated cards.
  */
 import { z } from "zod";
+import * as Sentry from "@sentry/nextjs";
 import { semanticSearch } from "./search";
 import { config } from "../lib/config";
 import type { ConceptSeed, Level } from "../lib/conceptSeeds";
@@ -145,6 +146,11 @@ Rules:
     return card;
   } catch (err) {
     console.error(`Card generation failed for seed "${seed.id}":`, err);
+    // Capture so we know which seeds keep failing (e.g. Gemini schema
+    // mismatches, Pinecone outages, etc.)
+    Sentry.captureException(err, {
+      tags: { service: "cardGenerator", seedId: seed.id, level: seed.level },
+    });
     return null;
   }
 }

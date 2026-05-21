@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { auth } from "@clerk/nextjs/server";
+import * as Sentry from "@sentry/nextjs";
 import { z } from "zod";
 import { getSupabase } from "@/lib/supabase";
 import { rateLimit, rateLimitResponse } from "@/lib/rateLimit";
@@ -65,6 +66,10 @@ export async function GET() {
     });
   } catch (err) {
     console.error("Supabase pull failed:", err);
+    Sentry.captureException(err, {
+      tags: { route: "api/me/state", op: "pull" },
+      user: { id: userId },
+    });
     return NextResponse.json(
       { error: "Failed to load user state." },
       { status: 500 }
@@ -133,6 +138,10 @@ export async function POST(req: Request) {
     return NextResponse.json({ ok: true, configured: true });
   } catch (err) {
     console.error("Supabase push failed:", err);
+    Sentry.captureException(err, {
+      tags: { route: "api/me/state", op: "push" },
+      user: { id: userId },
+    });
     return NextResponse.json(
       { error: "Failed to save user state." },
       { status: 500 }

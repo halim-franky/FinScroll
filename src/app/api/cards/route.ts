@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { auth } from "@clerk/nextjs/server";
+import * as Sentry from "@sentry/nextjs";
 import { z } from "zod";
 import { generateCardBatch } from "@/services/cardGenerator";
 import {
@@ -59,6 +60,10 @@ export async function POST(req: Request) {
     return NextResponse.json({ success: true, cards, count: cards.length });
   } catch (err) {
     console.error("Card batch generation failed:", err);
+    Sentry.captureException(err, {
+      tags: { route: "api/cards" },
+      user: { id: userId },
+    });
     return NextResponse.json(
       { error: "Failed to generate cards. Please try again." },
       { status: 500 }

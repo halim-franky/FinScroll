@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import * as Sentry from "@sentry/nextjs";
 import { z } from "zod";
 import { semanticSearch } from "@/services/search";
 import { rateLimit, getClientIp, rateLimitResponse } from "@/lib/rateLimit";
@@ -35,6 +36,7 @@ export async function POST(req: Request) {
       );
     }
     console.error("Search API Error:", error);
+    Sentry.captureException(error, { tags: { route: "api/search" } });
     return NextResponse.json({ error: "Failed to perform search." }, { status: 500 });
   }
 }

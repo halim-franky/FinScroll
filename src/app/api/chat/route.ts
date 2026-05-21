@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import * as Sentry from "@sentry/nextjs";
 import { z } from "zod";
 import { generateChatResponse } from "@/services/chat";
 import {
@@ -55,8 +56,10 @@ export async function POST(req: Request) {
         { status: 400 }
       );
     }
-    // Never expose internal error details to the client
+    // Never expose internal error details to the client.
+    // Capture the full error to Sentry (if configured) for triage.
     console.error("Chat API Error:", error);
+    Sentry.captureException(error, { tags: { route: "api/chat" } });
     return NextResponse.json(
       { error: "Failed to generate a response. Please try again." },
       { status: 500 }

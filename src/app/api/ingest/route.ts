@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { auth } from "@clerk/nextjs/server";
+import * as Sentry from "@sentry/nextjs";
 import { z } from "zod";
 import { sanitizeStringArray } from "@/lib/security";
 import { ingestDocuments } from "@/services/ingestion";
@@ -61,6 +62,10 @@ export async function POST(request: Request) {
     });
   } catch (error) {
     console.error("API /api/ingest Error:", error);
+    Sentry.captureException(error, {
+      tags: { route: "api/ingest" },
+      user: { id: userId },
+    });
     return NextResponse.json({ error: "Internal server error." }, { status: 500 });
   }
 }
