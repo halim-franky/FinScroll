@@ -97,7 +97,7 @@ export function StoryCard({
 
       {/* Top: progress bar + level badge */}
       <div className="absolute top-0 left-0 right-0 z-30 px-4 pt-safe pt-3 pb-2 bg-gradient-to-b from-black/60 to-transparent">
-        <div className="flex items-center gap-1 mb-2">
+        <div className="flex items-center gap-1">
           {FRAME_NAMES.map((_, i) => (
             <div
               key={i}
@@ -111,25 +111,11 @@ export function StoryCard({
             />
           ))}
         </div>
-        <div className="flex items-center gap-1.5">
-          <span className="text-[9px] font-black text-zinc-300 uppercase tracking-widest">
-            {FRAME_NAMES[frame]}
-          </span>
-          <span className="text-[9px] text-zinc-500">·</span>
-          <span className="text-[9px] text-zinc-500 uppercase tracking-wide">
-            {card.level}
-          </span>
-          {audioEnabled && (
-            <span className="ml-auto flex items-center gap-1 text-[9px] text-emerald-400 font-bold">
-              <Volume2 className="w-2.5 h-2.5" /> Reading
-            </span>
-          )}
-        </div>
       </div>
 
       {/* Frame content */}
       <div
-        className="relative z-10 h-full pt-14 pb-20"
+        className="relative z-10 h-full pt-12 pb-20"
         onTouchStart={handleTouchStart}
         onTouchEnd={handleTouchEnd}
       >
@@ -174,9 +160,23 @@ export function StoryCard({
         >
           <ChevronLeft className="w-4 h-4" />
         </button>
-        <span className="text-[10px] text-zinc-400 font-mono font-bold">
-          {frame + 1} / 5
-        </span>
+        <div className="flex items-center gap-1.5">
+          <span className="text-[9px] font-black text-zinc-300 uppercase tracking-widest">
+            {FRAME_NAMES[frame]}
+          </span>
+          <span className="text-[9px] text-zinc-500">·</span>
+          <span className="text-[10px] text-zinc-400 font-mono font-bold">
+            {frame + 1}/5
+          </span>
+          {audioEnabled && (
+            <>
+              <span className="text-[9px] text-zinc-500">·</span>
+              <span className="flex items-center gap-0.5 text-[9px] text-emerald-400 font-bold">
+                <Volume2 className="w-2.5 h-2.5" /> Reading
+              </span>
+            </>
+          )}
+        </div>
         <button
           onClick={next}
           disabled={frame === 4}
