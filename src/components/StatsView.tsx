@@ -8,7 +8,11 @@ import {
 import {
   CURRENT_CHALLENGE, countThisWeek, formatTimeUntilReset,
 } from "@/lib/weeklyChallenge";
+import { KnowledgeTree } from "./learn/KnowledgeTree";
+import { MyNotes } from "./learn/MyNotes";
 
+// Learn v3 storage key — falls back to v2 if v3 isn't populated yet
+const STORAGE_KEY_V3 = (uid: string) => `finscroll_v3_${uid}`;
 const STORAGE_KEY = (uid: string) => `finscroll_v2_${uid}`;
 const HOURLY_VALUE = 3; // matches SessionNudge math
 
@@ -29,10 +33,13 @@ export function StatsView({ userId }: Props) {
   const [shareStatus, setShareStatus] = useState<"idle" | "shared" | "copied" | "error">("idle");
   const [origin, setOrigin] = useState("");
 
-  // Load all persisted state on mount
+  // Load all persisted state on mount. Prefer v3 (Learn v2 schema)
+  // if it exists, fall back to v2 for older users.
   useEffect(() => {
     try {
-      const raw = localStorage.getItem(STORAGE_KEY(userId));
+      const rawV3 = localStorage.getItem(STORAGE_KEY_V3(userId));
+      const rawV2 = localStorage.getItem(STORAGE_KEY(userId));
+      const raw = rawV3 ?? rawV2;
       if (raw) setFeedState(JSON.parse(raw));
       const s = localStorage.getItem("fs_streak");
       if (s) setStreak(parseInt(s, 10));
@@ -271,6 +278,16 @@ ${completedCount} concepts mastered. Building wealth instead of doomscrolling.`;
           The more people who break the doomscroll loop, the better.
         </p>
       </div>
+
+      {/* ── Knowledge Tree ─────────────────────────────────── */}
+      <KnowledgeTree
+        completedIds={Object.entries(feedState.completed ?? {})
+          .filter(([, v]) => v)
+          .map(([k]) => k)}
+      />
+
+      {/* ── My Notes ───────────────────────────────────────── */}
+      <MyNotes userId={userId} />
 
     </div>
   );
