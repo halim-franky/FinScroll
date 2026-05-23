@@ -65,7 +65,7 @@ export function KnowledgeTree({ completedIds }: Props) {
                   <span className="text-xl">{LEVEL_EMOJI[level]}</span>
                   <div>
                     <div className="text-sm font-extrabold text-zinc-100">{level}</div>
-                    <div className="text-[10px] text-zinc-500">
+                    <div className="text-[10px] text-zinc-300">
                       {mastered} of {cards.length} mastered
                     </div>
                   </div>
@@ -90,7 +90,7 @@ export function KnowledgeTree({ completedIds }: Props) {
                       className={`flex items-center gap-1 px-2 py-0.5 rounded-full text-[9px] border ${
                         done
                           ? "bg-emerald-500/10 border-emerald-500/30 text-emerald-300"
-                          : "bg-zinc-950 border-zinc-800 text-zinc-600"
+                          : "bg-zinc-950 border-zinc-800 text-zinc-300"
                       }`}
                     >
                       {done ? (
@@ -127,11 +127,11 @@ export function KnowledgeTree({ completedIds }: Props) {
                 }`}
               >
                 <div className="text-2xl shrink-0">
-                  {unlocked ? s.emoji : <Lock className="w-5 h-5 text-zinc-600" />}
+                  {unlocked ? s.emoji : <Lock className="w-5 h-5 text-zinc-400" />}
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="text-xs font-extrabold text-zinc-100 truncate">{s.title}</div>
-                  <div className="text-[10px] text-zinc-500 mb-1 truncate">
+                  <div className="text-[10px] text-zinc-300 mb-1 truncate">
                     {s.description}
                   </div>
                   {unlocked ? (
@@ -147,7 +147,7 @@ export function KnowledgeTree({ completedIds }: Props) {
                       </span>
                     </div>
                   ) : (
-                    <div className="text-[9px] text-zinc-600">
+                    <div className="text-[9px] text-zinc-400">
                       {s.prerequisite.minCompletedCount && (
                         <>Master {s.prerequisite.minCompletedCount}+ cards to unlock</>
                       )}

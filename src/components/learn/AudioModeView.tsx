@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { Play, Pause, SkipForward, SkipBack } from "lucide-react";
+import { Play, Pause, SkipForward, SkipBack, Headphones } from "lucide-react";
 import type { Card } from "@/lib/learn/types";
 import { speak, stopSpeech } from "@/lib/learn/audio";
 
@@ -10,17 +10,16 @@ interface Props {
 }
 
 /**
- * Audio Mode plays the entire feed as a continuous podcast. Each card
- * is narrated end-to-end (title + key fact + impact). Auto-advances to
- * the next card when current one finishes.
- *
- * For commute / multitasking scenarios where reading on a phone doesn't fit.
+ * Audio Mode plays the entire feed as a continuous podcast. The screen
+ * has three regions: a compact now-playing header, a scrollable track
+ * list, and fixed playback controls. Tapping a track jumps to it.
  */
 export function AudioModeView({ cards }: Props) {
   const [index, setIndex] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
   const indexRef = useRef(index);
   indexRef.current = index;
+  const listRef = useRef<HTMLDivElement | null>(null);
 
   const card = cards[index];
 
@@ -69,30 +68,111 @@ export function AudioModeView({ cards }: Props) {
     if (isPlaying) playCurrent(prev);
   };
 
+  const handleSelect = (i: number) => {
+    stopSpeech();
+    setIndex(i);
+    if (isPlaying) playCurrent(i);
+  };
+
   useEffect(() => {
     return () => stopSpeech();
   }, []);
 
+  // Scroll the active track into view whenever it changes
+  useEffect(() => {
+    const el = listRef.current?.querySelector<HTMLElement>(`[data-track-index="${index}"]`);
+    el?.scrollIntoView({ behavior: "smooth", block: "nearest" });
+  }, [index]);
+
   return (
     <div className="h-full bg-zinc-950 flex flex-col">
-      <div className={`flex-1 relative overflow-hidden`}>
+      {/* Now Playing — compact header */}
+      <div className="relative shrink-0 overflow-hidden">
         <div className={`absolute inset-0 bg-gradient-to-b ${card.gradient}`} />
-        <div className="absolute inset-0 bg-black/50" />
-
-        <div className="relative z-10 h-full flex flex-col items-center justify-center px-6 text-center">
-          <div className="text-7xl mb-6">{card.emoji}</div>
-          <span className="text-[10px] font-black uppercase tracking-widest text-emerald-400 mb-2">
-            Track {index + 1} of {cards.length} · {card.level}
-          </span>
-          <h2 className="text-2xl font-black text-white tracking-tight mb-2">
-            {card.title}
-          </h2>
-          <p className="text-sm text-zinc-300 italic max-w-sm">&ldquo;{card.hook}&rdquo;</p>
+        <div className="absolute inset-0 bg-black/55" />
+        <div className="relative z-10 px-5 pt-14 pb-4 flex items-center gap-4">
+          <div className="text-4xl shrink-0">{card.emoji}</div>
+          <div className="min-w-0 flex-1">
+            <div className="flex items-center gap-1.5 mb-1">
+              <Headphones className="w-3 h-3 text-emerald-400" />
+              <span className="text-[9px] font-black uppercase tracking-widest text-emerald-400">
+                Now Playing · {index + 1}/{cards.length}
+              </span>
+            </div>
+            <h2 className="text-base font-black text-white tracking-tight leading-tight truncate">
+              {card.title}
+            </h2>
+            <p className="text-[11px] text-zinc-300 italic line-clamp-1 mt-0.5">
+              &ldquo;{card.hook}&rdquo;
+            </p>
+          </div>
         </div>
       </div>
 
-      {/* Playback controls */}
-      <div className="px-6 py-6 border-t border-zinc-900 bg-zinc-950">
+      {/* Track list — scrollable */}
+      <div
+        ref={listRef}
+        className="flex-1 overflow-y-auto px-4 py-3 space-y-1.5"
+      >
+        <p className="text-[10px] font-black uppercase tracking-widest text-zinc-300 px-1 pb-1">
+          Playlist · {cards.length} tracks
+        </p>
+        {cards.map((c, i) => {
+          const active = i === index;
+          return (
+            <button
+              key={c.id}
+              data-track-index={i}
+              onClick={() => handleSelect(i)}
+              className={`w-full flex items-center gap-3 p-3 rounded-2xl border text-left transition-colors ${
+                active
+                  ? "bg-emerald-500/10 border-emerald-500/40"
+                  : "bg-zinc-900 border-zinc-800 hover:border-zinc-700"
+              }`}
+            >
+              <div className="text-2xl shrink-0">{c.emoji}</div>
+              <div className="min-w-0 flex-1">
+                <div className="flex items-center gap-1.5 mb-0.5">
+                  <span
+                    className={`text-[9px] font-black uppercase tracking-widest tabular-nums ${
+                      active ? "text-emerald-400" : "text-zinc-400"
+                    }`}
+                  >
+                    {String(i + 1).padStart(2, "0")}
+                  </span>
+                  <span className="text-[9px] text-zinc-400">·</span>
+                  <span className="text-[9px] font-bold uppercase tracking-wider text-zinc-300">
+                    {c.level}
+                  </span>
+                </div>
+                <p
+                  className={`text-sm font-bold tracking-tight leading-snug truncate ${
+                    active ? "text-white" : "text-zinc-200"
+                  }`}
+                >
+                  {c.title}
+                </p>
+                <p className="text-[11px] text-zinc-400 italic line-clamp-1 mt-0.5">
+                  {c.hook}
+                </p>
+              </div>
+              {active && isPlaying && (
+                <div className="shrink-0 flex items-end gap-0.5 h-4">
+                  <span className="w-0.5 bg-emerald-400 rounded-full animate-pulse h-2" />
+                  <span className="w-0.5 bg-emerald-400 rounded-full animate-pulse h-3.5 [animation-delay:120ms]" />
+                  <span className="w-0.5 bg-emerald-400 rounded-full animate-pulse h-2.5 [animation-delay:240ms]" />
+                </div>
+              )}
+              {active && !isPlaying && (
+                <Play className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+              )}
+            </button>
+          );
+        })}
+      </div>
+
+      {/* Playback controls — fixed */}
+      <div className="shrink-0 px-6 py-4 border-t border-zinc-900 bg-zinc-950">
         <div className="flex items-center justify-center gap-4">
           <button
             onClick={handlePrev}
@@ -118,9 +198,6 @@ export function AudioModeView({ cards }: Props) {
             <SkipForward className="w-5 h-5" />
           </button>
         </div>
-        <p className="text-center text-[10px] text-zinc-600 mt-4 font-bold uppercase tracking-widest">
-          Audio Mode · Continuous Playback
-        </p>
       </div>
     </div>
   );

@@ -62,7 +62,7 @@ export function ChatInterface() {
   };
 
   return (
-    <div className="w-full mt-10 bg-zinc-900/50 border border-zinc-800 rounded-3xl overflow-hidden shadow-2xl flex flex-col h-[600px]">
+    <div className="w-full h-full bg-zinc-900/50 border border-zinc-800 rounded-3xl overflow-hidden shadow-2xl flex flex-col">
       
       {/* Chat Header */}
       <div className="p-5 border-b border-zinc-800 bg-zinc-900/80 backdrop-blur-md flex items-center gap-3">
@@ -71,7 +71,7 @@ export function ChatInterface() {
         </div>
         <div>
           <h3 className="font-bold text-zinc-100">FinScroll FinLit Mentor</h3>
-          <p className="text-xs text-zinc-400 font-medium tracking-wide">SEC & SPRINGER GROUNDED AI</p>
+          <p className="text-xs text-zinc-300 font-medium tracking-wide">SEC & SPRINGER GROUNDED AI</p>
         </div>
       </div>
 
@@ -134,7 +134,7 @@ export function ChatInterface() {
             value={input}
             onChange={(e) => setInput(e.target.value)}
             placeholder="How does compounding interest help me build wealth?"
-            className="w-full bg-zinc-950 border border-zinc-800 rounded-full py-4 pl-6 pr-14 text-zinc-100 placeholder-zinc-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500 transition-all text-[15px]"
+            className="w-full bg-zinc-950 border border-zinc-800 rounded-full py-4 pl-6 pr-14 text-zinc-100 placeholder-zinc-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500 transition-all text-[15px]"
             disabled={isTyping}
           />
           <button

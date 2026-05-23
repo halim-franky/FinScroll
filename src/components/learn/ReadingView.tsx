@@ -16,12 +16,12 @@ interface Props {
 export function ReadingView({ cards, onSelectCard }: Props) {
   return (
     <div className="h-full overflow-y-auto bg-zinc-950">
-      <article className="max-w-2xl mx-auto px-4 py-6 space-y-8">
+      <article className="max-w-2xl mx-auto px-4 pt-16 pb-6 space-y-8">
         <header className="pb-4 border-b border-zinc-800">
           <h1 className="text-2xl font-black text-zinc-50 tracking-tight">
             FinTok Library
           </h1>
-          <p className="text-xs text-zinc-500 mt-1.5">
+          <p className="text-xs text-zinc-400 mt-1.5">
             {cards.length} concepts · grounded in SEC and peer-reviewed research
           </p>
         </header>
@@ -33,11 +33,11 @@ export function ReadingView({ cards, onSelectCard }: Props) {
               <span className="text-[10px] font-black uppercase tracking-widest text-emerald-400">
                 {card.level}
               </span>
-              <span className="text-[10px] text-zinc-500">·</span>
-              <span className="text-[10px] text-zinc-500 uppercase tracking-widest font-bold">
+              <span className="text-[10px] text-zinc-400">·</span>
+              <span className="text-[10px] text-zinc-300 uppercase tracking-widest font-bold">
                 {card.topic}
               </span>
-              <span className="ml-auto text-[10px] text-zinc-600 font-mono">{i + 1}/{cards.length}</span>
+              <span className="ml-auto text-[10px] text-zinc-400 font-mono">{i + 1}/{cards.length}</span>
             </div>
 
             <h2 className="text-lg font-extrabold text-zinc-100 tracking-tight">
@@ -59,11 +59,16 @@ export function ReadingView({ cards, onSelectCard }: Props) {
               </span>
             </div>
 
-            <div className="flex items-center gap-1.5 text-[10px] text-sky-400 font-bold">
+            <a
+              href={card.source.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1.5 text-[11px] text-sky-400 hover:text-sky-300 font-bold transition-colors"
+            >
               <BookOpen className="w-3 h-3" />
-              <span>{card.source.name}</span>
+              <span className="underline-offset-2 hover:underline">{card.source.name}</span>
               <ExternalLink className="w-2.5 h-2.5" />
-            </div>
+            </a>
 
             {onSelectCard && (
               <button

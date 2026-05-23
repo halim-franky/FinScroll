@@ -7,7 +7,7 @@ export default async function FeedPage() {
   const uid = user?.id ?? "guest";
 
   return (
-    <div className="h-[100dvh] overflow-hidden">
+    <div className="h-full overflow-hidden">
       <OnboardingGate userId={uid}>
         <FinTokFeed userId={uid} />
       </OnboardingGate>

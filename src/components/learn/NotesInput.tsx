@@ -103,7 +103,7 @@ export function NotesInput({ userId, cardId, onSaved }: Props) {
           <Sparkles className="w-3 h-3" /> Your note
         </span>
         {savedAt && !isSaved && (
-          <span className="text-[9px] text-zinc-500">
+          <span className="text-[9px] text-zinc-300">
             Saved {new Date(savedAt).toLocaleDateString()}
           </span>
         )}
@@ -136,7 +136,7 @@ export function NotesInput({ userId, cardId, onSaved }: Props) {
           onChange={(e) => setText(e.target.value.slice(0, 5000))}
           placeholder="Write what you learned, what you'll do, or what confused you..."
           rows={3}
-          className="w-full bg-zinc-900 border border-zinc-700 rounded-2xl py-3 px-3 pr-10 text-zinc-100 text-sm placeholder:text-zinc-600 focus:outline-none focus:ring-2 focus:ring-emerald-500/40 focus:border-emerald-500/60 resize-none"
+          className="w-full bg-zinc-900 border border-zinc-700 rounded-2xl py-3 px-3 pr-10 text-zinc-100 text-sm placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/40 focus:border-emerald-500/60 resize-none"
         />
         {speechAvailable && (
           <button
@@ -145,7 +145,7 @@ export function NotesInput({ userId, cardId, onSaved }: Props) {
             className={`absolute bottom-3 right-3 p-1.5 rounded-full transition-colors ${
               isRecording
                 ? "bg-rose-500/15 border border-rose-500/40 text-rose-400 animate-pulse"
-                : "bg-zinc-800 border border-zinc-700 text-zinc-500 hover:text-zinc-300"
+                : "bg-zinc-800 border border-zinc-700 text-zinc-300 hover:text-white"
             }`}
           >
             {isRecording ? <MicOff className="w-3.5 h-3.5" /> : <Mic className="w-3.5 h-3.5" />}
@@ -176,8 +176,8 @@ export function NotesInput({ userId, cardId, onSaved }: Props) {
         )}
       </button>
 
-      <p className="text-[9px] text-zinc-600 text-center leading-relaxed">
-        Your notes live in <span className="text-zinc-400 font-bold">Stats → My Notes</span>.<br />
+      <p className="text-[9px] text-zinc-400 text-center leading-relaxed">
+        Your notes live in <span className="text-zinc-200 font-bold">Stats → My Notes</span>.<br />
         AI will summarize them weekly.
       </p>
     </div>

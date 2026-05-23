@@ -72,13 +72,13 @@ export function MyNotes({ userId }: Props) {
 
       {notes.length > 0 && (
         <div className="relative">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-zinc-600" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-zinc-400" />
           <input
             type="search"
             placeholder="Search your notes..."
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            className="w-full bg-zinc-900 border border-zinc-800 rounded-2xl pl-9 pr-3 py-2 text-xs text-zinc-100 placeholder:text-zinc-600 focus:outline-none focus:ring-1 focus:ring-emerald-500/40 focus:border-emerald-500/40"
+            className="w-full bg-zinc-900 border border-zinc-800 rounded-2xl pl-9 pr-3 py-2 text-xs text-zinc-100 placeholder:text-zinc-400 focus:outline-none focus:ring-1 focus:ring-emerald-500/40 focus:border-emerald-500/40"
           />
         </div>
       )}
@@ -86,7 +86,7 @@ export function MyNotes({ userId }: Props) {
       {notes.length === 0 ? (
         <div className="p-6 rounded-2xl bg-zinc-900 border border-zinc-800 text-center space-y-2">
           <FileText className="w-8 h-8 text-zinc-700 mx-auto" />
-          <p className="text-xs text-zinc-500 leading-relaxed">
+          <p className="text-xs text-zinc-300 leading-relaxed">
             No notes yet. Open any card and tap <span className="text-emerald-400 font-bold">📝</span>{" "}
             to write your first one.
           </p>
@@ -106,7 +106,7 @@ export function MyNotes({ userId }: Props) {
                     <div className="text-xs font-bold text-zinc-100 truncate">
                       {card?.title ?? `Card #${n.cardId}`}
                     </div>
-                    <div className="text-[9px] text-zinc-500">
+                    <div className="text-[9px] text-zinc-300">
                       {new Date(n.updatedAt).toLocaleDateString()}{" "}
                       {n.voiceTranscribed && (
                         <span className="text-emerald-400">· 🎤 voice</span>
@@ -116,7 +116,7 @@ export function MyNotes({ userId }: Props) {
                   <button
                     onClick={() => handleDelete(n.cardId)}
                     aria-label="Delete note"
-                    className="p-1.5 rounded-lg text-zinc-600 hover:text-rose-400 transition-colors"
+                    className="p-1.5 rounded-lg text-zinc-400 hover:text-rose-400 transition-colors"
                   >
                     <Trash2 className="w-3.5 h-3.5" />
                   </button>

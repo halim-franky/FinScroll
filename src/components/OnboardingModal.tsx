@@ -1,12 +1,14 @@
 "use client";
 
 import { useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   ChevronRight, ChevronLeft, Sparkles,
   PiggyBank, CreditCard, TrendingUp, Layers,
   Target, Briefcase, Shield, Hammer,
 } from "lucide-react";
 import { pushStateDebounced } from "@/lib/cloudSync";
+import { slideX, SPRING_TIGHT, SPRING_BOUNCY } from "@/lib/motion";
 
 // ── Type definitions ─────────────────────────────────────────────
 export type Struggle = "saving" | "debt" | "investing" | "all";
@@ -124,14 +126,24 @@ export function OnboardingModal({ userId, onComplete }: Props) {
         </div>
         <button
           onClick={handleSkip}
-          className="text-xs text-zinc-500 hover:text-zinc-300 transition-colors font-medium"
+          className="text-xs text-zinc-300 hover:text-white transition-colors font-medium"
         >
           Skip
         </button>
       </div>
 
       {/* Step content */}
-      <div className="flex-1 flex flex-col px-5 py-4 overflow-y-auto">
+      <div className="flex-1 flex flex-col px-5 py-4 overflow-y-auto relative">
+        <AnimatePresence mode="wait" custom={1}>
+        <motion.div
+          key={step}
+          custom={1}
+          variants={slideX}
+          initial="enter"
+          animate="center"
+          exit="exit"
+          className="w-full"
+        >
         {step === 0 && (
           <StepShell
             badge="Question 1 of 3"
@@ -142,8 +154,10 @@ export function OnboardingModal({ userId, onComplete }: Props) {
               {STRUGGLE_OPTIONS.map(({ id, icon: Icon, label, desc }) => {
                 const selected = struggle === id;
                 return (
-                  <button
+                  <motion.button
                     key={id}
+                    whileTap={{ scale: 0.97 }}
+                    transition={SPRING_TIGHT}
                     onClick={() => setStruggle(id)}
                     className={`w-full flex items-center gap-4 p-4 rounded-2xl border transition-all text-left ${
                       selected
@@ -164,12 +178,12 @@ export function OnboardingModal({ userId, onComplete }: Props) {
                       <div className={`font-bold text-sm ${selected ? "text-white" : "text-zinc-200"}`}>
                         {label}
                       </div>
-                      <div className="text-xs text-zinc-500 mt-0.5">{desc}</div>
+                      <div className="text-xs text-zinc-300 mt-0.5">{desc}</div>
                     </div>
                     {selected && (
                       <Sparkles className="w-4 h-4 text-emerald-400 shrink-0" />
                     )}
-                  </button>
+                  </motion.button>
                 );
               })}
             </div>
@@ -186,8 +200,10 @@ export function OnboardingModal({ userId, onComplete }: Props) {
               {HOUR_OPTIONS.map(({ hrs, label, desc }) => {
                 const selected = scrollHours === hrs;
                 return (
-                  <button
+                  <motion.button
                     key={hrs}
+                    whileTap={{ scale: 0.96 }}
+                    transition={SPRING_TIGHT}
                     onClick={() => setScrollHours(hrs)}
                     className={`p-4 rounded-2xl border transition-all text-center ${
                       selected
@@ -198,8 +214,8 @@ export function OnboardingModal({ userId, onComplete }: Props) {
                     <div className={`text-2xl font-black tracking-tight mb-1 ${selected ? "text-emerald-400" : "text-zinc-200"}`}>
                       {label}
                     </div>
-                    <div className="text-[11px] text-zinc-500 font-medium">{desc}</div>
-                  </button>
+                    <div className="text-[11px] text-zinc-300 font-medium">{desc}</div>
+                  </motion.button>
                 );
               })}
             </div>
@@ -228,8 +244,10 @@ export function OnboardingModal({ userId, onComplete }: Props) {
               {GOAL_OPTIONS.map(({ id, icon: Icon, label, desc }) => {
                 const selected = goal === id;
                 return (
-                  <button
+                  <motion.button
                     key={id}
+                    whileTap={{ scale: 0.97 }}
+                    transition={SPRING_TIGHT}
                     onClick={() => setGoal(id)}
                     className={`w-full flex items-center gap-4 p-4 rounded-2xl border transition-all text-left ${
                       selected
@@ -250,30 +268,41 @@ export function OnboardingModal({ userId, onComplete }: Props) {
                       <div className={`font-bold text-sm ${selected ? "text-white" : "text-zinc-200"}`}>
                         {label}
                       </div>
-                      <div className="text-xs text-zinc-500 mt-0.5">{desc}</div>
+                      <div className="text-xs text-zinc-300 mt-0.5">{desc}</div>
                     </div>
                     {selected && <Sparkles className="w-4 h-4 text-emerald-400 shrink-0" />}
-                  </button>
+                  </motion.button>
                 );
               })}
             </div>
           </StepShell>
         )}
+        </motion.div>
+        </AnimatePresence>
       </div>
 
       {/* Bottom action bar */}
       <div className="px-5 py-5 border-t border-zinc-900 bg-zinc-950">
         <div className="flex items-center gap-3">
           {step > 0 && (
-            <button
+            <motion.button
+              whileTap={{ scale: 0.95 }}
+              transition={SPRING_TIGHT}
               onClick={() => setStep((s) => s - 1)}
               className="flex items-center justify-center gap-1 px-4 h-12 rounded-2xl bg-zinc-900 border border-zinc-800 text-zinc-400 hover:text-zinc-200 transition-colors text-sm font-bold"
             >
               <ChevronLeft className="w-4 h-4" />
               Back
-            </button>
+            </motion.button>
           )}
-          <button
+          <motion.button
+            whileTap={canAdvance ? { scale: 0.97 } : undefined}
+            animate={canAdvance ? { scale: [1, 1.03, 1] } : { scale: 1 }}
+            transition={
+              canAdvance
+                ? { duration: 0.45, ease: [0.34, 1.56, 0.64, 1] }
+                : SPRING_TIGHT
+            }
             onClick={() => {
               if (!canAdvance) return;
               if (step < totalSteps - 1) setStep((s) => s + 1);
@@ -288,7 +317,7 @@ export function OnboardingModal({ userId, onComplete }: Props) {
           >
             {step < totalSteps - 1 ? "Continue" : "Start Learning"}
             <ChevronRight className="w-4 h-4" />
-          </button>
+          </motion.button>
         </div>
       </div>
     </div>

@@ -77,6 +77,63 @@ export async function GET() {
   }
 }
 
+// ── DELETE — wipe state ──────────────────────────────────────────────
+// Used by Settings → Reset Onboarding / Clear All Data so that the next
+// CloudSync.pullState() doesn't restore the rows we just cleared locally.
+//
+// Query string controls scope:
+//   ?scope=onboarding  → onboarding row only
+//   ?scope=all         → onboarding + progress rows (full wipe)
+export async function DELETE(req: Request) {
+  const { userId } = await auth();
+  if (!userId) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  const result = rateLimit(`state-delete:${userId}`, 5, 60_000);
+  if (!result.allowed) {
+    return rateLimitResponse(result);
+  }
+
+  const scope = new URL(req.url).searchParams.get("scope");
+  if (scope !== "onboarding" && scope !== "all") {
+    return NextResponse.json({ error: "Invalid scope" }, { status: 400 });
+  }
+
+  const supabase = getSupabase();
+  if (!supabase) {
+    return NextResponse.json({ ok: true, configured: false });
+  }
+
+  try {
+    const { error: obError } = await supabase
+      .from("user_onboarding")
+      .delete()
+      .eq("user_id", userId);
+    if (obError) throw obError;
+
+    if (scope === "all") {
+      const { error: progError } = await supabase
+        .from("user_progress")
+        .delete()
+        .eq("user_id", userId);
+      if (progError) throw progError;
+    }
+
+    return NextResponse.json({ ok: true, configured: true });
+  } catch (err) {
+    console.error("Supabase delete failed:", err);
+    Sentry.captureException(err, {
+      tags: { route: "api/me/state", op: "delete", scope },
+      user: { id: userId },
+    });
+    return NextResponse.json(
+      { error: "Failed to clear user state." },
+      { status: 500 }
+    );
+  }
+}
+
 // ── POST — push state ────────────────────────────────────────────────
 export async function POST(req: Request) {
   const { userId } = await auth();

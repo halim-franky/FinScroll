@@ -94,7 +94,7 @@ export function InstallPrompt() {
           <button
             onClick={handleDismiss}
             aria-label="Dismiss"
-            className="p-1.5 rounded-lg text-zinc-500 hover:text-zinc-300 transition-colors"
+            className="p-1.5 rounded-lg text-zinc-300 hover:text-white transition-colors"
           >
             <X className="w-4 h-4" />
           </button>

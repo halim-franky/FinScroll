@@ -33,8 +33,6 @@ export function StatsView({ userId }: Props) {
   const [shareStatus, setShareStatus] = useState<"idle" | "shared" | "copied" | "error">("idle");
   const [origin, setOrigin] = useState("");
 
-  // Load all persisted state on mount. Prefer v3 (Learn v2 schema)
-  // if it exists, fall back to v2 for older users.
   useEffect(() => {
     try {
       const rawV3 = localStorage.getItem(STORAGE_KEY_V3(userId));
@@ -47,7 +45,6 @@ export function StatsView({ userId }: Props) {
     } catch {}
   }, [userId]);
 
-  // Reset share status after a moment
   useEffect(() => {
     if (shareStatus === "idle") return;
     const id = setTimeout(() => setShareStatus("idle"), 2500);
@@ -68,7 +65,6 @@ export function StatsView({ userId }: Props) {
   const challengeProgress = Math.min(thisWeekCount / CURRENT_CHALLENGE.goal, 1);
   const challengeMet = thisWeekCount >= CURRENT_CHALLENGE.goal;
 
-  // Estimate: each correct quiz = ~3 minutes of focused learning → $3/hr × time
   const estimatedMinutes = completedCount * 3 + streak * 5;
   const estimatedSaved = (estimatedMinutes / 60) * HOURLY_VALUE;
 
@@ -92,7 +88,6 @@ ${completedCount} concepts mastered. Building wealth instead of doomscrolling.`;
         setShareStatus("copied");
       }
     } catch (err) {
-      // User cancelled share — not an error
       const cancelled = err instanceof Error && err.name === "AbortError";
       if (!cancelled) setShareStatus("error");
     }
@@ -172,7 +167,7 @@ ${completedCount} concepts mastered. Building wealth instead of doomscrolling.`;
               </h3>
             </div>
           </div>
-          <span className="text-[10px] text-zinc-500 shrink-0">
+          <span className="text-[10px] text-zinc-300 shrink-0">
             Resets in {formatTimeUntilReset()}
           </span>
         </div>
@@ -199,7 +194,7 @@ ${completedCount} concepts mastered. Building wealth instead of doomscrolling.`;
           </div>
         </div>
 
-        <div className="flex items-center gap-1.5 text-[10px] text-zinc-500">
+        <div className="flex items-center gap-1.5 text-[10px] text-zinc-300">
           <Sparkles className="w-3 h-3 text-emerald-400" />
           Reward: <span className="text-emerald-300 font-bold">{CURRENT_CHALLENGE.rewardLabel}</span>
         </div>
@@ -268,11 +263,11 @@ ${completedCount} concepts mastered. Building wealth instead of doomscrolling.`;
 
         {shareStatus === "error" && (
           <p className="text-[11px] text-rose-400 text-center">
-            Couldn&apos;t share — try copying instead.
+            Couldn&apos;t share, try copying instead.
           </p>
         )}
 
-        <p className="text-center text-[10px] text-zinc-600 leading-relaxed pt-1">
+        <p className="text-center text-[10px] text-zinc-400 leading-relaxed pt-1">
           <BarChart3 className="inline w-3 h-3 mr-1" />
           Share to TikTok, Instagram, or your group chat.<br />
           The more people who break the doomscroll loop, the better.
@@ -314,7 +309,7 @@ function StatCard({ icon: Icon, color, value, label }: StatCardProps) {
       </div>
       <div>
         <div className="text-lg font-black text-zinc-100 tracking-tight">{value}</div>
-        <div className="text-[9px] text-zinc-500 leading-tight">{label}</div>
+        <div className="text-[9px] text-zinc-300 leading-tight">{label}</div>
       </div>
     </div>
   );

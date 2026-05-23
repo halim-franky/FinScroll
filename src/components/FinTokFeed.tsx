@@ -8,7 +8,6 @@ import { MINI_SERIES, isUnlocked, progressFor } from "@/lib/learn/miniSeries";
 import { dueCardIds, recordFailure, recordPass } from "@/lib/learn/spacedRepetition";
 import { StoryCard } from "./learn/StoryCard";
 import { ReadingView } from "./learn/ReadingView";
-import { VisualizeView } from "./learn/VisualizeView";
 import { AudioModeView } from "./learn/AudioModeView";
 import { ModeToggle, type LearnMode } from "./learn/ModeToggle";
 import { AudioToggle, readAudioEnabled, writeAudioEnabled } from "./learn/AudioToggle";
@@ -35,8 +34,11 @@ interface PersistedProgress {
   weeklyLog?: number[];
 }
 
+const STORY_FRAME_COUNT = 5;
+
 export function FinTokFeed({ userId = "guest" }: FinTokFeedProps) {
   const [active, setActive] = useState(0);
+  const [activeFrame, setActiveFrame] = useState(0);
   const [mode, setMode] = useState<LearnMode>("story");
   const [audioEnabled, setAudioEnabled] = useState(false);
   const [completed, setCompleted] = useState<Record<string, boolean>>({});
@@ -55,9 +57,9 @@ export function FinTokFeed({ userId = "guest" }: FinTokFeedProps) {
     } catch {}
     setAudioEnabled(readAudioEnabled());
     try {
-      const m = localStorage.getItem(MODE_STORAGE_KEY) as LearnMode | null;
-      if (m && ["story", "read", "visualize", "audio"].includes(m)) {
-        setMode(m);
+      const m = localStorage.getItem(MODE_STORAGE_KEY);
+      if (m && ["story", "read", "audio"].includes(m)) {
+        setMode(m as LearnMode);
       }
     } catch {}
   }, [userId]);
@@ -116,7 +118,9 @@ export function FinTokFeed({ userId = "guest" }: FinTokFeedProps) {
   }, [active, cardOrder.length]);
 
   // ── Quiz answer handler ──────────────────────────────────────────
-  const handleAnswer = (cardId: string | number, idx: number) => {
+  // useCallback so React.memo on StoryCard doesn't see a fresh function
+  // identity each render and re-render unnecessarily.
+  const handleAnswer = useCallback((cardId: string | number, idx: number) => {
     const card = cardOrder.find((c) => String(c.id) === String(cardId));
     if (!card) return;
     const key = String(cardId);
@@ -165,7 +169,7 @@ export function FinTokFeed({ userId = "guest" }: FinTokFeedProps) {
       recordFailure(userId, cardId);
       persist({ quizAnswers: { ...quizAnswers, [key]: idx } });
     }
-  };
+  }, [cardOrder, completed, persist, quizAnswers, userId]);
 
   // ── Jump to a related card ───────────────────────────────────────
   const jumpToCard = useCallback(
@@ -216,26 +220,48 @@ export function FinTokFeed({ userId = "guest" }: FinTokFeedProps) {
 
   return (
     <div className="h-full w-full relative bg-zinc-950">
-      {/* Top HUD: brand + mode toggle + audio toggle */}
-      <div className="absolute top-0 left-0 right-0 z-30 flex items-center justify-between px-3 pt-safe pt-3 pb-2 bg-gradient-to-b from-black/70 to-transparent">
-        <div className="flex items-center gap-2 pointer-events-auto">
-          <span className="text-white font-black text-sm tracking-tight">FinScroll</span>
-          {dueCount > 0 && (
-            <span className="px-1.5 py-0.5 rounded-full bg-amber-500/15 border border-amber-500/30 text-amber-300 text-[8px] font-black uppercase tracking-widest">
-              {dueCount} review
-            </span>
-          )}
-        </div>
-        <div className="flex items-center gap-1.5 pointer-events-auto">
-          <ModeToggle current={mode} onChange={handleModeChange} />
-          <AudioToggle enabled={audioEnabled} onToggle={handleAudioToggle} />
-          <div className="flex items-center gap-1 px-2 py-1 bg-black/40 backdrop-blur-sm rounded-full border border-zinc-700/50">
-            <Sparkles className="w-3 h-3 text-emerald-400" />
-            <span className="text-[10px] font-bold text-emerald-400">
-              {completedCount}/{CARDS.length}
-            </span>
+      {/* Top HUD: brand + mode toggle + audio toggle. Lives outside the
+          scrollable feed so it stays sticky during snap transitions.
+          Solid zinc-950 background prevents the previous card's bottom
+          controls from bleeding through during mid-snap scroll states. */}
+      <div className="absolute top-0 left-0 right-0 z-40 px-3 pt-safe pt-3 pb-2 bg-zinc-950 border-b border-zinc-900">
+        <div className="flex items-center justify-between gap-2">
+          <div className="flex items-center gap-2 pointer-events-auto">
+            <span className="text-white font-black text-sm tracking-tight">FinScroll</span>
+            {dueCount > 0 && (
+              <span className="px-1.5 py-0.5 rounded-full bg-amber-500/15 border border-amber-500/30 text-amber-300 text-[8px] font-black uppercase tracking-widest">
+                {dueCount} review
+              </span>
+            )}
+          </div>
+          <div className="flex items-center gap-1.5 pointer-events-auto">
+            <ModeToggle current={mode} onChange={handleModeChange} />
+            <AudioToggle enabled={audioEnabled} onToggle={handleAudioToggle} />
+            <div className="flex items-center gap-1 px-2 py-1 bg-black/40 backdrop-blur-sm rounded-full border border-zinc-700/50">
+              <Sparkles className="w-3 h-3 text-emerald-400" />
+              <span className="text-[10px] font-bold text-emerald-400">
+                {completedCount}/{CARDS.length}
+              </span>
+            </div>
           </div>
         </div>
+        {/* Per-card frame progress (only meaningful in story mode) */}
+        {mode === "story" && (
+          <div className="flex items-center gap-1 mt-2">
+            {Array.from({ length: STORY_FRAME_COUNT }).map((_, i) => (
+              <div
+                key={i}
+                className={`h-0.5 flex-1 rounded-full transition-colors duration-500 ${
+                  i < activeFrame
+                    ? "bg-emerald-400"
+                    : i === activeFrame
+                    ? "bg-white"
+                    : "bg-white/15"
+                }`}
+              />
+            ))}
+          </div>
+        )}
       </div>
 
       {/* Mode-switched body */}
@@ -245,24 +271,41 @@ export function FinTokFeed({ userId = "guest" }: FinTokFeedProps) {
           onScroll={handleScroll}
           className="h-full overflow-y-scroll snap-y snap-mandatory no-scrollbar"
         >
-          {cardOrder.map((card, idx) => (
-            <StoryCard
-              key={card.id}
-              card={card}
-              userId={userId}
-              isActive={active === idx}
-              audioEnabled={audioEnabled}
-              quizAnswer={quizAnswers[String(card.id)] ?? null}
-              onAnswer={handleAnswer}
-              onJumpToCard={jumpToCard}
-            />
-          ))}
+          {cardOrder.map((card, idx) => {
+            // Virtualization: only fully render the active card plus its
+            // immediate neighbors. The rest stay as size-preserving placeholders
+            // so snap positions stay correct, but skip the iframe/Lottie/etc.
+            // payload. Drops 9 of 12 cards' work per scroll frame.
+            const distance = Math.abs(idx - active);
+            const visible = distance <= 1;
+            if (!visible) {
+              return (
+                <div
+                  key={card.id}
+                  className="relative w-full h-full snap-start shrink-0 bg-zinc-950"
+                  aria-hidden="true"
+                />
+              );
+            }
+            return (
+              <StoryCard
+                key={card.id}
+                card={card}
+                userId={userId}
+                isActive={active === idx}
+                audioEnabled={audioEnabled}
+                quizAnswer={quizAnswers[String(card.id)] ?? null}
+                onAnswer={handleAnswer}
+                onJumpToCard={jumpToCard}
+                onFrameChange={setActiveFrame}
+              />
+            );
+          })}
 
           {/* Mini-series banner at end of feed */}
           {unlockedSeries.length > 0 && (
             <div
-              className="relative w-full snap-start shrink-0 flex flex-col items-center justify-center px-6 bg-gradient-to-b from-violet-900 via-zinc-900 to-zinc-950"
-              style={{ height: "100dvh" }}
+              className="relative w-full h-full snap-start shrink-0 flex flex-col items-center justify-center px-6 bg-gradient-to-b from-violet-900 via-zinc-900 to-zinc-950"
             >
               <div className="relative z-10 max-w-sm space-y-5">
                 <div className="text-center space-y-2">
@@ -315,19 +358,18 @@ export function FinTokFeed({ userId = "guest" }: FinTokFeedProps) {
           {/* Locked-series teaser */}
           {unlockedSeries.length < MINI_SERIES.length && (
             <div
-              className="relative w-full snap-start shrink-0 flex flex-col items-center justify-center px-6 bg-zinc-950"
-              style={{ height: "100dvh" }}
+              className="relative w-full h-full snap-start shrink-0 flex flex-col items-center justify-center px-6 bg-zinc-950"
             >
               <div className="relative z-10 max-w-sm space-y-4 text-center">
-                <Lock className="w-10 h-10 text-zinc-600 mx-auto" />
-                <h3 className="text-lg font-extrabold text-zinc-300">
+                <Lock className="w-10 h-10 text-zinc-400 mx-auto" />
+                <h3 className="text-lg font-extrabold text-white">
                   More mini-series unlock as you learn
                 </h3>
-                <p className="text-xs text-zinc-500 leading-relaxed">
+                <p className="text-xs text-zinc-300 leading-relaxed">
                   Master more concepts to unlock curated paths like Debt Killer, First
                   Investment Playbook, and Tax-Advantaged Stack.
                 </p>
-                <div className="text-[10px] text-zinc-600 font-bold">
+                <div className="text-[10px] text-zinc-400 font-bold">
                   {completedCount} of {CARDS.length} concepts mastered
                 </div>
               </div>
@@ -337,7 +379,6 @@ export function FinTokFeed({ userId = "guest" }: FinTokFeedProps) {
       )}
 
       {mode === "read" && <ReadingView cards={cardOrder} onSelectCard={jumpToCard} />}
-      {mode === "visualize" && <VisualizeView cards={cardOrder} />}
       {mode === "audio" && <AudioModeView cards={cardOrder} />}
     </div>
   );

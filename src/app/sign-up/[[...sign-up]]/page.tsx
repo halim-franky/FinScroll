@@ -1,6 +1,6 @@
 import { SignUp } from "@clerk/nextjs";
 import Link from "next/link";
-import { Sparkles, Flame, Calculator } from "lucide-react";
+import { Sparkles, MessageCircle, BarChart3 } from "lucide-react";
 
 const clerkAppearance = {
   variables: {
@@ -39,9 +39,9 @@ const clerkAppearance = {
 };
 
 const perks = [
-  { icon: Flame, text: "Roast finfluencer myths with AI" },
   { icon: Sparkles, text: "Learn finance through TikTok-style cards" },
-  { icon: Calculator, text: "See your real scroll opportunity cost" },
+  { icon: MessageCircle, text: "Ask the AI coach grounded in SEC research" },
+  { icon: BarChart3, text: "Track your streak and concepts mastered" },
 ];
 
 export default function SignUpPage() {

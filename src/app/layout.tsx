@@ -1,8 +1,61 @@
 import type { Metadata, Viewport } from "next";
 import { ClerkProvider } from "@clerk/nextjs";
+import { dark } from "@clerk/themes";
 import { PWARegister } from "@/components/PWARegister";
 import { InstallPrompt } from "@/components/InstallPrompt";
 import "./globals.css";
+
+/**
+ * Global Clerk appearance. Applies to inline `<UserProfile />` and
+ * Clerk-opened modals (`openUserProfile`, `openSignIn`, etc.) so the
+ * Account screen and Modal share the same dark theme.
+ */
+const clerkAppearance = {
+  baseTheme: dark,
+  variables: {
+    colorPrimary: "#10b981",
+    colorBackground: "#0a0a0a",
+    colorText: "#ffffff",
+    colorTextSecondary: "#e4e4e7",
+    colorInputBackground: "#27272a",
+    colorInputText: "#ffffff",
+    colorNeutral: "#e4e4e7",
+    colorDanger: "#f43f5e",
+    colorSuccess: "#10b981",
+    borderRadius: "0.75rem",
+    fontFamily: "inherit",
+    fontSize: "14px",
+  },
+  elements: {
+    rootBox: "w-full",
+    card: "bg-zinc-900 border border-zinc-800 !shadow-2xl",
+    modalContent: "!bg-zinc-900 !border-zinc-800",
+    modalBackdrop: "!bg-zinc-950/80 backdrop-blur-sm",
+    headerTitle: "!text-white !font-extrabold",
+    headerSubtitle: "!text-zinc-300",
+    navbar: "!bg-zinc-900 !border-zinc-800",
+    navbarButton: "!text-zinc-300 hover:!text-white",
+    navbarButton__active: "!bg-zinc-800 !text-white",
+    pageScrollBox: "!bg-zinc-900",
+    profileSection: "!border-zinc-800",
+    profileSectionTitleText: "!text-white !font-bold",
+    profileSectionContent: "!text-zinc-100",
+    profileSectionItem: "!text-zinc-100",
+    profileSectionPrimaryButton: "!text-emerald-400 hover:!text-emerald-300",
+    accordionTriggerButton: "!text-zinc-100",
+    badge: "!bg-emerald-500/15 !text-emerald-300",
+    formFieldLabel: "!text-zinc-100 !font-semibold",
+    formFieldInput:
+      "!bg-zinc-800 !border !border-zinc-700 !text-white !placeholder-zinc-400 !rounded-xl",
+    formButtonPrimary:
+      "!bg-emerald-500 hover:!bg-emerald-400 !text-zinc-950 !font-bold !rounded-xl",
+    formButtonReset: "!text-zinc-300",
+    userPreviewMainIdentifier: "!text-white",
+    userPreviewSecondaryIdentifier: "!text-zinc-300",
+    formFieldDisplay: "!text-white",
+    footer: "!bg-transparent",
+  },
+};
 
 const SITE_NAME = "FinScroll";
 const SITE_TITLE = "FinScroll — Turn Doomscrolling Into Wealth";
@@ -22,7 +75,6 @@ export const metadata: Metadata = {
     "TikTok finance",
     "compound interest",
     "SEC investor education",
-    "finfluencer myths",
     "passive investing",
   ],
   authors: [{ name: "FinScroll Team" }],
@@ -78,7 +130,7 @@ export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <ClerkProvider>
+    <ClerkProvider appearance={clerkAppearance}>
       <html lang="en" className="dark">
         <body className="bg-zinc-950 text-zinc-50 antialiased" suppressHydrationWarning>
           <PWARegister />

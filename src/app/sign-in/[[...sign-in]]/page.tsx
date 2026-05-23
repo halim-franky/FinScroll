@@ -77,7 +77,7 @@ export default function SignInPage() {
         ].map(({ icon: Icon, label }) => (
           <div key={label} className="flex flex-col items-center gap-1">
             <Icon className="w-4 h-4 text-emerald-400" />
-            <span className="text-[10px] text-zinc-500 font-medium">{label}</span>
+            <span className="text-[10px] text-zinc-300 font-medium">{label}</span>
           </div>
         ))}
       </div>

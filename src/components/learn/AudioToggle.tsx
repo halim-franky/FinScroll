@@ -34,7 +34,7 @@ export function AudioToggle({ enabled, onToggle, className = "" }: Props) {
       className={`p-1.5 rounded-lg bg-black/40 backdrop-blur-sm border transition-colors ${
         enabled
           ? "border-emerald-500/40 text-emerald-400"
-          : "border-zinc-700 text-zinc-500 hover:text-zinc-300"
+          : "border-zinc-700 text-zinc-300 hover:text-white"
       } ${className}`}
     >
       {enabled ? <Volume2 className="w-3.5 h-3.5" /> : <VolumeX className="w-3.5 h-3.5" />}

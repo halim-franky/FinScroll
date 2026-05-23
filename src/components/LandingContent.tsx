@@ -2,10 +2,14 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import { motion } from "framer-motion";
 import {
-  TrendingUp, Flame, Calculator, MessageCircle,
+  TrendingUp, MessageCircle, BarChart3, BookOpen,
   Shield, Zap, ChevronRight, AlertTriangle,
 } from "lucide-react";
+import { stagger, staggerFast, fadeUp, pop, SPRING_BOUNCY } from "@/lib/motion";
+
+const viewportOnce = { once: true, amount: 0.25 };
 
 function ScrollCostCounter() {
   const [seconds, setSeconds] = useState(0);
@@ -27,7 +31,7 @@ function ScrollCostCounter() {
         Live on this page: {String(mins).padStart(2, "0")}:{String(secs).padStart(2, "0")}
       </div>
       <div className="text-2xl font-black text-rose-400 tabular-nums">${cost}</div>
-      <div className="text-[10px] text-zinc-500 text-center leading-relaxed">
+      <div className="text-[10px] text-zinc-300 text-center leading-relaxed">
         in compound wealth opportunity cost<br />at 8% annual return
       </div>
     </div>
@@ -40,16 +44,16 @@ const features = [
     description: "TikTok-style vertical scroll cards. Every fact is grounded in SEC publications and peer-reviewed research. Same format, zero speculation.",
   },
   {
-    icon: Flame, color: "rose", title: "Finfluencer Roast",
-    description: 'Paste any viral "get rich quick" claim. Our AI obliterates it with actual data, then explains the science behind why it\'s dangerous.',
-  },
-  {
-    icon: Calculator, color: "sky", title: "Wealth Calculator",
-    description: "Drag the slider to your daily scroll hours. Watch your 30-year compound loss materialize in real-time. The number will shock you.",
+    icon: BookOpen, color: "sky", title: "FinTok Library",
+    description: "Every concept reframed as a long-form, source-linked article. Read mode for when you want the deep dive without the swipes.",
   },
   {
     icon: MessageCircle, color: "violet", title: "AI Finance Coach",
     description: "Powered by Google Gemini Flash. Every answer is grounded in Pinecone vector search over SEC and Springer Nature data. No hallucinations.",
+  },
+  {
+    icon: BarChart3, color: "rose", title: "Streak & Stats",
+    description: "Track your learning streak, weekly challenges, and concepts mastered. Share your progress and stay accountable.",
   },
 ];
 
@@ -108,55 +112,81 @@ export function LandingContent() {
             <ScrollCostCounter />
           </div>
           <div className="mt-8 flex items-center justify-center hero-reveal hero-reveal-5">
-            <Link
-              href="/sign-up"
-              className="flex items-center gap-2 px-8 py-4 bg-emerald-500 hover:bg-emerald-400 text-zinc-950 font-extrabold text-base rounded-2xl transition-all shadow-[0_0_30px_rgba(16,185,129,0.3)] hover:shadow-[0_0_40px_rgba(16,185,129,0.5)]"
+            <motion.div
+              whileHover={{ scale: 1.04 }}
+              whileTap={{ scale: 0.97 }}
+              transition={SPRING_BOUNCY}
             >
-              Start Learning Free
-              <ChevronRight className="w-5 h-5" />
-            </Link>
+              <Link
+                href="/sign-up"
+                className="flex items-center gap-2 px-8 py-4 bg-emerald-500 hover:bg-emerald-400 text-zinc-950 font-extrabold text-base rounded-2xl transition-all shadow-[0_0_30px_rgba(16,185,129,0.3)] hover:shadow-[0_0_40px_rgba(16,185,129,0.5)]"
+              >
+                Start Learning Free
+                <ChevronRight className="w-5 h-5" />
+              </Link>
+            </motion.div>
           </div>
         </div>
       </section>
 
       {/* Stats */}
       <section className="border-y border-zinc-800/50 bg-zinc-900/30">
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 py-10 grid grid-cols-1 sm:grid-cols-3 gap-6">
+        <motion.div
+          className="max-w-5xl mx-auto px-4 sm:px-6 py-10 grid grid-cols-1 sm:grid-cols-3 gap-6"
+          variants={staggerFast}
+          initial="hidden"
+          whileInView="show"
+          viewport={viewportOnce}
+        >
           {stats.map((s) => (
-            <div key={s.label} className="text-center space-y-1">
+            <motion.div key={s.label} variants={pop} className="text-center space-y-1">
               <div className={`text-4xl font-black tracking-tighter ${s.color === "rose" ? "text-rose-400" : s.color === "orange" ? "text-orange-400" : "text-red-400"}`}>
                 {s.value}
               </div>
-              <div className="text-xs text-zinc-500">{s.label}</div>
-            </div>
+              <div className="text-xs text-zinc-300">{s.label}</div>
+            </motion.div>
           ))}
-        </div>
+        </motion.div>
       </section>
 
       {/* The Problem */}
-      <section className="max-w-5xl mx-auto px-4 sm:px-6 py-20 text-center">
-        <div className="flex items-center justify-center gap-3 mb-3">
+      <motion.section
+        className="max-w-5xl mx-auto px-4 sm:px-6 py-20 text-center"
+        variants={stagger}
+        initial="hidden"
+        whileInView="show"
+        viewport={viewportOnce}
+      >
+        <motion.div variants={fadeUp} className="flex items-center justify-center gap-3 mb-3">
           <AlertTriangle className="w-5 h-5 text-rose-400" />
           <span className="text-xs font-black uppercase tracking-widest text-rose-400">The Problem</span>
-        </div>
-        <h2 className="text-3xl sm:text-4xl font-black tracking-tighter text-zinc-50 mb-4">
+        </motion.div>
+        <motion.h2 variants={fadeUp} className="text-3xl sm:text-4xl font-black tracking-tighter text-zinc-50 mb-4">
           Compound interest is undefeated.<br />
           <span className="text-rose-400">Right now, it&apos;s working against you.</span>
-        </h2>
-        <p className="text-zinc-400 max-w-2xl leading-relaxed mx-auto">
+        </motion.h2>
+        <motion.p variants={fadeUp} className="text-zinc-400 max-w-2xl leading-relaxed mx-auto">
           You were never taught how money actually works. Inflation didn&apos;t wait. Wages didn&apos;t keep up.
           Every year you delay, compound interest works against you, not for you.
-        </p>
-      </section>
+        </motion.p>
+      </motion.section>
 
       {/* Features */}
-      <section className="max-w-5xl mx-auto px-4 sm:px-6 pb-20 text-center">
-        <div className="flex items-center justify-center gap-3 mb-3">
+      <motion.section
+        className="max-w-5xl mx-auto px-4 sm:px-6 pb-20 text-center"
+        variants={stagger}
+        initial="hidden"
+        whileInView="show"
+        viewport={viewportOnce}
+      >
+        <motion.div variants={fadeUp} className="flex items-center justify-center gap-3 mb-3">
           <Zap className="w-5 h-5 text-emerald-400" />
           <span className="text-xs font-black uppercase tracking-widest text-emerald-400">The Solution</span>
-        </div>
-        <h2 className="text-3xl sm:text-4xl font-black tracking-tighter text-zinc-50 mb-10">Four tools. One mission.</h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+        </motion.div>
+        <motion.h2 variants={fadeUp} className="text-3xl sm:text-4xl font-black tracking-tighter text-zinc-50 mb-10">
+          Four tools. One mission.
+        </motion.h2>
+        <motion.div variants={staggerFast} className="grid grid-cols-1 sm:grid-cols-2 gap-5">
           {features.map((f) => {
             const Icon = f.icon;
             const colors: Record<string, string> = {
@@ -166,7 +196,13 @@ export function LandingContent() {
               violet: "bg-violet-500/10 border-violet-500/20 text-violet-400",
             };
             return (
-              <div key={f.title} className="p-6 bg-zinc-900 border border-zinc-800 rounded-2xl hover:border-zinc-700 transition-colors text-left space-y-3">
+              <motion.div
+                key={f.title}
+                variants={pop}
+                whileHover={{ y: -4, scale: 1.01 }}
+                transition={SPRING_BOUNCY}
+                className="p-6 bg-zinc-900 border border-zinc-800 rounded-2xl hover:border-zinc-700 transition-colors text-left space-y-3"
+              >
                 <div className="flex items-center gap-3">
                   <div className={`w-9 h-9 rounded-xl border flex items-center justify-center shrink-0 ${colors[f.color]}`}>
                     <Icon className="w-4 h-4" />
@@ -174,72 +210,124 @@ export function LandingContent() {
                   <h3 className="font-extrabold text-zinc-100 text-base">{f.title}</h3>
                 </div>
                 <p className="text-sm text-zinc-400 leading-relaxed">{f.description}</p>
-              </div>
+              </motion.div>
             );
           })}
-        </div>
-      </section>
+        </motion.div>
+      </motion.section>
 
       {/* How it works */}
       <section className="border-t border-zinc-800/50 bg-zinc-900/20">
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 py-20">
-          <h2 className="text-3xl font-black tracking-tighter text-zinc-50 mb-10 text-center">How it works</h2>
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+        <motion.div
+          className="max-w-5xl mx-auto px-4 sm:px-6 py-20"
+          variants={stagger}
+          initial="hidden"
+          whileInView="show"
+          viewport={viewportOnce}
+        >
+          <motion.h2
+            variants={fadeUp}
+            className="text-3xl font-black tracking-tighter text-zinc-50 mb-10 text-center"
+          >
+            How it works
+          </motion.h2>
+          <motion.div variants={staggerFast} className="grid grid-cols-1 sm:grid-cols-3 gap-6">
             {[
               { step: "1", title: "Scroll & Learn", desc: "Swipe through bite-sized finance cards in the FinTok feed. Same format as TikTok, but every fact is SEC-verified." },
               { step: "2", title: "Quiz to Unlock", desc: "Answer the knowledge check on each card. Correct answers build your streak and advance your level." },
-              { step: "3", title: "See Your Real Cost", desc: "The Opportunity Calculator shows exactly how much compound wealth your scroll hours are costing you over 30 years." },
+              { step: "3", title: "Build Your Streak", desc: "Stats and weekly challenges turn one-off learning into a daily habit. Share your progress and stay accountable." },
             ].map((item) => (
-              <div key={item.step} className="flex gap-4">
-                <div className="w-8 h-8 shrink-0 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 font-black text-sm flex items-center justify-center">
+              <motion.div key={item.step} variants={fadeUp} className="flex gap-4">
+                <motion.div
+                  whileHover={{ scale: 1.15, rotate: 8 }}
+                  transition={SPRING_BOUNCY}
+                  className="w-8 h-8 shrink-0 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 font-black text-sm flex items-center justify-center"
+                >
                   {item.step}
-                </div>
+                </motion.div>
                 <div>
                   <h3 className="font-bold text-zinc-200 mb-1">{item.title}</h3>
-                  <p className="text-sm text-zinc-500 leading-relaxed">{item.desc}</p>
+                  <p className="text-sm text-zinc-300 leading-relaxed">{item.desc}</p>
                 </div>
-              </div>
+              </motion.div>
             ))}
-          </div>
-        </div>
+          </motion.div>
+        </motion.div>
       </section>
 
       {/* Powered by */}
       <section className="border-t border-zinc-800/50">
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 py-12">
-          <p className="text-xs text-zinc-600 uppercase font-bold tracking-widest text-center mb-8">Powered by</p>
-          <div className="flex flex-wrap justify-center gap-4">
+        <motion.div
+          className="max-w-5xl mx-auto px-4 sm:px-6 py-12"
+          variants={stagger}
+          initial="hidden"
+          whileInView="show"
+          viewport={viewportOnce}
+        >
+          <motion.p variants={fadeUp} className="text-xs text-zinc-400 uppercase font-bold tracking-widest text-center mb-8">
+            Powered by
+          </motion.p>
+          <motion.div variants={staggerFast} className="flex flex-wrap justify-center gap-4">
             {poweredBy.map((p) => (
-              <div key={p.name} className="flex items-center gap-2 px-4 py-2.5 bg-zinc-900 border border-zinc-800 rounded-xl">
+              <motion.div
+                key={p.name}
+                variants={pop}
+                whileHover={{ y: -2, borderColor: "rgba(16,185,129,0.4)" }}
+                transition={SPRING_BOUNCY}
+                className="flex items-center gap-2 px-4 py-2.5 bg-zinc-900 border border-zinc-800 rounded-xl"
+              >
                 <span className="text-[9px] font-black text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-1.5 py-0.5 rounded uppercase tracking-wider">{p.badge}</span>
                 <span className="text-sm text-zinc-300 font-medium">{p.name}</span>
-              </div>
+              </motion.div>
             ))}
-          </div>
-        </div>
+          </motion.div>
+        </motion.div>
       </section>
 
       {/* Final CTA */}
       <section className="border-t border-zinc-800/50 bg-gradient-to-b from-zinc-900/30 to-zinc-950">
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 py-24 text-center">
-          <Shield className="w-8 h-8 text-emerald-400 mx-auto mb-4" />
-          <h2 className="text-4xl sm:text-5xl font-black tracking-tighter text-zinc-50 mb-4">Ready to break free?</h2>
-          <p className="text-zinc-400 mb-8 max-w-md mx-auto">
-            Every minute you keep scrolling is money compounding against you. Start now — it takes 30 seconds.
-          </p>
-          <Link
-            href="/sign-up"
-            className="inline-flex items-center gap-2 px-10 py-4 bg-emerald-500 hover:bg-emerald-400 text-zinc-950 font-extrabold text-lg rounded-2xl transition-all shadow-[0_0_40px_rgba(16,185,129,0.35)] hover:shadow-[0_0_60px_rgba(16,185,129,0.5)]"
+        <motion.div
+          className="max-w-5xl mx-auto px-4 sm:px-6 py-24 text-center"
+          variants={stagger}
+          initial="hidden"
+          whileInView="show"
+          viewport={viewportOnce}
+        >
+          <motion.div
+            variants={pop}
+            animate={{ scale: [1, 1.08, 1] }}
+            transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
           >
-            Start Learning Free
-            <ChevronRight className="w-5 h-5" />
-          </Link>
-        </div>
+            <Shield className="w-8 h-8 text-emerald-400 mx-auto mb-4" />
+          </motion.div>
+          <motion.h2 variants={fadeUp} className="text-4xl sm:text-5xl font-black tracking-tighter text-zinc-50 mb-4">
+            Ready to break free?
+          </motion.h2>
+          <motion.p variants={fadeUp} className="text-zinc-400 mb-8 max-w-md mx-auto">
+            Every minute you keep scrolling is money compounding against you. Start now, it takes 30 seconds.
+          </motion.p>
+          <motion.div variants={fadeUp}>
+            <motion.div
+              whileHover={{ scale: 1.04 }}
+              whileTap={{ scale: 0.97 }}
+              transition={SPRING_BOUNCY}
+              className="inline-block"
+            >
+              <Link
+                href="/sign-up"
+                className="inline-flex items-center gap-2 px-10 py-4 bg-emerald-500 hover:bg-emerald-400 text-zinc-950 font-extrabold text-lg rounded-2xl transition-all shadow-[0_0_40px_rgba(16,185,129,0.35)] hover:shadow-[0_0_60px_rgba(16,185,129,0.5)]"
+              >
+                Start Learning Free
+                <ChevronRight className="w-5 h-5" />
+              </Link>
+            </motion.div>
+          </motion.div>
+        </motion.div>
       </section>
 
       {/* Footer */}
       <footer className="border-t border-zinc-800/30">
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 py-6 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-zinc-600">
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 py-6 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-zinc-400">
           <span>© {new Date().getFullYear()} FinScroll. Empowering Gen-Z financial literacy.</span>
           <span>Not a licensed financial advisor. Educational use only.</span>
         </div>

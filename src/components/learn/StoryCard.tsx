@@ -1,6 +1,7 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { memo, useCallback, useEffect, useRef, useState } from "react";
+import { AnimatePresence, motion } from "framer-motion";
 import { ChevronLeft, ChevronRight, Volume2 } from "lucide-react";
 import type { Card } from "@/lib/learn/types";
 import { HookFrame } from "./frames/HookFrame";
@@ -9,6 +10,7 @@ import { InsightFrame } from "./frames/InsightFrame";
 import { QuizFrame } from "./frames/QuizFrame";
 import { ActionFrame } from "./frames/ActionFrame";
 import { speak, stopSpeech } from "@/lib/learn/audio";
+import { slideX } from "@/lib/motion";
 
 interface Props {
   card: Card;
@@ -18,11 +20,13 @@ interface Props {
   quizAnswer: number | null;
   onAnswer: (cardId: string | number, idx: number) => void;
   onJumpToCard: (cardId: string | number) => void;
+  /** Notify parent of current frame so it can render a sticky progress bar. */
+  onFrameChange?: (frame: number) => void;
 }
 
 const FRAME_NAMES = ["Hook", "Visual", "Insight", "Quiz", "Action"] as const;
 
-export function StoryCard({
+function StoryCardImpl({
   card,
   userId,
   isActive,
@@ -30,15 +34,19 @@ export function StoryCard({
   quizAnswer,
   onAnswer,
   onJumpToCard,
+  onFrameChange,
 }: Props) {
   const [frame, setFrame] = useState(0);
+  const [direction, setDirection] = useState(1);  // 1 = forward, -1 = back
   const startX = useRef<number | null>(null);
 
   const next = useCallback(() => {
+    setDirection(1);
     setFrame((f) => Math.min(f + 1, 4));
   }, []);
 
   const prev = useCallback(() => {
+    setDirection(-1);
     setFrame((f) => Math.max(f - 1, 0));
   }, []);
 
@@ -46,6 +54,11 @@ export function StoryCard({
   useEffect(() => {
     if (isActive) setFrame(0);
   }, [isActive, card.id]);
+
+  // Bubble current frame up so the parent can render a sticky progress bar
+  useEffect(() => {
+    if (isActive) onFrameChange?.(frame);
+  }, [isActive, frame, onFrameChange]);
 
   // Audio narration — speaks the relevant text whenever frame changes
   useEffect(() => {
@@ -88,46 +101,54 @@ export function StoryCard({
 
   return (
     <div
-      className={`relative w-full snap-start shrink-0 overflow-hidden`}
-      style={{ height: "100dvh" }}
+      className="relative w-full h-full snap-start shrink-0 overflow-hidden"
     >
       {/* Gradient background */}
       <div className={`absolute inset-0 bg-gradient-to-b ${card.gradient}`} />
       <div className="absolute inset-0 bg-black/40" />
 
-      {/* Top: progress bar + level badge */}
-      <div className="absolute top-0 left-0 right-0 z-30 px-4 pt-safe pt-3 pb-2 bg-gradient-to-b from-black/60 to-transparent">
-        <div className="flex items-center gap-1">
-          {FRAME_NAMES.map((_, i) => (
-            <div
-              key={i}
-              className={`h-0.5 flex-1 rounded-full transition-colors duration-500 ${
-                i < frame
-                  ? "bg-emerald-400"
-                  : i === frame
-                  ? "bg-white"
-                  : "bg-white/15"
-              }`}
-            />
-          ))}
-        </div>
-      </div>
-
-      {/* Frame content */}
+      {/* Frame content — slides horizontally on next/prev.
+          NOTE: padding lives on individual frames (or HookFrame uses
+          edge-to-edge video). The HUD (top) and chevron bar (bottom) are
+          opaque/z-elevated so they cover anything underneath them. */}
       <div
-        className="relative z-10 h-full pt-12 pb-20"
+        className="relative z-10 h-full overflow-hidden"
         onTouchStart={handleTouchStart}
         onTouchEnd={handleTouchEnd}
       >
-        {frame === 0 && <HookFrame card={card} isActive={isActive} />}
-        {frame === 1 && <VisualFrame card={card} isActive={isActive} />}
-        {frame === 2 && <InsightFrame card={card} userId={userId} isActive={isActive} />}
-        {frame === 3 && (
-          <QuizFrame card={card} answer={quizAnswer} onAnswer={handleAnswer} />
-        )}
-        {frame === 4 && (
-          <ActionFrame card={card} userId={userId} onJumpToCard={onJumpToCard} />
-        )}
+        <AnimatePresence mode="wait" custom={direction} initial={false}>
+          <motion.div
+            key={frame}
+            custom={direction}
+            variants={slideX}
+            initial="enter"
+            animate="center"
+            exit="exit"
+            className="absolute inset-0"
+          >
+            {frame === 0 && <HookFrame card={card} isActive={isActive} />}
+            {frame === 1 && (
+              <div className="h-full pt-24 pb-16">
+                <VisualFrame card={card} isActive={isActive} />
+              </div>
+            )}
+            {frame === 2 && (
+              <div className="h-full pt-24 pb-16">
+                <InsightFrame card={card} userId={userId} isActive={isActive} />
+              </div>
+            )}
+            {frame === 3 && (
+              <div className="h-full pt-24 pb-16">
+                <QuizFrame card={card} answer={quizAnswer} onAnswer={handleAnswer} />
+              </div>
+            )}
+            {frame === 4 && (
+              <div className="h-full pt-24 pb-16">
+                <ActionFrame card={card} userId={userId} onJumpToCard={onJumpToCard} />
+              </div>
+            )}
+          </motion.div>
+        </AnimatePresence>
       </div>
 
       {/* Frame navigation overlay — tap left/right to advance */}
@@ -136,7 +157,7 @@ export function StoryCard({
         <button
           aria-label="Previous frame"
           onClick={prev}
-          className="absolute left-0 top-16 bottom-20 w-1/4 z-20"
+          className="absolute left-0 top-24 bottom-16 w-1/4 z-20"
         />
       )}
       {/* Right half: next */}
@@ -144,7 +165,7 @@ export function StoryCard({
         <button
           aria-label="Next frame"
           onClick={next}
-          className="absolute right-0 top-16 bottom-20 w-1/4 z-20"
+          className="absolute right-0 top-24 bottom-16 w-1/4 z-20"
         />
       )}
 
@@ -164,13 +185,13 @@ export function StoryCard({
           <span className="text-[9px] font-black text-zinc-300 uppercase tracking-widest">
             {FRAME_NAMES[frame]}
           </span>
-          <span className="text-[9px] text-zinc-500">·</span>
+          <span className="text-[9px] text-zinc-400">·</span>
           <span className="text-[10px] text-zinc-400 font-mono font-bold">
             {frame + 1}/5
           </span>
           {audioEnabled && (
             <>
-              <span className="text-[9px] text-zinc-500">·</span>
+              <span className="text-[9px] text-zinc-400">·</span>
               <span className="flex items-center gap-0.5 text-[9px] text-emerald-400 font-bold">
                 <Volume2 className="w-2.5 h-2.5" /> Reading
               </span>
@@ -191,3 +212,17 @@ export function StoryCard({
     </div>
   );
 }
+
+// Memoized so the parent's other state changes (active card index, etc.)
+// don't trigger every card to re-render. We re-render only if the props
+// affecting THIS card actually change.
+export const StoryCard = memo(StoryCardImpl, (prev, next) =>
+  prev.card.id === next.card.id &&
+  prev.isActive === next.isActive &&
+  prev.audioEnabled === next.audioEnabled &&
+  prev.quizAnswer === next.quizAnswer &&
+  prev.userId === next.userId &&
+  prev.onAnswer === next.onAnswer &&
+  prev.onJumpToCard === next.onJumpToCard &&
+  prev.onFrameChange === next.onFrameChange,
+);

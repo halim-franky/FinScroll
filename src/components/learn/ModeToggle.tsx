@@ -1,13 +1,12 @@
 "use client";
 
-import { Layers, BookOpen, BarChart3, Headphones } from "lucide-react";
+import { Layers, BookOpen, Headphones } from "lucide-react";
 
-export type LearnMode = "story" | "read" | "visualize" | "audio";
+export type LearnMode = "story" | "read" | "audio";
 
 const MODES: { id: LearnMode; label: string; icon: typeof Layers }[] = [
   { id: "story", label: "Story", icon: Layers },
   { id: "read", label: "Read", icon: BookOpen },
-  { id: "visualize", label: "Visual", icon: BarChart3 },
   { id: "audio", label: "Audio", icon: Headphones },
 ];
 
@@ -29,7 +28,7 @@ export function ModeToggle({ current, onChange }: Props) {
             className={`flex items-center gap-1 px-2 py-1 rounded-full transition-colors ${
               active
                 ? "bg-emerald-500/15 text-emerald-300"
-                : "text-zinc-500 hover:text-zinc-300"
+                : "text-zinc-300 hover:text-white"
             }`}
           >
             <Icon className="w-3 h-3" />

@@ -22,7 +22,8 @@ export function ActionFrame({ card, userId, onJumpToCard }: Props) {
   }, [card.relatedCardIds]);
 
   return (
-    <div className="flex flex-col h-full px-5 py-6 gap-4 overflow-y-auto animate-fadeIn">
+    <div className="flex flex-col items-center h-full px-5 py-6 overflow-y-auto animate-fadeIn">
+      <div className="w-full max-w-sm flex flex-col gap-4">
       <NotesInput userId={userId} cardId={card.id} />
 
       {/* Source */}
@@ -30,10 +31,15 @@ export function ActionFrame({ card, userId, onJumpToCard }: Props) {
         <div className="flex items-center gap-1.5 text-[8px] font-black text-emerald-400 tracking-widest uppercase mb-1.5">
           <BookOpen className="w-3 h-3" /> Grounded source
         </div>
-        <div className="flex items-center gap-1.5 text-[10px] text-sky-400 font-bold">
+        <a
+          href={card.source.url}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="flex items-center gap-1.5 text-[11px] text-sky-400 hover:text-sky-300 font-bold transition-colors"
+        >
           <ExternalLink className="w-2.5 h-2.5 shrink-0" />
-          <span className="truncate">{card.source.name}</span>
-        </div>
+          <span className="truncate underline-offset-2 hover:underline">{card.source.name}</span>
+        </a>
       </div>
 
       {/* Concept connections */}
@@ -53,15 +59,16 @@ export function ActionFrame({ card, userId, onJumpToCard }: Props) {
                   <span className="text-base shrink-0">{r.emoji}</span>
                   <div className="min-w-0">
                     <div className="text-xs font-bold text-zinc-200 truncate">{r.title}</div>
-                    <div className="text-[9px] text-zinc-500">{r.topic}</div>
+                    <div className="text-[9px] text-zinc-400">{r.topic}</div>
                   </div>
                 </div>
-                <ChevronRight className="w-3.5 h-3.5 text-zinc-600 shrink-0" />
+                <ChevronRight className="w-3.5 h-3.5 text-zinc-400 shrink-0" />
               </button>
             ))}
           </div>
         </div>
       )}
+      </div>
     </div>
   );
 }

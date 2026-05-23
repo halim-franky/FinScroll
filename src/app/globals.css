@@ -67,12 +67,63 @@
   color: #e4e4e7 !important;
 }
 
-/* Header title & subtitle */
-[class*="cl-headerTitle"] {
+/* Header title & subtitle — applies to sign-in, sign-up, and UserProfile.
+   The selectors are repeated with extra specificity (incl. inside modals and
+   pages) because Clerk's own stylesheet sometimes loads after ours. */
+[class*="cl-headerTitle"],
+[class*="cl-modalContent"] [class*="cl-headerTitle"],
+[class*="cl-header"] h1,
+[class*="cl-header"] h2 {
   color: #ffffff !important;
 }
-[class*="cl-headerSubtitle"] {
+[class*="cl-headerSubtitle"],
+[class*="cl-modalContent"] [class*="cl-headerSubtitle"],
+[class*="cl-header"] p {
+  color: #e4e4e7 !important;
+}
+
+/* Bulletproof: any text directly inside a Clerk modal that isn't a button
+   or input gets a high-contrast color. Buttons/inputs keep their own colors. */
+[class*="cl-modalContent"] :where(h1, h2, h3, h4, p, span, label, dt, dd) {
+  color: #f4f4f5 !important;
+}
+[class*="cl-modalContent"] [class*="cl-formButtonPrimary"],
+[class*="cl-modalContent"] [class*="cl-formButtonPrimary"] * {
+  color: #0a0a0a !important;
+}
+
+/* The UserProfile modal's left sidebar (`cl-navbar`) renders its own
+   title + subtitle ("Account" / "Manage your account info.") in low-contrast
+   dim text by default. Force them white. */
+[class*="cl-navbar"] :where(h1, h2, h3, p, span):not([class*="cl-button"]):not([class*="cl-icon"]) {
+  color: #ffffff !important;
+}
+[class*="cl-navbar"] p {
   color: #d4d4d8 !important;
+}
+[class*="cl-navbarTitle"],
+[class*="cl-navbarHeading"] {
+  color: #ffffff !important;
+  font-weight: 800 !important;
+}
+[class*="cl-navbarSubtitle"],
+[class*="cl-navbarDescription"] {
+  color: #d4d4d8 !important;
+}
+
+/* Modal close (X) button — top-right of the UserProfile modal */
+[class*="cl-modalCloseButton"],
+[class*="cl-modalCloseButton"] svg,
+[class*="cl-modalCloseButton"] svg * {
+  color: #ffffff !important;
+  stroke: #ffffff !important;
+  opacity: 1 !important;
+}
+[class*="cl-modalCloseButton"]:hover,
+[class*="cl-modalCloseButton"]:hover svg {
+  color: #f4f4f5 !important;
+  stroke: #f4f4f5 !important;
+  background-color: rgba(255, 255, 255, 0.08) !important;
 }
 
 /* Social button text */
@@ -83,5 +134,44 @@
 /* Identity preview text */
 [class*="cl-identityPreview"] * {
   color: #e4e4e7 !important;
+}
+
+/* ── UserProfile / Account section — visible white text ───────────────
+   Clerk's default theme renders user names, emails, and connected-account
+   labels in a low-contrast gray. Force them to white inside our Account page. */
+
+/* User name + email shown at the top of each section */
+[class*="cl-userPreviewMainIdentifier"],
+[class*="cl-userPreviewSecondaryIdentifier"],
+[class*="cl-userPreviewTextContainer"] * {
+  color: #ffffff !important;
+}
+
+/* Email rows, connected accounts, phone numbers — the row items themselves */
+[class*="cl-profileSectionItem"],
+[class*="cl-profileSectionItem"] *:not([class*="cl-profileSectionPrimaryButton"]):not([class*="cl-badge"]):not(svg):not(path) {
+  color: #ffffff !important;
+}
+
+/* "Profile", "Email addresses", "Connected accounts" — section titles */
+[class*="cl-profileSectionTitleText"] {
+  color: #ffffff !important;
+  font-weight: 700 !important;
+}
+
+/* Disclosure / expand triggers */
+[class*="cl-accordionTriggerButton"] {
+  color: #ffffff !important;
+}
+
+/* Inline display values (e.g. read-only email shown in details) */
+[class*="cl-formFieldDisplay"] {
+  color: #ffffff !important;
+}
+
+/* Provider names like "Google", "Apple" in connected accounts */
+[class*="cl-providerIcon"] + *,
+[class*="cl-connectedAccountProvider"] {
+  color: #ffffff !important;
 }
 

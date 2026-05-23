@@ -10,7 +10,7 @@
  * Cache is versioned. Bumping the version invalidates the old cache.
  */
 
-const VERSION = "finscroll-v1";
+const VERSION = "finscroll-v2";
 const STATIC_CACHE = `${VERSION}-static`;
 const RUNTIME_CACHE = `${VERSION}-runtime`;
 
@@ -43,6 +43,11 @@ self.addEventListener("activate", (event) => {
   self.clients.claim();
 });
 
+// During local dev the dev server compiles on demand and can briefly return
+// 404s while files move around. Caching those would poison every reload.
+const IS_DEV =
+  self.location.hostname === "localhost" || self.location.hostname === "127.0.0.1";
+
 // ── Fetch: routed by request type ──────────────────────────────────────
 self.addEventListener("fetch", (event) => {
   const { request } = event;
@@ -54,6 +59,9 @@ self.addEventListener("fetch", (event) => {
 
   // Cross-origin: pass through untouched
   if (url.origin !== self.location.origin) return;
+
+  // In dev: bypass the SW entirely. Avoids "stuck 404" loops when routes change.
+  if (IS_DEV) return;
 
   // Skip caching API routes — they're auth-sensitive and dynamic
   if (url.pathname.startsWith("/api/")) return;
@@ -75,8 +83,8 @@ self.addEventListener("fetch", (event) => {
     event.respondWith(
       fetch(request)
         .then((response) => {
-          // Cache successful HTML responses for offline
-          if (response.ok) {
+          // Only cache successful HTML responses (never 404/500)
+          if (response.ok && response.status === 200) {
             const copy = response.clone();
             caches.open(RUNTIME_CACHE).then((cache) => cache.put(request, copy));
           }

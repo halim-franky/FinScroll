@@ -65,6 +65,11 @@ export interface Card {
   // Citation
   source: SourceCitation;
 
+  // Video content (optional). When set, the Hook frame embeds a video player
+  // instead of the static emoji/title presentation. Use a YouTube embed URL
+  // like https://www.youtube.com/embed/VIDEO_ID. Max recommended length: 5 min.
+  videoEmbedUrl?: string;
+
   // Metadata
   creator: string;
   generated?: boolean;
