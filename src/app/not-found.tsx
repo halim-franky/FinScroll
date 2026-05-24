@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { ChevronRight, ArrowLeft } from "lucide-react";
+import { FinScrollMark } from "@/components/brand/Mark";
 
 export const metadata = {
   title: "FinScroll — You scrolled too far",
@@ -14,7 +15,7 @@ export default function NotFound() {
       {/* Logo */}
       <div className="relative flex items-center gap-2.5 mb-12">
         <div className="w-9 h-9 rounded-xl bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center shadow-[0_0_15px_rgba(16,185,129,0.2)]">
-          <span className="text-emerald-400 font-black text-base">F</span>
+          <FinScrollMark size="md" glyphOnly title="" />
         </div>
         <span className="text-xl font-extrabold tracking-tight text-zinc-50">FinScroll</span>
       </div>

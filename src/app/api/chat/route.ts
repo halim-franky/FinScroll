@@ -11,6 +11,19 @@ const chatSchema = z.object({
     .string()
     .min(1, "Message cannot be empty")
     .max(1000, "Message is too long"),
+  /**
+   * Optional context from a Learn card the user is asking about. When set,
+   * the chat service uses the card's title + keyFact as the embedding query
+   * (in addition to the user's message) so retrieval is more focused.
+   */
+  cardContext: z
+    .object({
+      title: z.string().max(120),
+      topic: z.string().max(80),
+      keyFact: z.string().max(600),
+    })
+    .strict()
+    .optional(),
 });
 
 export async function POST(req: Request) {
@@ -42,8 +55,8 @@ export async function POST(req: Request) {
   }
 
   try {
-    const { message } = chatSchema.parse(body);
-    const response = await generateChatResponse(message);
+    const { message, cardContext } = chatSchema.parse(body);
+    const response = await generateChatResponse(message, cardContext);
 
     return NextResponse.json(
       { success: true, data: response },

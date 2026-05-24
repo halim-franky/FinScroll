@@ -1,11 +1,12 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useUser, useClerk } from "@clerk/nextjs";
 import {
   LogOut, RefreshCw, Trash2, Mail, User, AlertTriangle,
-  Lock, Link2, Smartphone, ChevronRight, IdCard,
+  Lock, ChevronRight, UserCircle, PlayCircle, UserX, Loader2,
 } from "lucide-react";
 
 interface Props {
@@ -24,8 +25,13 @@ export function AccountView({ userId }: Props) {
   const router = useRouter();
   const { user, isLoaded } = useUser();
   const { signOut, openUserProfile } = useClerk();
-  const [confirmAction, setConfirmAction] =
-    useState<null | "reset_onboarding" | "clear_all">(null);
+  const [confirmAction, setConfirmAction] = useState<
+    null | "reset_onboarding" | "clear_all" | "delete_account"
+  >(null);
+  // For delete_account: user must type DELETE before the destructive button enables.
+  const [deleteConfirmText, setDeleteConfirmText] = useState("");
+  const [deletingAccount, setDeletingAccount] = useState(false);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
 
   const handleSignOut = async () => {
     try {
@@ -62,7 +68,72 @@ export function AccountView({ userId }: Props) {
     router.push("/feed");
   };
 
-  const openProfile = () => openUserProfile();
+  // Clerk's UserProfile modal has two real pages:
+  //   • Profile (default landing) — profile, email, connected accounts
+  //   • Security — password, 2FA, active devices
+  // The default `openUserProfile()` already lands on Profile, so we only
+  // need `__experimental_startPath` to deep-link to the Security page.
+  const openAccountPanel = () => openUserProfile();
+  const openSecurityPanel = () =>
+    openUserProfile({ __experimental_startPath: "/security" });
+
+  const handleReplayTutorial = () => {
+    try {
+      localStorage.removeItem("fs_tutorial_done");
+      localStorage.removeItem("fs_swipe_hint_dismissed");
+    } catch {}
+    router.push("/feed");
+  };
+
+  /**
+   * Permanently delete the user's account.
+   *
+   * Order matters:
+   *   1. Wipe the server-side Supabase rows (onboarding + progress) FIRST,
+   *      so we still have a valid Clerk session to authenticate the delete.
+   *   2. Clear localStorage so nothing leaks if the same browser is used
+   *      to sign up again.
+   *   3. Call Clerk's user.delete() — this invalidates the session.
+   *   4. Sign out and redirect to landing.
+   *
+   * If any step fails we keep the modal open with a clear error.
+   */
+  const handleDeleteAccount = async () => {
+    if (!user) return;
+    setDeletingAccount(true);
+    setDeleteError(null);
+    try {
+      // Step 1: server-side wipe (best-effort; if it fails we still proceed
+      // since the Clerk delete won't roll back).
+      try {
+        await fetch("/api/me/state?scope=all", { method: "DELETE" });
+      } catch {}
+
+      // Step 2: local data
+      try {
+        const keys = Object.keys(localStorage);
+        for (const k of keys) {
+          if (k.startsWith("finscroll_") || k.startsWith("fs_")) {
+            localStorage.removeItem(k);
+          }
+        }
+      } catch {}
+
+      // Step 3: Clerk account deletion (irreversible)
+      await user.delete();
+
+      // Step 4: ensure the session is invalidated and bounce to landing
+      try {
+        await signOut({ redirectUrl: "/" });
+      } catch {
+        router.push("/");
+      }
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : "Unknown error";
+      setDeleteError(`Couldn't delete the account (${msg}). Please try again.`);
+      setDeletingAccount(false);
+    }
+  };
 
   return (
     <div className="space-y-6">
@@ -102,44 +173,28 @@ export function AccountView({ userId }: Props) {
           Manage Account
         </h2>
         <p className="text-xs text-zinc-400 px-1 leading-relaxed">
-          Open your secure account panel to edit profile, change password, manage
-          connected accounts, or sign out remote devices.
+          Open your secure account panel to edit profile, change password,
+          manage connected accounts, or sign out remote devices.
         </p>
+        {/*
+          Honest UX: collapse the previous 5 rows into 2 destinations because
+          Clerk's UserProfile modal only has 2 real pages. Each row now opens
+          the exact section it advertises.
+        */}
         <div className="bg-zinc-900 border border-zinc-800 rounded-2xl overflow-hidden divide-y divide-zinc-800">
           <AccountRow
-            icon={IdCard}
+            icon={UserCircle}
             color="emerald"
-            label="Edit profile"
-            desc="Name, profile picture, username"
-            onClick={openProfile}
-          />
-          <AccountRow
-            icon={Mail}
-            color="sky"
-            label="Email addresses"
-            desc="Add or change your sign-in email"
-            onClick={openProfile}
+            label="Profile & accounts"
+            desc="Name, email, and connected providers like Google"
+            onClick={openAccountPanel}
           />
           <AccountRow
             icon={Lock}
             color="violet"
-            label="Password & security"
-            desc="Change password and two-factor authentication"
-            onClick={openProfile}
-          />
-          <AccountRow
-            icon={Link2}
-            color="amber"
-            label="Connected accounts"
-            desc="Google, GitHub, and other providers"
-            onClick={openProfile}
-          />
-          <AccountRow
-            icon={Smartphone}
-            color="rose"
-            label="Active devices"
-            desc="See where you're signed in"
-            onClick={openProfile}
+            label="Security & devices"
+            desc="Password, two-factor auth, and active sign-ins"
+            onClick={openSecurityPanel}
           />
         </div>
       </section>
@@ -150,6 +205,13 @@ export function AccountView({ userId }: Props) {
           Local Data
         </h2>
         <div className="bg-zinc-900 border border-zinc-800 rounded-2xl overflow-hidden divide-y divide-zinc-800">
+          <AccountRow
+            icon={PlayCircle}
+            color="emerald"
+            label="Replay tutorial"
+            desc="See the swipe and tap gestures demo again"
+            onClick={handleReplayTutorial}
+          />
           <AccountRow
             icon={RefreshCw}
             color="sky"
@@ -176,16 +238,84 @@ export function AccountView({ userId }: Props) {
         Sign Out
       </button>
 
-      <p className="text-center text-[10px] text-zinc-500 leading-relaxed pt-2 pb-4">
-        FinScroll v1.0 · Educational use only.<br />
-        Not a licensed financial advisor.
-      </p>
+      {/* ── Danger zone — account deletion is irreversible ─────── */}
+      <section className="space-y-3 pt-2">
+        <h2 className="text-xs font-black uppercase tracking-widest text-rose-400 px-1">
+          Danger Zone
+        </h2>
+        <div className="bg-rose-950/30 border border-rose-900/60 rounded-2xl p-4 space-y-3">
+          <div className="flex items-start gap-3">
+            <div className="p-2 rounded-xl bg-rose-500/15 border border-rose-500/40 text-rose-300 shrink-0">
+              <UserX className="w-4 h-4" />
+            </div>
+            <div className="min-w-0">
+              <h3 className="text-sm font-bold text-white">Delete account</h3>
+              <p className="text-[11px] text-zinc-300 leading-snug mt-0.5">
+                Permanently removes your profile, sign-in methods, streak,
+                progress, notes, and cloud-synced data. This action cannot be
+                undone.
+              </p>
+            </div>
+          </div>
+          <button
+            onClick={() => {
+              setDeleteConfirmText("");
+              setDeleteError(null);
+              setConfirmAction("delete_account");
+            }}
+            className="w-full h-10 rounded-xl bg-rose-500 hover:bg-rose-400 text-white font-extrabold text-xs uppercase tracking-widest transition-colors"
+          >
+            Delete my account
+          </button>
+        </div>
+      </section>
 
-      {/* ── Confirm modal ───────────────────────────────────────── */}
+      {/* Legal footer */}
+      <div className="text-center pt-2 pb-4 space-y-2">
+        <nav className="flex items-center justify-center gap-4 text-[11px] font-semibold text-zinc-400">
+          <Link
+            href="/privacy"
+            target="_blank"
+            className="hover:text-white transition-colors"
+          >
+            Privacy
+          </Link>
+          <span className="text-zinc-600">·</span>
+          <Link
+            href="/terms"
+            target="_blank"
+            className="hover:text-white transition-colors"
+          >
+            Terms
+          </Link>
+          <span className="text-zinc-600">·</span>
+          <Link
+            href="/contact"
+            target="_blank"
+            className="hover:text-white transition-colors"
+          >
+            Contact
+          </Link>
+        </nav>
+        <p className="text-[10px] text-zinc-500 leading-relaxed">
+          FinScroll v1.0 · Educational use only.<br />
+          Not a licensed financial advisor.
+        </p>
+      </div>
+
+      {/* ── Confirm modal ─────────────────────────────────────────
+         Three actions share this modal:
+           • reset_onboarding  → soft confirm
+           • clear_all         → soft confirm
+           • delete_account    → type-to-confirm (must type DELETE)
+         Type-to-confirm follows the GitHub / Stripe pattern for
+         irreversible destructive actions. */}
       {confirmAction && (
         <div
           className="fixed inset-0 z-[60] bg-zinc-950/80 backdrop-blur-sm flex items-end sm:items-center justify-center p-4"
-          onClick={() => setConfirmAction(null)}
+          onClick={() => {
+            if (!deletingAccount) setConfirmAction(null);
+          }}
         >
           <div
             className="w-full max-w-sm bg-zinc-900 border border-zinc-800 rounded-2xl p-6 space-y-4 shadow-2xl"
@@ -199,19 +329,48 @@ export function AccountView({ userId }: Props) {
                 <h4 className="font-extrabold text-white text-base">
                   {confirmAction === "reset_onboarding"
                     ? "Reset onboarding?"
-                    : "Clear all local data?"}
+                    : confirmAction === "clear_all"
+                    ? "Clear all local data?"
+                    : "Delete your account?"}
                 </h4>
                 <p className="text-xs text-zinc-300 mt-1 leading-relaxed">
                   {confirmAction === "reset_onboarding"
                     ? "You'll go through the 3-question intro again on next /feed load. Your streak, completed cards, and synced cloud data stay safe."
-                    : "Removes streaks, completed cards, liked/saved markers, and onboarding from this device. If Supabase is configured, your cloud copy still exists and will sync back. This action can't be undone locally."}
+                    : confirmAction === "clear_all"
+                    ? "Removes streaks, completed cards, liked/saved markers, and onboarding from this device. If Supabase is configured, your cloud copy still exists and will sync back. This action can't be undone locally."
+                    : "This permanently deletes your FinScroll profile, sign-in methods, streak, progress, notes, and all cloud-synced data. You won't be able to recover it. This cannot be undone."}
                 </p>
               </div>
             </div>
+
+            {/* Type-to-confirm input — only for delete_account */}
+            {confirmAction === "delete_account" && (
+              <div className="space-y-1.5">
+                <label className="block text-[10px] font-black uppercase tracking-widest text-zinc-300">
+                  Type <span className="text-rose-300">DELETE</span> to confirm
+                </label>
+                <input
+                  type="text"
+                  value={deleteConfirmText}
+                  onChange={(e) => setDeleteConfirmText(e.target.value)}
+                  placeholder="DELETE"
+                  autoFocus
+                  disabled={deletingAccount}
+                  className="w-full bg-zinc-950 border border-zinc-700 rounded-xl px-3 py-2.5 text-white text-sm font-mono placeholder-zinc-600 focus:outline-none focus:ring-2 focus:ring-rose-500/40 focus:border-rose-500/60"
+                />
+                {deleteError && (
+                  <p className="text-[11px] text-rose-400 leading-snug pt-1">
+                    {deleteError}
+                  </p>
+                )}
+              </div>
+            )}
+
             <div className="flex gap-2">
               <button
                 onClick={() => setConfirmAction(null)}
-                className="flex-1 h-11 rounded-xl bg-zinc-800 hover:bg-zinc-700 border border-zinc-700 text-white font-bold text-sm transition-colors"
+                disabled={deletingAccount}
+                className="flex-1 h-11 rounded-xl bg-zinc-800 hover:bg-zinc-700 disabled:opacity-60 border border-zinc-700 text-white font-bold text-sm transition-colors"
               >
                 Cancel
               </button>
@@ -219,11 +378,29 @@ export function AccountView({ userId }: Props) {
                 onClick={
                   confirmAction === "reset_onboarding"
                     ? handleResetOnboarding
-                    : handleClearLocalData
+                    : confirmAction === "clear_all"
+                    ? handleClearLocalData
+                    : handleDeleteAccount
                 }
-                className="flex-1 h-11 rounded-xl bg-rose-500 hover:bg-rose-400 text-white font-bold text-sm transition-colors"
+                disabled={
+                  (confirmAction === "delete_account" &&
+                    (deleteConfirmText.trim() !== "DELETE" ||
+                      deletingAccount)) ||
+                  deletingAccount
+                }
+                className="flex-1 h-11 rounded-xl bg-rose-500 hover:bg-rose-400 disabled:bg-rose-500/40 disabled:cursor-not-allowed text-white font-bold text-sm transition-colors flex items-center justify-center gap-2"
               >
-                {confirmAction === "reset_onboarding" ? "Reset" : "Clear"}
+                {deletingAccount ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin" /> Deleting…
+                  </>
+                ) : confirmAction === "reset_onboarding" ? (
+                  "Reset"
+                ) : confirmAction === "clear_all" ? (
+                  "Clear"
+                ) : (
+                  "Delete account"
+                )}
               </button>
             </div>
           </div>

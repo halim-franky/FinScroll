@@ -13,23 +13,21 @@
   <!-- Rounded square background -->
   <rect width="512" height="512" rx="112" ry="112" fill="url(#bg)"/>
 
-  <!-- Inner glow ring -->
+  <!-- Subtle emerald glow ring -->
   <rect x="20" y="20" width="472" height="472" rx="96" ry="96"
         fill="none" stroke="#10b981" stroke-opacity="0.15" stroke-width="2"/>
 
-  <!-- Stylized F: vertical bar + two arms suggesting a scroll -->
+  <!-- F mark: vertical stem + three arms of decreasing length.
+       Reads as (a) letter F, (b) a vertical scroll feed of cards,
+       and (c) a downward chart trend if you flip it. -->
   <g transform="translate(128 96)">
     <!-- Vertical stem -->
-    <rect x="0" y="0" width="56" height="320" rx="24" ry="24" fill="url(#accent)"/>
-    <!-- Top arm -->
-    <rect x="0" y="0" width="240" height="56" rx="24" ry="24" fill="url(#accent)"/>
-    <!-- Middle arm -->
-    <rect x="0" y="128" width="176" height="48" rx="20" ry="20" fill="url(#accent)"/>
-  </g>
-
-  <!-- Upward arrow indicating wealth growth -->
-  <g transform="translate(352 96)" opacity="0.9">
-    <path d="M0 80 L32 16 L64 80" stroke="#10b981" stroke-width="14"
-          stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+    <rect x="0" y="0" width="56" height="320" rx="28" ry="28" fill="url(#accent)"/>
+    <!-- Top arm: widest, the F's header -->
+    <rect x="0" y="0" width="240" height="56" rx="28" ry="28" fill="url(#accent)"/>
+    <!-- Middle arm: medium -->
+    <rect x="0" y="112" width="184" height="56" rx="28" ry="28" fill="url(#accent)"/>
+    <!-- Bottom arm: shortest, evokes the third card in a scroll feed -->
+    <rect x="0" y="224" width="128" height="56" rx="28" ry="28" fill="url(#accent)"/>
   </g>
 </svg>

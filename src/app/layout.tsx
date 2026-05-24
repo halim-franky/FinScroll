@@ -131,7 +131,13 @@ export default function RootLayout({
 }: Readonly<{ children: React.ReactNode }>) {
   return (
     <ClerkProvider appearance={clerkAppearance}>
-      <html lang="en" className="dark">
+      {/* suppressHydrationWarning on <html> silences hydration mismatches
+          caused by browser extensions (QuickBooks Beam, password managers,
+          ad blockers, etc.) that inject attributes like `data-qb-installed`
+          onto the root element before React hydrates. We can't control
+          third-party extensions, and this only suppresses one level of
+          mismatch — real React tree mismatches still surface as errors. */}
+      <html lang="en" className="dark" suppressHydrationWarning>
         <body className="bg-zinc-950 text-zinc-50 antialiased" suppressHydrationWarning>
           <PWARegister />
           {children}

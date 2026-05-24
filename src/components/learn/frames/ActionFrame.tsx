@@ -4,15 +4,17 @@ import { useMemo } from "react";
 import { BookOpen, ExternalLink, GitBranch, ChevronRight } from "lucide-react";
 import type { Card } from "@/lib/learn/types";
 import { NotesInput } from "../NotesInput";
+import { Receipt } from "../Receipt";
 import { CARDS } from "@/lib/learn/cards";
 
 interface Props {
   card: Card;
   userId: string;
+  quizAnswer: number | null;
   onJumpToCard: (cardId: string | number) => void;
 }
 
-export function ActionFrame({ card, userId, onJumpToCard }: Props) {
+export function ActionFrame({ card, userId, quizAnswer, onJumpToCard }: Props) {
   const related = useMemo(() => {
     if (!card.relatedCardIds || card.relatedCardIds.length === 0) return [];
     return card.relatedCardIds
@@ -24,6 +26,7 @@ export function ActionFrame({ card, userId, onJumpToCard }: Props) {
   return (
     <div className="flex flex-col items-center h-full px-5 py-6 overflow-y-auto animate-fadeIn">
       <div className="w-full max-w-sm flex flex-col gap-4">
+      <Receipt card={card} userId={userId} quizAnswer={quizAnswer} />
       <NotesInput userId={userId} cardId={card.id} />
 
       {/* Source */}

@@ -1,6 +1,7 @@
 import { SignUp } from "@clerk/nextjs";
 import Link from "next/link";
 import { Sparkles, MessageCircle, BarChart3 } from "lucide-react";
+import { FinScrollMark } from "@/components/brand/Mark";
 
 const clerkAppearance = {
   variables: {
@@ -50,7 +51,7 @@ export default function SignUpPage() {
       <div className="flex items-center justify-center pt-10 pb-6">
         <div className="flex items-center gap-2.5">
           <div className="w-9 h-9 rounded-xl bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center shadow-[0_0_15px_rgba(16,185,129,0.2)]">
-            <span className="text-emerald-400 font-black text-base">F</span>
+            <FinScrollMark size="md" glyphOnly title="" />
           </div>
           <span className="text-xl font-extrabold tracking-tight text-zinc-50">FinScroll</span>
         </div>
@@ -80,6 +81,25 @@ export default function SignUpPage() {
             <Link href="/sign-in" className="text-emerald-400 hover:text-emerald-300 font-bold transition-colors">
               Sign in
             </Link>
+          </p>
+          {/* Legal consent — visible before account creation so it can be
+              cited as the moment of acceptance for the Terms + Privacy. */}
+          <p className="text-center mt-4 text-[11px] text-zinc-400 leading-relaxed px-2">
+            By signing up you agree to our{" "}
+            <Link
+              href="/terms"
+              className="text-zinc-200 hover:text-white underline underline-offset-2"
+            >
+              Terms of Service
+            </Link>{" "}
+            and{" "}
+            <Link
+              href="/privacy"
+              className="text-zinc-200 hover:text-white underline underline-offset-2"
+            >
+              Privacy Policy
+            </Link>
+            .
           </p>
         </div>
       </div>

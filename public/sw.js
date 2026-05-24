@@ -10,7 +10,10 @@
  * Cache is versioned. Bumping the version invalidates the old cache.
  */
 
-const VERSION = "finscroll-v2";
+// Bumping VERSION invalidates the old cache. Bump whenever a precached asset
+// (icon, manifest, offline page) changes — otherwise installed PWAs keep
+// serving the stale file. v3 ships the refined F-mark icon set.
+const VERSION = "finscroll-v3";
 const STATIC_CACHE = `${VERSION}-static`;
 const RUNTIME_CACHE = `${VERSION}-runtime`;
 

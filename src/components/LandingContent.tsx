@@ -8,6 +8,7 @@ import {
   Shield, Zap, ChevronRight, AlertTriangle,
 } from "lucide-react";
 import { stagger, staggerFast, fadeUp, pop, SPRING_BOUNCY } from "@/lib/motion";
+import { FinScrollMark } from "@/components/brand/Mark";
 
 const viewportOnce = { once: true, amount: 0.25 };
 
@@ -78,7 +79,7 @@ export function LandingContent() {
         <div className="max-w-5xl mx-auto px-4 sm:px-6 py-4 flex items-center justify-between">
           <div className="flex items-center gap-2.5">
             <div className="w-7 h-7 rounded-lg bg-emerald-500/20 border border-emerald-500/30 flex items-center justify-center">
-              <span className="text-emerald-400 text-xs font-black">F</span>
+              <FinScrollMark size="sm" glyphOnly title="" />
             </div>
             <span className="font-extrabold tracking-tight text-zinc-50">FinScroll</span>
           </div>
@@ -329,7 +330,19 @@ export function LandingContent() {
       <footer className="border-t border-zinc-800/30">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 py-6 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-zinc-400">
           <span>© {new Date().getFullYear()} FinScroll. Empowering Gen-Z financial literacy.</span>
-          <span>Not a licensed financial advisor. Educational use only.</span>
+          <nav className="flex items-center gap-4 font-semibold">
+            <Link href="/privacy" className="hover:text-white transition-colors">
+              Privacy
+            </Link>
+            <Link href="/terms" className="hover:text-white transition-colors">
+              Terms
+            </Link>
+            <Link href="/contact" className="hover:text-white transition-colors">
+              Contact
+            </Link>
+            <span className="text-zinc-500">·</span>
+            <span>Educational use only</span>
+          </nav>
         </div>
       </footer>
     </div>

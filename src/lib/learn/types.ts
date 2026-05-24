@@ -69,6 +69,8 @@ export interface Card {
   // instead of the static emoji/title presentation. Use a YouTube embed URL
   // like https://www.youtube.com/embed/VIDEO_ID. Max recommended length: 5 min.
   videoEmbedUrl?: string;
+  /** Channel / creator name to attribute under the video. */
+  videoCreator?: string;
 
   // Metadata
   creator: string;

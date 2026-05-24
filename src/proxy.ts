@@ -5,6 +5,13 @@ const isPublicRoute = createRouteMatcher([
   "/",
   "/sign-in(.*)",
   "/sign-up(.*)",
+  // Legal + contact pages — must be reachable signed-out (App Store / GDPR
+  // require non-users to be able to find privacy info + submit data requests
+  // without first creating an account).
+  "/privacy",
+  "/terms",
+  "/contact",
+  "/api/contact",
   "/api/chat",
   "/api/search",
   "/manifest.webmanifest",

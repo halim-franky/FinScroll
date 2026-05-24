@@ -33,6 +33,12 @@
   scrollbar-width: none;
 }
 
+/* Skeleton shimmer for the infinite-scroll placeholder card */
+@keyframes shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
 /* ── Clerk auth component visibility fixes ──────────────────────────
    Clerk loads its component CSS from its CDN at runtime. These selectors
    use the cl- prefix Clerk applies to every element.
@@ -109,6 +115,18 @@
 [class*="cl-navbarSubtitle"],
 [class*="cl-navbarDescription"] {
   color: #d4d4d8 !important;
+}
+
+/* Clerk's mobile navbar hamburger — hide it.
+   Reason: the Account screen now deep-links to a specific Clerk UserProfile
+   page (`/account` or `/security`) via `__experimental_startPath`, so users
+   land where they expect. They no longer need an in-modal nav switcher —
+   removing it cleans up the header and prevents the dim "Account" title
+   text + ☰ button from competing with our own page heading. */
+[class*="cl-navbarMobileMenuRow"],
+[class*="cl-navbarMobileMenuButton"],
+[class*="cl-navbarMobile"] {
+  display: none !important;
 }
 
 /* Modal close (X) button — top-right of the UserProfile modal */

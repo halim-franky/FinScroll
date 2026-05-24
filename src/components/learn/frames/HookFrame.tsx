@@ -1,12 +1,14 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { Card } from "@/lib/learn/types";
 import { Sparkles, Play, ExternalLink, Maximize2 } from "lucide-react";
+import { WealthTicker } from "../WealthTicker";
 
 interface Props {
   card: Card;
   isActive: boolean;
+  userId: string;
 }
 
 /**
@@ -28,29 +30,65 @@ interface Props {
  * any YouTube branding — the player still shows its logo, channel name,
  * and progress bar inside the rounded card the way YouTube renders them.
  */
-export function HookFrame({ card, isActive }: Props) {
+export function HookFrame({ card, isActive, userId }: Props) {
   const iframeRef = useRef<HTMLIFrameElement>(null);
+  // Fullscreen targets the WRAPPER, not the iframe — most browsers refuse
+  // to fullscreen a bare <iframe> (cross-origin restrictions on YouTube)
+  // but happily fullscreen its container element, which carries the iframe
+  // along with it via `position: absolute; inset: 0`.
+  const playerWrapRef = useRef<HTMLDivElement>(null);
   const [isFullscreen, setIsFullscreen] = useState(false);
 
+  // Keep `isFullscreen` in sync with the actual fullscreen state so an
+  // exit triggered by Esc / iOS swipe doesn't leave the UI stuck.
+  useEffect(() => {
+    const sync = () => setIsFullscreen(Boolean(document.fullscreenElement));
+    document.addEventListener("fullscreenchange", sync);
+    return () => document.removeEventListener("fullscreenchange", sync);
+  }, []);
+
+  // `fs=0` hides YouTube's built-in fullscreen control so we don't have two
+  // fullscreen buttons fighting for the same job — ours (top-right of the
+  // card) is the single, discoverable entry point. Channel name, watermark,
+  // and CC remain visible per YouTube ToS.
   const embedUrl = card.videoEmbedUrl
-    ? `${card.videoEmbedUrl}${card.videoEmbedUrl.includes("?") ? "&" : "?"}rel=0&modestbranding=1&iv_load_policy=3&playsinline=1&fs=1&autoplay=${isActive ? 1 : 0}&mute=1`
+    ? `${card.videoEmbedUrl}${card.videoEmbedUrl.includes("?") ? "&" : "?"}rel=0&modestbranding=1&iv_load_policy=3&playsinline=1&fs=0&autoplay=${isActive ? 1 : 0}&mute=1`
     : null;
 
   const youtubeSearchUrl = `https://www.youtube.com/results?search_query=${encodeURIComponent(
     `${card.title} ${card.topic} explained under 5 minutes`,
   )}`;
 
-  const handleFullscreen = () => {
-    const el = iframeRef.current;
-    if (!el) return;
-    const req =
-      el.requestFullscreen ??
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (el as any).webkitRequestFullscreen ??
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (el as any).webkitEnterFullscreen;
-    if (req) {
-      req.call(el).then(() => setIsFullscreen(true)).catch(() => {});
+  const handleFullscreen = async () => {
+    // Already in fullscreen? Exit instead.
+    if (document.fullscreenElement) {
+      try {
+        await document.exitFullscreen();
+      } catch {}
+      return;
+    }
+
+    // Prefer fullscreening the wrapper div — works across Chrome / Firefox
+    // / Edge / Safari desktop. The iframe inside fills it via inset: 0.
+    const wrap = playerWrapRef.current;
+    if (wrap?.requestFullscreen) {
+      try {
+        await wrap.requestFullscreen();
+        return;
+      } catch {}
+    }
+
+    // iOS Safari fallback: cross-origin iframes can't be programmatically
+    // fullscreened, and we can't reach the <video> element inside YouTube's
+    // iframe. Open the YouTube watch page in a new tab where the native
+    // player handles fullscreen on its own.
+    const idMatch = card.videoEmbedUrl?.match(/\/embed\/([^/?]+)/);
+    if (idMatch) {
+      window.open(
+        `https://www.youtube.com/watch?v=${idMatch[1]}`,
+        "_blank",
+        "noopener,noreferrer",
+      );
     }
   };
 
@@ -64,28 +102,46 @@ export function HookFrame({ card, isActive }: Props) {
         {/* Three-band flex layout: top hint, video, bottom hint.
             pt-24 pb-16 clears the HUD and the chevron bar respectively. */}
         <div className="relative h-full flex flex-col pt-24 pb-16 px-4">
-          {/* Top band — topic chip + fullscreen */}
-          <div className="flex items-center justify-between gap-3 py-3 shrink-0">
-            <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-emerald-500/15 border border-emerald-500/40 text-emerald-300 text-[10px] font-black uppercase tracking-widest backdrop-blur-sm">
-              <Sparkles className="w-3 h-3" />
-              {card.topic}
-            </span>
+          {/* Top band — topic chip, wealth ticker, fullscreen */}
+          <div className="flex items-center justify-between gap-2 py-3 shrink-0">
+            <div className="flex items-center gap-2 min-w-0">
+              {/* Auto-generated "Today's Drop" badge replaces the topic chip
+                  on RAG-generated cards (id prefix `daily-`). Lets users
+                  spot the daily card at a glance in the feed. */}
+              {String(card.id).startsWith("daily-") ? (
+                <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-amber-500/15 border border-amber-500/50 text-amber-200 text-[10px] font-black uppercase tracking-widest backdrop-blur-sm shrink-0">
+                  <Sparkles className="w-3 h-3" />
+                  Today&apos;s Drop · {card.topic}
+                </span>
+              ) : (
+                <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-emerald-500/15 border border-emerald-500/40 text-emerald-300 text-[10px] font-black uppercase tracking-widest backdrop-blur-sm shrink-0">
+                  <Sparkles className="w-3 h-3" />
+                  {card.topic}
+                </span>
+              )}
+              <WealthTicker active={isActive} userId={userId} />
+            </div>
             <button
               onClick={handleFullscreen}
               aria-label="Watch fullscreen"
-              className="p-2 rounded-full bg-zinc-900/80 hover:bg-zinc-800 border border-zinc-700 text-zinc-100 transition-colors backdrop-blur-sm"
+              className="shrink-0 p-2 rounded-full bg-zinc-900/80 hover:bg-zinc-800 border border-zinc-700 text-zinc-100 transition-colors backdrop-blur-sm"
             >
               <Maximize2 className="w-3.5 h-3.5" />
             </button>
           </div>
 
           {/* Video — centered in the remaining space, 16:9, framed and glowing */}
-          <div className="flex-1 flex items-center justify-center min-h-0">
+          <div className="flex-1 flex flex-col items-center justify-center min-h-0 gap-2">
             <div className="relative w-full max-w-md">
               {/* Glow halo */}
               <div className="absolute -inset-1 rounded-3xl bg-gradient-to-br from-emerald-500/30 via-emerald-400/10 to-transparent blur-xl pointer-events-none" />
-              {/* Player frame */}
-              <div className="relative w-full aspect-video rounded-2xl overflow-hidden border border-zinc-700/60 bg-black shadow-[0_25px_60px_-15px_rgba(0,0,0,0.8)]">
+              {/* Player frame — ref'd so the fullscreen button targets the
+                  wrapper (which most browsers support) instead of the
+                  iframe (which they often refuse to fullscreen). */}
+              <div
+                ref={playerWrapRef}
+                className="relative w-full aspect-video rounded-2xl overflow-hidden border border-zinc-700/60 bg-black shadow-[0_25px_60px_-15px_rgba(0,0,0,0.8)]"
+              >
                 <iframe
                   ref={iframeRef}
                   src={embedUrl}
@@ -96,6 +152,15 @@ export function HookFrame({ card, isActive }: Props) {
                 />
               </div>
             </div>
+            {/* Creator credit — clear attribution per YouTube ToS, signals we
+                curate from real educators rather than scraping at random. */}
+            {card.videoCreator && (
+              <p className="text-[10px] text-zinc-400 leading-snug max-w-md w-full text-center px-2">
+                Curated by FinScroll · sourced from{" "}
+                <span className="text-zinc-200 font-semibold">{card.videoCreator}</span>{" "}
+                on YouTube
+              </p>
+            )}
           </div>
 
           {/* Bottom band — pulsing tap hint */}

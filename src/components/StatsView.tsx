@@ -1,8 +1,9 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { toPng } from "html-to-image";
 import {
-  Flame, Trophy, Clock, DollarSign, Share2, Copy, Check,
+  Flame, Trophy, Clock, DollarSign, Share2, Copy, Check, Loader2, Download, X,
   Target, Sparkles, BarChart3,
 } from "lucide-react";
 import {
@@ -30,8 +31,11 @@ interface Props {
 export function StatsView({ userId }: Props) {
   const [feedState, setFeedState] = useState<FeedState>({});
   const [streak, setStreak] = useState(0);
-  const [shareStatus, setShareStatus] = useState<"idle" | "shared" | "copied" | "error">("idle");
+  const [shareStatus, setShareStatus] = useState<
+    "idle" | "rendering" | "shared" | "saved" | "copied" | "error"
+  >("idle");
   const [origin, setOrigin] = useState("");
+  const cardRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     try {
@@ -68,32 +72,80 @@ export function StatsView({ userId }: Props) {
   const estimatedMinutes = completedCount * 3 + streak * 5;
   const estimatedSaved = (estimatedMinutes / 60) * HOURLY_VALUE;
 
-  const shareText = `Day ${streak || 1} of replacing TikTok finance hype with real SEC-grounded financial literacy on FinScroll 🔥📈
+  // Used for two purposes:
+  //   • Drawn into the image card (first line only) as the description under
+  //     the "Day X" hero number — so we deliberately don't repeat "Day X" here.
+  //   • Sent verbatim by the Copy Text button to clipboard.
+  const shareText = `Replacing TikTok finance hype with real SEC-grounded financial literacy on FinScroll 🔥📈
 
-${completedCount} concepts mastered. Building wealth instead of doomscrolling.`;
+Day ${streak || 1} · ${completedCount} concepts mastered. Building wealth instead of doomscrolling.`;
 
-  const handleShare = async () => {
-    if (typeof navigator === "undefined") return;
-    const payload = {
-      title: "FinScroll",
-      text: shareText,
-      url: origin || "https://github.com/halim-franky/FinScroll",
-    };
+  /**
+   * Render the green progress card as a PNG and hand it to the OS share sheet
+   * (mobile) or download it (desktop). Visual-first sharing wins on every
+   * social platform vs. plain text — Instagram Stories / TikTok / Twitter
+   * all auto-preview an image and zero of them auto-preview a text snippet.
+   */
+  const handleShareImage = async () => {
+    if (typeof window === "undefined" || !cardRef.current) return;
+    setShareStatus("rendering");
     try {
-      if ("share" in navigator && typeof navigator.share === "function") {
-        await navigator.share(payload);
+      const dataUrl = await toPng(cardRef.current, {
+        pixelRatio: 2,
+        backgroundColor: "#0a0a0a",
+        cacheBust: true,
+      });
+      const blob = await (await fetch(dataUrl)).blob();
+      const filename = `finscroll-streak-day-${streak || 1}.png`;
+      const file = new File([blob], filename, { type: "image/png" });
+
+      const canShareFile =
+        "canShare" in navigator &&
+        typeof navigator.canShare === "function" &&
+        navigator.canShare({ files: [file] });
+
+      if (canShareFile) {
+        // No `text` field — the image already contains the streak summary
+        // visually, so passing the same string as text would render twice
+        // (once inside the PNG, again as the message body). Leaving just
+        // the image makes the share clean and Instagram-Story-ready.
+        await navigator.share({
+          title: "My FinScroll streak",
+          files: [file],
+        });
         setShareStatus("shared");
       } else {
-        await navigator.clipboard.writeText(`${shareText}\n\n${payload.url}`);
-        setShareStatus("copied");
+        // Desktop / unsupported browser: download so the user can drag it
+        // into a post manually.
+        const link = document.createElement("a");
+        link.href = dataUrl;
+        link.download = filename;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        setShareStatus("saved");
       }
     } catch (err) {
       const cancelled = err instanceof Error && err.name === "AbortError";
-      if (!cancelled) setShareStatus("error");
+      if (cancelled) {
+        setShareStatus("idle");
+      } else {
+        try {
+          await navigator.clipboard.writeText(`${shareText}\n\n${origin}`);
+          setShareStatus("copied");
+        } catch {
+          setShareStatus("error");
+        }
+      }
     }
+    setTimeout(() => setShareStatus("idle"), 2600);
   };
 
-  const handleCopy = async () => {
+  /**
+   * Plain-text clipboard copy. Faster path for users who want to paste into
+   * Discord / iMessage / etc. as a quick line, without the image overhead.
+   */
+  const handleCopyText = async () => {
     try {
       await navigator.clipboard.writeText(`${shareText}\n\n${origin}`);
       setShareStatus("copied");
@@ -206,63 +258,140 @@ ${completedCount} concepts mastered. Building wealth instead of doomscrolling.`;
           Share your progress
         </h2>
 
-        {/* Preview card */}
-        <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-emerald-700 via-teal-900 to-zinc-950 border border-emerald-500/30 p-6 shadow-2xl">
-          <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-500/15 rounded-full blur-3xl pointer-events-none" />
+        {/* Preview card — ref-attached so we can rasterize it to PNG.
+            Colors are inline hex because Tailwind v4 `oklch()` doesn't
+            always survive the html-to-image canvas round-trip. */}
+        <div
+          ref={cardRef}
+          className="relative overflow-hidden rounded-2xl p-6 shadow-2xl border"
+          style={{
+            background:
+              "linear-gradient(135deg, #047857 0%, #134e4a 55%, #0a0a0a 100%)",
+            borderColor: "rgba(16, 185, 129, 0.3)",
+            color: "#ffffff",
+          }}
+        >
           <div className="relative space-y-4">
             <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-xl bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center">
-                <span className="text-emerald-300 font-black text-sm">F</span>
+              <div
+                className="w-8 h-8 rounded-xl flex items-center justify-center"
+                style={{
+                  backgroundColor: "rgba(16, 185, 129, 0.2)",
+                  border: "1px solid rgba(16, 185, 129, 0.4)",
+                }}
+              >
+                <span
+                  className="font-black text-sm"
+                  style={{ color: "#6ee7b7" }}
+                >
+                  F
+                </span>
               </div>
-              <span className="font-extrabold tracking-tight text-white">FinScroll</span>
+              <span
+                className="font-extrabold tracking-tight"
+                style={{ color: "#ffffff" }}
+              >
+                FinScroll
+              </span>
             </div>
             <div>
-              <div className="text-5xl font-black tracking-tighter text-white leading-none">
+              <div
+                className="text-5xl font-black tracking-tighter leading-none"
+                style={{ color: "#ffffff" }}
+              >
                 Day {Math.max(streak, 1)}
               </div>
-              <p className="text-sm text-emerald-100 mt-2 leading-relaxed whitespace-pre-line">
+              <p
+                className="text-sm mt-2 leading-relaxed whitespace-pre-line"
+                style={{ color: "#d1fae5" }}
+              >
                 {shareText.split("\n")[0]}
               </p>
             </div>
-            <div className="grid grid-cols-2 gap-3 pt-2 border-t border-white/10">
+            <div
+              className="grid grid-cols-2 gap-3 pt-3"
+              style={{ borderTop: "1px solid rgba(255,255,255,0.12)" }}
+            >
               <div>
-                <div className="text-[9px] text-emerald-200/70 uppercase font-black tracking-wider">Mastered</div>
-                <div className="text-2xl font-black text-white">{completedCount}</div>
+                <div
+                  className="text-[9px] uppercase font-black tracking-wider"
+                  style={{ color: "rgba(167, 243, 208, 0.8)" }}
+                >
+                  Mastered
+                </div>
+                <div
+                  className="text-2xl font-black"
+                  style={{ color: "#ffffff" }}
+                >
+                  {completedCount}
+                </div>
               </div>
               <div>
-                <div className="text-[9px] text-emerald-200/70 uppercase font-black tracking-wider">Saved</div>
-                <div className="text-2xl font-black text-white">${estimatedSaved.toFixed(0)}</div>
+                <div
+                  className="text-[9px] uppercase font-black tracking-wider"
+                  style={{ color: "rgba(167, 243, 208, 0.8)" }}
+                >
+                  Saved
+                </div>
+                <div
+                  className="text-2xl font-black"
+                  style={{ color: "#ffffff" }}
+                >
+                  ${estimatedSaved.toFixed(0)}
+                </div>
               </div>
             </div>
           </div>
         </div>
 
-        {/* Share / Copy buttons */}
+        {/* Share image (primary) / Copy text (secondary).
+            Differentiated by *medium*, not just by source: Share renders the
+            card as a PNG and hands it to the OS share sheet so Instagram,
+            TikTok, Twitter all auto-preview the visual; Copy text is the
+            fast-paste fallback for chat apps. */}
         <div className="grid grid-cols-2 gap-2">
           <button
-            onClick={handleShare}
-            className="flex items-center justify-center gap-2 h-12 rounded-2xl bg-emerald-500 hover:bg-emerald-400 text-zinc-950 font-bold text-sm transition-colors"
+            onClick={handleShareImage}
+            disabled={shareStatus === "rendering"}
+            className="flex items-center justify-center gap-2 h-12 rounded-2xl bg-emerald-500 hover:bg-emerald-400 disabled:bg-emerald-500/70 text-zinc-950 font-bold text-sm transition-colors"
           >
-            {shareStatus === "shared" ? (
-              <><Check className="w-4 h-4" /> Shared</>
+            {shareStatus === "rendering" ? (
+              <>
+                <Loader2 className="w-4 h-4 animate-spin" /> Rendering
+              </>
+            ) : shareStatus === "shared" ? (
+              <>
+                <Check className="w-4 h-4" /> Shared
+              </>
+            ) : shareStatus === "saved" ? (
+              <>
+                <Download className="w-4 h-4" /> Saved
+              </>
             ) : (
-              <><Share2 className="w-4 h-4" /> Share</>
+              <>
+                <Share2 className="w-4 h-4" /> Share image
+              </>
             )}
           </button>
           <button
-            onClick={handleCopy}
+            onClick={handleCopyText}
             className="flex items-center justify-center gap-2 h-12 rounded-2xl bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 text-zinc-200 font-bold text-sm transition-colors"
           >
             {shareStatus === "copied" ? (
-              <><Check className="w-4 h-4 text-emerald-400" /> Copied</>
+              <>
+                <Check className="w-4 h-4 text-emerald-400" /> Copied
+              </>
             ) : (
-              <><Copy className="w-4 h-4" /> Copy</>
+              <>
+                <Copy className="w-4 h-4" /> Copy text
+              </>
             )}
           </button>
         </div>
 
         {shareStatus === "error" && (
-          <p className="text-[11px] text-rose-400 text-center">
+          <p className="text-[11px] text-rose-400 text-center flex items-center justify-center gap-1">
+            <X className="w-3 h-3" />
             Couldn&apos;t share, try copying instead.
           </p>
         )}

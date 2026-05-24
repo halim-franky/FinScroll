@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { Sparkles, Lock } from "lucide-react";
+import { Sparkles, Lock, HelpCircle } from "lucide-react";
 import type { Card } from "@/lib/learn/types";
 import { CARDS } from "@/lib/learn/cards";
 import { MINI_SERIES, isUnlocked, progressFor } from "@/lib/learn/miniSeries";
@@ -9,10 +9,14 @@ import { dueCardIds, recordFailure, recordPass } from "@/lib/learn/spacedRepetit
 import { StoryCard } from "./learn/StoryCard";
 import { ReadingView } from "./learn/ReadingView";
 import { AudioModeView } from "./learn/AudioModeView";
+import { FeedTutorial } from "./learn/FeedTutorial";
+import { SwipeHint } from "./learn/SwipeHint";
+import { SkeletonCard } from "./learn/SkeletonCard";
 import { ModeToggle, type LearnMode } from "./learn/ModeToggle";
 import { AudioToggle, readAudioEnabled, writeAudioEnabled } from "./learn/AudioToggle";
 import { readOnboarding, type Struggle } from "./OnboardingModal";
 import { pushStateDebounced } from "@/lib/cloudSync";
+import { useInfiniteCards } from "@/lib/learn/useInfiniteCards";
 
 const STORAGE_KEY = (uid: string) => `finscroll_v3_${uid}`;
 const MODE_STORAGE_KEY = "finscroll_learn_mode";
@@ -39,10 +43,13 @@ const STORY_FRAME_COUNT = 5;
 export function FinTokFeed({ userId = "guest" }: FinTokFeedProps) {
   const [active, setActive] = useState(0);
   const [activeFrame, setActiveFrame] = useState(0);
+  const [hasScrolled, setHasScrolled] = useState(false);
+  const [replayTutorial, setReplayTutorial] = useState(false);
   const [mode, setMode] = useState<LearnMode>("story");
   const [audioEnabled, setAudioEnabled] = useState(false);
   const [completed, setCompleted] = useState<Record<string, boolean>>({});
   const [quizAnswers, setQuizAnswers] = useState<Record<string, number>>({});
+  const [dailyCard, setDailyCard] = useState<Card | null>(null);
   const feedRef = useRef<HTMLDivElement>(null);
 
   // ── Load persisted state on mount ────────────────────────────────
@@ -76,16 +83,87 @@ export function FinTokFeed({ userId = "guest" }: FinTokFeedProps) {
     [userId]
   );
 
-  // ── Build the card order: due-for-review first, then onboarding-picked start ──
-  const cardOrder = useMemo(() => {
+  // ── Fetch today's auto-generated daily card. Cached client-side by the
+  // YYYY-MM-DD dateKey so we don't re-fetch on the same day. The server is
+  // also cached per-day per-instance, so the first hit pays the LLM cost
+  // and every subsequent caller gets it instantly. ──
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const today = new Date();
+        const dateKey = `${today.getUTCFullYear()}-${String(today.getUTCMonth() + 1).padStart(2, "0")}-${String(today.getUTCDate()).padStart(2, "0")}`;
+        const cacheKey = `fs_daily_${dateKey}`;
+        const cached = localStorage.getItem(cacheKey);
+        if (cached) {
+          try {
+            const parsed = JSON.parse(cached) as Card;
+            if (!cancelled) setDailyCard(parsed);
+            return;
+          } catch {}
+        }
+        const res = await fetch("/api/cards/daily", { method: "GET" });
+        if (!res.ok) return;
+        const data = await res.json();
+        if (cancelled || !data?.card) return;
+        setDailyCard(data.card as Card);
+        try {
+          localStorage.setItem(cacheKey, JSON.stringify(data.card));
+        } catch {}
+      } catch {
+        // Silent fail — feed still works without the daily drop
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  // ── Build the card order: today's auto-generated drop FIRST, then
+  // due-for-review, then onboarding-picked start. The daily card is the
+  // hook that brings users back every day. ──
+  const baseOrder = useMemo(() => {
     const due = dueCardIds(userId);
     const dueSet = new Set(due.map(String));
     const dueCards = due
       .map((id) => CARDS.find((c) => String(c.id) === String(id)))
       .filter((c): c is Card => !!c);
     const remaining = CARDS.filter((c) => !dueSet.has(String(c.id)));
-    return [...dueCards, ...remaining];
-  }, [userId]);
+    const curated = [...dueCards, ...remaining];
+    return dailyCard ? [dailyCard, ...curated] : curated;
+  }, [userId, dailyCard]);
+
+  // ── Infinite feed: fetch RAG-generated cards as user nears the end.
+  // Falls back silently to recycling baseOrder if the API is rate-limited
+  // or generation fails — see useInfiniteCards for the fallback policy. ──
+  const {
+    extraCards,
+    isLoading: isLoadingMore,
+    fallback: infiniteFallback,
+  } = useInfiniteCards({
+    activeIndex: active,
+    baseLength: baseOrder.length,
+    prefetchAhead: 2,
+    enabled: mode === "story",
+  });
+
+  const cardOrder = useMemo(() => {
+    // Just concatenate base + any RAG-generated extras. When the API is
+    // in cooldown (fallback=true) and we have no extras yet, the feed
+    // gracefully stops at the base length — the user sees the existing
+    // 12 + daily cards and the mini-series banner at the end. Recycling
+    // the base would create duplicate keys (every card.id appears twice)
+    // and React refuses to render that.
+    return [...baseOrder, ...extraCards];
+  }, [baseOrder, extraCards]);
+
+  // Surface the fallback state in the console only — no UI yet. If we
+  // want a "you've finished everything" message later, this is where we'd
+  // hang it off.
+  if (process.env.NODE_ENV === "development" && infiniteFallback) {
+    // eslint-disable-next-line no-console
+    console.debug("[FinTokFeed] Infinite-card API in cooldown — using base feed only.");
+  }
 
   // ── First-time visitors: scroll to the card matching their struggle ──
   useEffect(() => {
@@ -115,6 +193,8 @@ export function FinTokFeed({ userId = "guest" }: FinTokFeedProps) {
       feedRef.current.scrollTop / feedRef.current.clientHeight
     );
     if (idx !== active && idx >= 0 && idx < cardOrder.length) setActive(idx);
+    // First user-initiated scroll dismisses the swipe-up hint
+    if (feedRef.current.scrollTop > 4) setHasScrolled(true);
   }, [active, cardOrder.length]);
 
   // ── Quiz answer handler ──────────────────────────────────────────
@@ -228,6 +308,21 @@ export function FinTokFeed({ userId = "guest" }: FinTokFeedProps) {
         <div className="flex items-center justify-between gap-2">
           <div className="flex items-center gap-2 pointer-events-auto">
             <span className="text-white font-black text-sm tracking-tight">FinScroll</span>
+            {/* Replay-tutorial button — visible in every mode so users can
+                always get help, not just in Story. Tapping it switches the
+                feed to Story mode (where gestures apply) and opens the
+                tutorial overlay. */}
+            <button
+              onClick={() => {
+                if (mode !== "story") handleModeChange("story");
+                setReplayTutorial((v) => !v);
+              }}
+              aria-label="Replay tutorial"
+              title="How to use FinScroll"
+              className="p-1.5 rounded-full bg-black/40 backdrop-blur-sm border border-zinc-700/50 text-zinc-300 hover:text-emerald-300 hover:border-emerald-500/40 transition-colors"
+            >
+              <HelpCircle className="w-3.5 h-3.5" />
+            </button>
             {dueCount > 0 && (
               <span className="px-1.5 py-0.5 rounded-full bg-amber-500/15 border border-amber-500/30 text-amber-300 text-[8px] font-black uppercase tracking-widest">
                 {dueCount} review
@@ -276,12 +371,19 @@ export function FinTokFeed({ userId = "guest" }: FinTokFeedProps) {
             // immediate neighbors. The rest stay as size-preserving placeholders
             // so snap positions stay correct, but skip the iframe/Lottie/etc.
             // payload. Drops 9 of 12 cards' work per scroll frame.
+            //
+            // Key is `idx-card.id` (not just card.id) so React doesn't choke
+            // when the feed legitimately contains two cards with the same id
+            // — e.g. an RAG-generated card that happened to be assigned an
+            // id colliding with the curated set, or any future recycling
+            // strategy that re-uses cards.
+            const key = `${idx}-${card.id}`;
             const distance = Math.abs(idx - active);
             const visible = distance <= 1;
             if (!visible) {
               return (
                 <div
-                  key={card.id}
+                  key={key}
                   className="relative w-full h-full snap-start shrink-0 bg-zinc-950"
                   aria-hidden="true"
                 />
@@ -289,7 +391,7 @@ export function FinTokFeed({ userId = "guest" }: FinTokFeedProps) {
             }
             return (
               <StoryCard
-                key={card.id}
+                key={key}
                 card={card}
                 userId={userId}
                 isActive={active === idx}
@@ -301,6 +403,15 @@ export function FinTokFeed({ userId = "guest" }: FinTokFeedProps) {
               />
             );
           })}
+
+          {/* Skeleton card — slots in when a fresh RAG card is being
+              fetched. Only shown when the user is within 1 card of the
+              end so we don't waste a snap-stop in the middle of the feed.
+              Once the new card arrives it appends to cardOrder and the
+              skeleton naturally moves further down. */}
+          {isLoadingMore && active >= cardOrder.length - 2 && (
+            <SkeletonCard />
+          )}
 
           {/* Mini-series banner at end of feed */}
           {unlockedSeries.length > 0 && (
@@ -380,6 +491,22 @@ export function FinTokFeed({ userId = "guest" }: FinTokFeedProps) {
 
       {mode === "read" && <ReadingView cards={cardOrder} onSelectCard={jumpToCard} />}
       {mode === "audio" && <AudioModeView cards={cardOrder} />}
+
+      {/* First-time gestures tutorial. Renders only in story mode where the
+          gestures actually apply. Self-gates via localStorage on first run;
+          can be re-triggered any time via the ? button in the HUD. */}
+      {mode === "story" && (
+        <FeedTutorial
+          open={replayTutorial}
+          onClose={() => setReplayTutorial(false)}
+        />
+      )}
+
+      {/* Persistent nudge to swipe up for the next card. Disappears the moment
+          the user scrolls, or after a brief auto-hide. */}
+      {mode === "story" && (
+        <SwipeHint isFirstCard={active === 0} hasScrolled={hasScrolled} />
+      )}
     </div>
   );
 }

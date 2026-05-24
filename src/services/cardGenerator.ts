@@ -14,6 +14,8 @@ import { semanticSearch } from "./search";
 import { config } from "../lib/config";
 import type { ConceptSeed, Level } from "../lib/conceptSeeds";
 import { CONCEPT_SEEDS } from "../lib/conceptSeeds";
+import type { Card } from "../lib/learn/types";
+import { getSupabase } from "../lib/supabase";
 
 // ── Schema for the LLM response ─────────────────────────────────────────
 const CardPayloadSchema = z.object({
@@ -48,8 +50,12 @@ export interface GeneratedCard extends CardPayload {
 const cardCache = new Map<string, GeneratedCard>();
 
 // ── Gemini call with structured JSON output ──────────────────────────────
+// Using `gemini-3-flash-preview` for best output quality on the structured
+// card schema. Free-tier quota on preview models is tight — if generation
+// starts 429-ing, either wait for the daily reset (midnight Pacific) or
+// drop to "gemini-2.0-flash" which has a much more generous 1,500 RPD.
 async function callGeminiJSON(prompt: string): Promise<unknown> {
-  const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${config.googleGenAI.apiKey}`;
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${config.googleGenAI.apiKey}`;
 
   const response = await fetch(url, {
     method: "POST",
@@ -153,6 +159,161 @@ Rules:
     });
     return null;
   }
+}
+
+// ── Daily card: deterministic per (seed, dateKey), cached separately so
+//    the seed-keyed batch cache doesn't return yesterday's drop on a new day.
+const dailyCache = new Map<string, GeneratedCard>();
+
+export async function generateDailyCard(
+  seed: ConceptSeed,
+  dateKey: string,
+): Promise<GeneratedCard | null> {
+  const cacheKey = `${dateKey}::${seed.id}`;
+  if (dailyCache.has(cacheKey)) {
+    return dailyCache.get(cacheKey)!;
+  }
+
+  // Reuse the seed-level generator (it has its own cache, but for daily we
+  // re-derive the cacheKey above so we can ship a fresh drop every day).
+  // To avoid the seed-cache poisoning yesterday's value, we generate via
+  // a temporary path: bypass the seed cache for this call.
+  const previous = cardCache.get(seed.id);
+  cardCache.delete(seed.id);
+  const card = await generateCardFromSeed(seed);
+  if (previous) cardCache.set(seed.id, previous);
+
+  if (!card) return null;
+
+  // Re-id for client display so a daily drop doesn't collide with regular
+  // generated cards by id.
+  const dailyCard: GeneratedCard = {
+    ...card,
+    id: `daily-${dateKey}-${seed.id}`,
+  };
+  dailyCache.set(cacheKey, dailyCard);
+  return dailyCard;
+}
+
+/**
+ * Adapter: convert a `GeneratedCard` to the same `Card` shape consumed by
+ * the Learn feed and the StoryCard frames. Lets the auto-generated daily
+ * drop slot into the same rendering pipeline as hand-curated cards.
+ */
+export function toLearnCard(g: GeneratedCard): Card {
+  return {
+    id: g.id,
+    level: g.level,
+    topic: g.topic,
+    gradient: g.gradient,
+    emoji: g.emoji,
+    title: g.title,
+    hook: g.hook,
+    keyFact: g.keyFact,
+    insight: g.keyFact.split(".")[0] + ".", // first-sentence summary
+    impactLabel: g.impactLabel,
+    impactValue: g.impactValue,
+    quiz: g.quiz,
+    source: { name: g.source, url: g.sourceUrl },
+    creator: g.creator,
+    generated: true,
+  };
+}
+
+/**
+ * Get a card by seedId, using the shared Supabase cache when available.
+ *
+ * Flow:
+ *   1. Try Supabase `generated_cards` (shared across all users)
+ *   2. On hit  → bump last_hit_at + hit_count, return Card
+ *   3. On miss → generate via Gemini, persist to Supabase, return Card
+ *
+ * Returns `{ card, cached }` so the caller can tag the response — the
+ * client uses this to decide whether to keep fetching aggressively.
+ */
+export async function getOrGenerateBySeedId(
+  seedId: string,
+): Promise<{ card: Card; cached: boolean } | null> {
+  const seed = CONCEPT_SEEDS.find((s) => s.id === seedId);
+  if (!seed) return null;
+
+  const supabase = getSupabase();
+
+  // ── Cache lookup ───────────────────────────────────────────────
+  if (supabase) {
+    try {
+      const { data } = await supabase
+        .from("generated_cards")
+        .select("card_json")
+        .eq("seed_id", seedId)
+        .maybeSingle();
+
+      if (data?.card_json) {
+        // Fire-and-forget bump — never block the response on telemetry
+        supabase
+          .from("generated_cards")
+          .update({
+            last_hit_at: new Date().toISOString(),
+            hit_count: ((data as { hit_count?: number }).hit_count ?? 0) + 1,
+          })
+          .eq("seed_id", seedId)
+          .then(() => undefined);
+
+        return { card: data.card_json as Card, cached: true };
+      }
+    } catch (err) {
+      // Cache lookup failure is non-fatal — fall through to generation
+      console.warn("[cardGenerator] Supabase cache lookup failed:", err);
+    }
+  }
+
+  // ── Cache miss → generate ──────────────────────────────────────
+  const generated = await generateCardFromSeed(seed);
+  if (!generated) return null;
+
+  const card = toLearnCard(generated);
+
+  // ── Persist for the next caller ────────────────────────────────
+  if (supabase) {
+    try {
+      await supabase.from("generated_cards").upsert(
+        {
+          seed_id: seedId,
+          card_json: card,
+          last_hit_at: new Date().toISOString(),
+        },
+        { onConflict: "seed_id" },
+      );
+    } catch (err) {
+      // Persist failure is non-fatal — we still return the freshly
+      // generated card. Next caller will just regenerate.
+      console.warn("[cardGenerator] Supabase persist failed:", err);
+      Sentry.captureException(err, {
+        tags: { service: "cardGenerator", op: "persist", seedId },
+      });
+    }
+  }
+
+  return { card, cached: false };
+}
+
+/**
+ * Pick a concept seed the user hasn't seen yet. Falls back to the
+ * least-recently-used seed when they've consumed all of them — so the
+ * feed stays "infinite" even after exhausting the full catalogue.
+ */
+export function pickFreshSeed(excludeSeedIds: string[]): ConceptSeed {
+  const excluded = new Set(excludeSeedIds);
+  const fresh = CONCEPT_SEEDS.filter((s) => !excluded.has(s.id));
+  if (fresh.length > 0) {
+    return fresh[Math.floor(Math.random() * fresh.length)];
+  }
+  // All consumed — cycle back, prefer something other than the most
+  // recent if the exclude list still has room to indicate "recent".
+  const lastSeen = excludeSeedIds[excludeSeedIds.length - 1];
+  const cyclable = CONCEPT_SEEDS.filter((s) => s.id !== lastSeen);
+  const pool = cyclable.length > 0 ? cyclable : [...CONCEPT_SEEDS];
+  return pool[Math.floor(Math.random() * pool.length)];
 }
 
 // ── Public: generate a batch of cards, optionally filtered by level ─────

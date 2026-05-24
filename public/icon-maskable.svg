@@ -10,14 +10,19 @@
     </linearGradient>
   </defs>
 
-  <!-- Maskable icons need a "safe zone" — keep critical content within a 64px-radius circle (centered).
-       The full 512×512 is mostly background to survive adaptive icon masking. -->
+  <!-- Full-bleed background — adaptive icon masking expects edge-to-edge fill -->
   <rect width="512" height="512" fill="url(#bg-m)"/>
 
-  <!-- Stylized F — kept inside the central 60% safe zone -->
+  <!-- F mark scaled into the central 60% safe zone (Android adaptive icons may
+       crop up to 20% on any edge, so the glyph stays inside ~y 156–356, x 156–356). -->
   <g transform="translate(176 168)">
-    <rect x="0" y="0" width="40" height="220" rx="16" ry="16" fill="url(#accent-m)"/>
-    <rect x="0" y="0" width="160" height="40" rx="16" ry="16" fill="url(#accent-m)"/>
-    <rect x="0" y="88" width="120" height="34" rx="14" ry="14" fill="url(#accent-m)"/>
+    <!-- Vertical stem -->
+    <rect x="0" y="0" width="40" height="220" rx="20" ry="20" fill="url(#accent-m)"/>
+    <!-- Top arm -->
+    <rect x="0" y="0" width="168" height="40" rx="20" ry="20" fill="url(#accent-m)"/>
+    <!-- Middle arm -->
+    <rect x="0" y="80" width="128" height="40" rx="20" ry="20" fill="url(#accent-m)"/>
+    <!-- Bottom arm -->
+    <rect x="0" y="160" width="88" height="40" rx="20" ry="20" fill="url(#accent-m)"/>
   </g>
 </svg>

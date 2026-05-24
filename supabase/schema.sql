@@ -49,3 +49,22 @@ create trigger trg_user_progress_updated_at
   before update on public.user_progress
   for each row
   execute function public.set_updated_at();
+
+-- ── Generated-card cache ─────────────────────────────────────────────
+-- Each row is one RAG-generated card keyed by its concept seed id.
+-- First user to land on a given seed pays the Gemini cost; everyone
+-- else gets a cache hit. hit_count is informational so we can spot
+-- which concepts the audience actually consumes.
+create table if not exists public.generated_cards (
+  seed_id      text primary key,                    -- e.g. "pay-yourself-first"
+  card_json    jsonb not null,                      -- full Card object ready for the feed
+  created_at   timestamptz not null default now(),
+  last_hit_at  timestamptz not null default now(),
+  hit_count    integer not null default 1
+);
+
+comment on table public.generated_cards is
+  'Shared cache of RAG-generated FinScroll cards. Free-tier Gemini quota stays comfortable because the same seed always returns the same card across all users.';
+
+create index if not exists generated_cards_last_hit_at_idx
+  on public.generated_cards (last_hit_at desc);

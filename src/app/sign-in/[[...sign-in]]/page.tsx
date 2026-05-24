@@ -1,6 +1,7 @@
 import { SignIn } from "@clerk/nextjs";
 import Link from "next/link";
 import { Shield, TrendingUp, BookOpen } from "lucide-react";
+import { FinScrollMark } from "@/components/brand/Mark";
 
 const clerkAppearance = {
   variables: {
@@ -44,7 +45,7 @@ export default function SignInPage() {
       <div className="flex items-center justify-center pt-10 pb-6">
         <div className="flex items-center gap-2.5">
           <div className="w-9 h-9 rounded-xl bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center shadow-[0_0_15px_rgba(16,185,129,0.2)]">
-            <span className="text-emerald-400 font-black text-base">F</span>
+            <FinScrollMark size="md" glyphOnly title="" />
           </div>
           <span className="text-xl font-extrabold tracking-tight text-zinc-50">FinScroll</span>
         </div>
@@ -69,7 +70,7 @@ export default function SignInPage() {
         </div>
       </div>
 
-      <div className="flex items-center justify-center gap-6 mt-10 px-6 pb-10">
+      <div className="flex items-center justify-center gap-6 mt-10 px-6">
         {[
           { icon: Shield, label: "SEC-Grounded" },
           { icon: TrendingUp, label: "Science-Backed" },
@@ -81,6 +82,21 @@ export default function SignInPage() {
           </div>
         ))}
       </div>
+
+      {/* Legal footer */}
+      <nav className="flex items-center justify-center gap-4 text-[11px] font-semibold text-zinc-400 mt-6 pb-10">
+        <Link href="/privacy" className="hover:text-white transition-colors">
+          Privacy
+        </Link>
+        <span className="text-zinc-600">·</span>
+        <Link href="/terms" className="hover:text-white transition-colors">
+          Terms
+        </Link>
+        <span className="text-zinc-600">·</span>
+        <Link href="/contact" className="hover:text-white transition-colors">
+          Contact
+        </Link>
+      </nav>
     </div>
   );
 }

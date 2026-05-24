@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import { ChatInterface } from "@/components/ChatInterface";
 
 export default function ChatPage() {
@@ -8,11 +9,20 @@ export default function ChatPage() {
           AI Finance Coach
         </h1>
         <p className="text-xs text-zinc-400 mt-1">
-          Grounded in SEC & Springer Nature research. Powered by Google Gemini.
+          Answers grounded in SEC publications and peer-reviewed economic
+          research. Powered by Google Gemini.
         </p>
       </div>
       <div className="flex-1 overflow-hidden px-4 pb-4">
-        <ChatInterface />
+        {/* Suspense boundary required because ChatInterface reads `cardId`
+            from the URL via useSearchParams. */}
+        <Suspense
+          fallback={
+            <div className="w-full h-full rounded-3xl bg-zinc-900/50 border border-zinc-800 animate-pulse" />
+          }
+        >
+          <ChatInterface />
+        </Suspense>
       </div>
     </div>
   );

@@ -42,6 +42,7 @@ export function NotesInput({ userId, cardId, onSaved }: Props) {
   const [isRecording, setIsRecording] = useState(false);
   const [voiceUsed, setVoiceUsed] = useState(false);
   const recRef = useRef<SpeechRec | null>(null);
+  const textareaRef = useRef<HTMLTextAreaElement | null>(null);
 
   // Load existing note for this card on mount
   useEffect(() => {
@@ -54,13 +55,66 @@ export function NotesInput({ userId, cardId, onSaved }: Props) {
     }
   }, [userId, cardId]);
 
+  // Focus the textarea + put the cursor at the end whenever the text is set
+  // programmatically (template swap). Done with a microtask so React commits
+  // the new value first.
+  const focusAtEnd = (val: string) => {
+    queueMicrotask(() => {
+      const el = textareaRef.current;
+      if (!el) return;
+      el.focus();
+      const end = val.length;
+      el.setSelectionRange(end, end);
+    });
+  };
+
   const handleTemplate = (id: string, label: string) => {
+    const prefix = label + " ";
+
+    // Toggle off: tap the active chip again to drop the prefix
     if (template === id) {
       setTemplate(undefined);
+      // If the textarea only has the prefix, clear it. Otherwise leave the
+      // user's custom text alone, just drop the prefix.
+      if (text.trim() === label.trim()) {
+        setText("");
+        focusAtEnd("");
+      } else if (text.startsWith(prefix)) {
+        const rest = text.slice(prefix.length);
+        setText(rest);
+        focusAtEnd(rest);
+      }
       return;
     }
+
     setTemplate(id);
-    if (!text.trim()) setText(label + " ");
+
+    // Three cases for the textarea content:
+    //   1. Empty or just-whitespace → fill with the new prefix
+    //   2. Matches a known template prefix exactly → swap the entire content
+    //      to the new prefix
+    //   3. Has custom user content → swap the leading prefix (if any) but
+    //      keep what the user typed
+    const cur = text.trimEnd();
+    const matchedPrefix = NOTE_TEMPLATES.find(
+      (t) => cur === t.label || cur === t.label.trim() || text.startsWith(t.label + " "),
+    );
+
+    let next: string;
+    if (!cur) {
+      next = prefix;
+    } else if (matchedPrefix) {
+      const customRest = text.startsWith(matchedPrefix.label + " ")
+        ? text.slice(matchedPrefix.label.length + 1)
+        : "";
+      next = customRest ? prefix + customRest : prefix;
+    } else {
+      // No recognizable prefix — prepend the new one and keep their text
+      next = prefix + text.replace(/^\s+/, "");
+    }
+
+    setText(next);
+    focusAtEnd(next);
   };
 
   const handleSave = () => {
@@ -132,6 +186,7 @@ export function NotesInput({ userId, cardId, onSaved }: Props) {
       {/* Text area */}
       <div className="relative">
         <textarea
+          ref={textareaRef}
           value={text}
           onChange={(e) => setText(e.target.value.slice(0, 5000))}
           placeholder="Write what you learned, what you'll do, or what confused you..."

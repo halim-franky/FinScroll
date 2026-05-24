@@ -2,7 +2,7 @@
 
 import { memo, useCallback, useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { ChevronLeft, ChevronRight, Volume2 } from "lucide-react";
+import { ChevronLeft, ChevronRight, Volume2, Lock } from "lucide-react";
 import type { Card } from "@/lib/learn/types";
 import { HookFrame } from "./frames/HookFrame";
 import { VisualFrame } from "./frames/VisualFrame";
@@ -24,7 +24,7 @@ interface Props {
   onFrameChange?: (frame: number) => void;
 }
 
-const FRAME_NAMES = ["Hook", "Visual", "Insight", "Quiz", "Action"] as const;
+const FRAME_NAMES = ["Video", "Visual", "Insight", "Quiz", "Proof"] as const;
 
 function StoryCardImpl({
   card,
@@ -40,15 +40,47 @@ function StoryCardImpl({
   const [direction, setDirection] = useState(1);  // 1 = forward, -1 = back
   const startX = useRef<number | null>(null);
 
+  // Quiz gate: the user must answer the quiz correctly before reaching
+  // the Proof frame. We surface a transient message when they try to
+  // advance without satisfying the gate so they understand *why* nothing
+  // happened — silent failure would feel like the button is broken.
+  const [gateMessage, setGateMessage] = useState<string | null>(null);
+  const quizPassed = quizAnswer !== null && quizAnswer === card.quiz.correctIndex;
+  const isRightGated = frame === 3 && !quizPassed;
+
   const next = useCallback(() => {
+    // Gate frame 3 → 4 on a correct quiz answer
+    if (frame === 3 && (quizAnswer === null || quizAnswer !== card.quiz.correctIndex)) {
+      setGateMessage(
+        quizAnswer === null
+          ? "Answer the quiz first to unlock your Proof."
+          : "Not quite — pick the correct answer to unlock your Proof.",
+      );
+      return;
+    }
     setDirection(1);
     setFrame((f) => Math.min(f + 1, 4));
-  }, []);
+  }, [frame, quizAnswer, card.quiz.correctIndex]);
 
   const prev = useCallback(() => {
     setDirection(-1);
     setFrame((f) => Math.max(f - 1, 0));
   }, []);
+
+  // Auto-dismiss the gate message after a few seconds — long enough to
+  // read, short enough not to linger if the user immediately fixes their
+  // answer.
+  useEffect(() => {
+    if (!gateMessage) return;
+    const id = setTimeout(() => setGateMessage(null), 2800);
+    return () => clearTimeout(id);
+  }, [gateMessage]);
+
+  // Clear the message immediately when the user changes their quiz
+  // answer to the correct one — feels responsive.
+  useEffect(() => {
+    if (quizPassed) setGateMessage(null);
+  }, [quizPassed]);
 
   // Reset to frame 0 whenever this card becomes active
   useEffect(() => {
@@ -126,7 +158,7 @@ function StoryCardImpl({
             exit="exit"
             className="absolute inset-0"
           >
-            {frame === 0 && <HookFrame card={card} isActive={isActive} />}
+            {frame === 0 && <HookFrame card={card} isActive={isActive} userId={userId} />}
             {frame === 1 && (
               <div className="h-full pt-24 pb-16">
                 <VisualFrame card={card} isActive={isActive} />
@@ -144,15 +176,35 @@ function StoryCardImpl({
             )}
             {frame === 4 && (
               <div className="h-full pt-24 pb-16">
-                <ActionFrame card={card} userId={userId} onJumpToCard={onJumpToCard} />
+                <ActionFrame
+                  card={card}
+                  userId={userId}
+                  quizAnswer={quizAnswer}
+                  onJumpToCard={onJumpToCard}
+                />
               </div>
             )}
           </motion.div>
         </AnimatePresence>
       </div>
 
-      {/* Frame navigation overlay — tap left/right to advance */}
-      {/* Left half: previous */}
+      {/*
+        Frame navigation overlay — invisible tap targets so the whole
+        story can be advanced with a single thumb.
+
+        Frames 1–3 (visual / insight / quiz): left + right edge strips
+        spanning the full card height.
+
+        Frame 0 (video): we MUST NOT cover the YouTube iframe — its built-in
+        controls (CC, settings, replay, scrubber) live inside the player
+        and an overlay on top would steal those taps. Instead, render two
+        full-width horizontal strips, one above and one below the video,
+        each split into left (prev) / right (next) halves. The middle band
+        where the iframe sits stays untouched.
+
+        Frame 4 (proof): no right-tap zone (already the last frame), only
+        the left-edge prev strip.
+      */}
       {frame > 0 && (
         <button
           aria-label="Previous frame"
@@ -160,14 +212,60 @@ function StoryCardImpl({
           className="absolute left-0 top-24 bottom-16 w-1/4 z-20"
         />
       )}
-      {/* Right half: next */}
-      {frame < 4 && (
+      {frame > 0 && frame < 4 && (
         <button
           aria-label="Next frame"
           onClick={next}
           className="absolute right-0 top-24 bottom-16 w-1/4 z-20"
         />
       )}
+
+      {frame === 0 && (
+        // Single bottom strip — covers the creator credit and the pulsing
+        // "Tap right to continue" hint, which is the area the user actually
+        // expects to tap. We deliberately do NOT add a top strip on frame 0
+        // because the chip band there contains the Fullscreen button — an
+        // overlay would steal that button's taps and the user gets stuck
+        // on a non-fullscreen video. The YouTube iframe in the middle is
+        // also free from any overlay so its native controls work. The
+        // strip stops 64px above the card edge so the chevrons stay
+        // clickable.
+        <div className="absolute left-0 right-0 bottom-16 h-[22%] z-20 flex">
+          <button
+            aria-label="Previous frame"
+            onClick={prev}
+            className="flex-1"
+          />
+          <button
+            aria-label="Next frame"
+            onClick={next}
+            className="flex-1"
+          />
+        </div>
+      )}
+
+      {/* Gate message — slides up from the chevron bar when the user
+          tries to advance past the quiz without a correct answer. */}
+      <AnimatePresence>
+        {gateMessage && (
+          <motion.div
+            initial={{ y: 12, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            exit={{ y: 12, opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            className="absolute bottom-14 left-1/2 -translate-x-1/2 z-40 px-4 max-w-[90%]"
+            role="status"
+            aria-live="polite"
+          >
+            <div className="flex items-center gap-2 px-3.5 py-2 rounded-full bg-amber-500/15 border border-amber-500/40 backdrop-blur-md shadow-[0_8px_24px_-8px_rgba(245,158,11,0.4)]">
+              <Lock className="w-3.5 h-3.5 text-amber-300 shrink-0" />
+              <span className="text-[12px] font-bold text-amber-100 leading-tight">
+                {gateMessage}
+              </span>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Bottom controls — manual chevrons for explicit feedback */}
       <div className="absolute bottom-2 left-0 right-0 z-30 flex items-center justify-between px-4">
@@ -201,12 +299,24 @@ function StoryCardImpl({
         <button
           onClick={next}
           disabled={frame === 4}
-          aria-label="Next frame"
-          className={`p-2 rounded-full bg-black/40 backdrop-blur-sm border border-zinc-700/50 transition-opacity ${
-            frame === 4 ? "opacity-30 cursor-not-allowed" : "text-zinc-300 hover:text-white"
+          aria-label={
+            isRightGated
+              ? "Locked — answer the quiz correctly to continue"
+              : "Next frame"
+          }
+          className={`p-2 rounded-full backdrop-blur-sm border transition-opacity ${
+            frame === 4
+              ? "bg-black/40 border-zinc-700/50 opacity-30 cursor-not-allowed"
+              : isRightGated
+              ? "bg-amber-500/15 border-amber-500/40 text-amber-200"
+              : "bg-black/40 border-zinc-700/50 text-zinc-300 hover:text-white"
           }`}
         >
-          <ChevronRight className="w-4 h-4" />
+          {isRightGated ? (
+            <Lock className="w-4 h-4" />
+          ) : (
+            <ChevronRight className="w-4 h-4" />
+          )}
         </button>
       </div>
     </div>
