@@ -22,12 +22,12 @@ export async function GET(req: Request) {
   }
 
   // Global cap protects free-tier Gemini quota
-  const global = globalRateLimit("llm_daily", 240, 60_000);
+  const global = await globalRateLimit("llm_daily", 240, 60_000);
   if (!global.allowed) {
     return rateLimitResponse(global, "Daily card is at capacity. Try again shortly.");
   }
   const ip = getClientIp(req);
-  const perIp = rateLimit(`daily:${ip}`, 20, 60_000);
+  const perIp = await rateLimit(`daily:${ip}`, 20, 60_000);
   if (!perIp.allowed) {
     return rateLimitResponse(perIp, "Too many requests. Please wait.");
   }

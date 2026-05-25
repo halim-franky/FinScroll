@@ -20,7 +20,7 @@ export async function POST() {
   }
 
   // Rate limit: 2 full preloads per hour per user
-  const result = rateLimit(`preload:${userId}`, 2, 3_600_000);
+  const result = await rateLimit(`preload:${userId}`, 2, 3_600_000);
   if (!result.allowed) {
     return rateLimitResponse(result, "Preload rate limit exceeded. Please wait before running again.");
   }

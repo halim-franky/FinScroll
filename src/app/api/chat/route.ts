@@ -30,14 +30,14 @@ export async function POST(req: Request) {
   // ── Global quota: protects Gemini API spend across ALL callers
   // 300 chat completions per minute is a sensible ceiling for the
   // demo / free-tier; raise once you have a paid LLM plan.
-  const global = globalRateLimit("llm_chat", 300, 60_000);
+  const global = await globalRateLimit("llm_chat", 300, 60_000);
   if (!global.allowed) {
     return rateLimitResponse(global, "Chat is at capacity right now. Try again in a moment.");
   }
 
   // ── Per-IP limit
   const ip = getClientIp(req);
-  const perIp = rateLimit(`chat:${ip}`, 20, 60_000);
+  const perIp = await rateLimit(`chat:${ip}`, 20, 60_000);
   if (!perIp.allowed) {
     return rateLimitResponse(perIp);
   }

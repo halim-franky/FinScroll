@@ -44,7 +44,7 @@ export async function POST(req: Request) {
   }
 
   // ── Rate limits (cheapest cap first) ─────────────────────────────
-  const global = globalRateLimit("llm_generate", 200, 60_000);
+  const global = await globalRateLimit("llm_generate", 200, 60_000);
   if (!global.allowed) {
     return NextResponse.json(
       {
@@ -55,12 +55,12 @@ export async function POST(req: Request) {
     );
   }
 
-  const perMinute = rateLimit(`gen:min:${userId}`, 5, 60_000);
+  const perMinute = await rateLimit(`gen:min:${userId}`, 5, 60_000);
   if (!perMinute.allowed) {
     return rateLimitResponse(perMinute, "Slow down — give us a sec.");
   }
 
-  const perHour = rateLimit(`gen:hour:${userId}`, 30, 60 * 60_000);
+  const perHour = await rateLimit(`gen:hour:${userId}`, 30, 60 * 60_000);
   if (!perHour.allowed) {
     return NextResponse.json(
       {

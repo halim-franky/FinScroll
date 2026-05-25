@@ -18,7 +18,7 @@ export async function POST(req: Request) {
   }
 
   // Rate limit: 5 URL ingestions per minute per user
-  const result = rateLimit(`ingest-url:${userId}`, 5, 60_000);
+  const result = await rateLimit(`ingest-url:${userId}`, 5, 60_000);
   if (!result.allowed) {
     return rateLimitResponse(result);
   }

@@ -12,7 +12,7 @@ const searchSchema = z.object({
 export async function POST(req: Request) {
   // Rate limiting: 30 requests per minute per IP
   const ip = getClientIp(req);
-  const result = rateLimit(`search:${ip}`, 30, 60_000);
+  const result = await rateLimit(`search:${ip}`, 30, 60_000);
   if (!result.allowed) {
     return rateLimitResponse(result);
   }

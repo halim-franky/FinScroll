@@ -20,6 +20,33 @@ import {
   callGeminiWithFallback,
   GEMINI_FALLBACK_MODELS,
 } from "../lib/geminiFallback";
+import { Redis } from "@upstash/redis";
+
+// ── Upstash Redis client (singleton for the lifetime of the worker) ─────
+// Used as L1 cache in front of Supabase for the `generated_cards` table.
+// Hit latency drops from ~50ms (Supabase Postgres) to ~2ms (Upstash REST),
+// which matters on hot endpoints (e.g. the daily card, infinite scroll).
+let redisClient: Redis | null | undefined;
+function getCacheRedis(): Redis | null {
+  if (redisClient !== undefined) return redisClient;
+  const url = process.env.UPSTASH_REDIS_REST_URL;
+  const token = process.env.UPSTASH_REDIS_REST_TOKEN;
+  if (!url || !token || url.includes("YOUR_") || token.includes("YOUR_")) {
+    redisClient = null;
+    return null;
+  }
+  try {
+    redisClient = new Redis({ url, token });
+  } catch (err) {
+    console.warn("[cardGenerator] Upstash init failed:", err);
+    redisClient = null;
+  }
+  return redisClient;
+}
+
+const REDIS_CARD_TTL_SECONDS = 60 * 60 * 24; // 24h — bounds staleness when
+// a curated video is updated in conceptSeeds. After 24h the Redis cache
+// expires, the next request misses through to Supabase (or regenerates).
 
 // ── Schema for the LLM response ─────────────────────────────────────────
 const CardPayloadSchema = z.object({
@@ -289,8 +316,30 @@ export async function getOrGenerateBySeedId(
   if (!seed) return null;
 
   const supabase = getSupabase();
+  const redis = getCacheRedis();
+  const redisKey = `card:${seedId}`;
 
-  // ── Cache lookup ───────────────────────────────────────────────
+  // ── L1: Redis lookup ──────────────────────────────────────────
+  // Sub-3ms hit when warm. Skipped silently if Upstash isn't configured.
+  if (redis) {
+    try {
+      const cached = await redis.get<Card>(redisKey);
+      if (cached) {
+        // Always re-attach the latest curated video URL from the seed
+        // in case it changed in conceptSeeds.ts since this card was
+        // cached. Same self-healing pattern we use on the daily route.
+        if (seed.videoEmbedUrl) {
+          cached.videoEmbedUrl = seed.videoEmbedUrl;
+          cached.videoCreator = seed.videoCreator;
+        }
+        return { card: cached, cached: true };
+      }
+    } catch (err) {
+      console.warn("[cardGenerator] Redis L1 lookup failed:", err);
+    }
+  }
+
+  // ── L2: Supabase lookup ───────────────────────────────────────
   if (supabase) {
     try {
       const { data } = await supabase
@@ -300,6 +349,12 @@ export async function getOrGenerateBySeedId(
         .maybeSingle();
 
       if (data?.card_json) {
+        const card = data.card_json as Card;
+        if (seed.videoEmbedUrl) {
+          card.videoEmbedUrl = seed.videoEmbedUrl;
+          card.videoCreator = seed.videoCreator;
+        }
+
         // Fire-and-forget bump — never block the response on telemetry
         supabase
           .from("generated_cards")
@@ -310,7 +365,16 @@ export async function getOrGenerateBySeedId(
           .eq("seed_id", seedId)
           .then(() => undefined);
 
-        return { card: data.card_json as Card, cached: true };
+        // Warm the Redis L1 so the next caller hits faster
+        if (redis) {
+          redis
+            .set(redisKey, card, { ex: REDIS_CARD_TTL_SECONDS })
+            .catch((err) => {
+              console.warn("[cardGenerator] Redis warm-up failed:", err);
+            });
+        }
+
+        return { card, cached: true };
       }
     } catch (err) {
       // Cache lookup failure is non-fatal — fall through to generation
@@ -318,13 +382,13 @@ export async function getOrGenerateBySeedId(
     }
   }
 
-  // ── Cache miss → generate ──────────────────────────────────────
+  // ── L3: generate via Gemini ───────────────────────────────────
   const generated = await generateCardFromSeed(seed);
   if (!generated) return null;
 
   const card = toLearnCard(generated);
 
-  // ── Persist for the next caller ────────────────────────────────
+  // ── Persist to both layers for the next caller ────────────────
   if (supabase) {
     try {
       await supabase.from("generated_cards").upsert(
@@ -336,13 +400,19 @@ export async function getOrGenerateBySeedId(
         { onConflict: "seed_id" },
       );
     } catch (err) {
-      // Persist failure is non-fatal — we still return the freshly
-      // generated card. Next caller will just regenerate.
       console.warn("[cardGenerator] Supabase persist failed:", err);
       Sentry.captureException(err, {
         tags: { service: "cardGenerator", op: "persist", seedId },
       });
     }
+  }
+
+  if (redis) {
+    redis
+      .set(redisKey, card, { ex: REDIS_CARD_TTL_SECONDS })
+      .catch((err) => {
+        console.warn("[cardGenerator] Redis persist failed:", err);
+      });
   }
 
   return { card, cached: false };

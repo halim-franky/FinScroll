@@ -27,14 +27,14 @@ export async function POST(req: Request) {
   // (Pinecone search × N seeds + Gemini call per seed). Hard ceiling of
   // 60 generations per minute protects free-tier quota even if 100 users
   // simultaneously hit the endpoint from different IPs.
-  const global = globalRateLimit("llm_cards", 60, 60_000);
+  const global = await globalRateLimit("llm_cards", 60, 60_000);
   if (!global.allowed) {
     return rateLimitResponse(global, "Card generation is at capacity. Try again shortly.");
   }
 
   // ── Per-IP limit: 10 batches per minute per caller
   const ip = getClientIp(req);
-  const perIp = rateLimit(`cards:${ip}`, 10, 60_000);
+  const perIp = await rateLimit(`cards:${ip}`, 10, 60_000);
   if (!perIp.allowed) {
     return rateLimitResponse(perIp, "Too many card generation requests. Please wait.");
   }

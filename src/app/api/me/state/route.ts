@@ -90,7 +90,7 @@ export async function DELETE(req: Request) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const result = rateLimit(`state-delete:${userId}`, 5, 60_000);
+  const result = await rateLimit(`state-delete:${userId}`, 5, 60_000);
   if (!result.allowed) {
     return rateLimitResponse(result);
   }
@@ -142,7 +142,7 @@ export async function POST(req: Request) {
   }
 
   // Per-user rate limit: 30 writes per minute (reasonable for debounced sync)
-  const result = rateLimit(`state:${userId}`, 30, 60_000);
+  const result = await rateLimit(`state:${userId}`, 30, 60_000);
   if (!result.allowed) {
     return rateLimitResponse(result);
   }
