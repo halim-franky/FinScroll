@@ -121,7 +121,10 @@ export const metadata: Metadata = {
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
-  maximumScale: 1,
+  // Don't restrict user zoom — Lighthouse penalizes maximumScale <5
+  // because it blocks pinch-to-zoom which is an accessibility need.
+  // Web doesn't have a real "lock zoom" requirement the way native
+  // mobile apps do; users can still scroll/snap the FinTok feed.
   viewportFit: "cover",
   themeColor: "#10b981",
 };

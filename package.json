@@ -8,7 +8,8 @@
     "start": "next start",
     "lint": "eslint",
     "generate:cards": "tsx --env-file=.env.local scripts/generate-cards.ts",
-    "attach:videos": "tsx scripts/attach-videos.ts"
+    "attach:videos": "tsx scripts/attach-videos.ts",
+    "test:redis": "tsx --env-file=.env.local scripts/test-redis.ts"
   },
   "dependencies": {
     "@clerk/nextjs": "^7.3.7",
