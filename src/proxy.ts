@@ -14,6 +14,8 @@ const isPublicRoute = createRouteMatcher([
   "/api/contact",
   "/api/chat",
   "/api/search",
+  // Vercel cron — authenticated by CRON_SECRET, not Clerk
+  "/api/cron/(.*)",
   "/manifest.webmanifest",
   "/sw.js",
   "/offline.html",

@@ -5,8 +5,21 @@
  * → Quiz → Action), plus learning-graph metadata (related cards,
  * prerequisites, mini-series membership), plus per-onboarding-segment
  * personalization templates for Frame 3.
+ *
+ * Two exports:
+ *   • CARDS       — the 12 hand-written cards. Stable ids (1–12), used by
+ *                   mini-series gating, spaced repetition, and onboarding
+ *                   start-card mapping.
+ *   • POOL_CARDS  — offline-generated RAG cards from scripts/generate-cards.ts,
+ *                   loaded from cards-pool.json. Provides the "infinite
+ *                   feed" experience without runtime LLM calls. Their ids
+ *                   are prefixed with `gen-` so they never collide with
+ *                   curated cards or affect mini-series progress.
  */
 import type { Card } from "./types";
+import poolJson from "./cards-pool.json";
+
+export const POOL_CARDS: readonly Card[] = poolJson as Card[];
 
 export const CARDS: readonly Card[] = [
   // ── BEGINNER ─────────────────────────────────────────────────────

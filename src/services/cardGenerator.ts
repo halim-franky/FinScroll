@@ -16,6 +16,10 @@ import type { ConceptSeed, Level } from "../lib/conceptSeeds";
 import { CONCEPT_SEEDS } from "../lib/conceptSeeds";
 import type { Card } from "../lib/learn/types";
 import { getSupabase } from "../lib/supabase";
+import {
+  callGeminiWithFallback,
+  GEMINI_FALLBACK_MODELS,
+} from "../lib/geminiFallback";
 
 // ── Schema for the LLM response ─────────────────────────────────────────
 const CardPayloadSchema = z.object({
@@ -50,40 +54,81 @@ export interface GeneratedCard extends CardPayload {
 const cardCache = new Map<string, GeneratedCard>();
 
 // ── Gemini call with structured JSON output ──────────────────────────────
-// Using `gemini-3-flash-preview` for best output quality on the structured
-// card schema. Free-tier quota on preview models is tight — if generation
-// starts 429-ing, either wait for the daily reset (midnight Pacific) or
-// drop to "gemini-2.0-flash" which has a much more generous 1,500 RPD.
+// Uses the shared fallback ladder (see lib/geminiFallback.ts) AND adds a
+// parse-error-aware retry loop on top of it. The shared helper handles
+// 429/5xx transports failures; this loop handles the case where Gemini
+// returned 200 but the JSON body is truncated or otherwise unparseable
+// — common with `gemini-3-flash-preview` because it burns tokens on
+// internal "thinking" before emitting output. When that happens we fall
+// down the ladder until a more deterministic model (2.0-flash) produces
+// clean JSON.
 async function callGeminiJSON(prompt: string): Promise<unknown> {
-  const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${config.googleGenAI.apiKey}`;
+  const models = GEMINI_FALLBACK_MODELS;
+  let lastError: Error | null = null;
 
-  const response = await fetch(url, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      contents: [{ parts: [{ text: prompt }] }],
-      generationConfig: {
-        temperature: 0.3,
-        maxOutputTokens: 1024,
-        responseMimeType: "application/json",
-      },
-    }),
-  });
+  for (let i = 0; i < models.length; i++) {
+    const model = models[i];
+    const isLast = i === models.length - 1;
 
-  if (!response.ok) {
-    const errBody = await response.text();
-    throw new Error(`Gemini API error ${response.status}: ${errBody.slice(0, 200)}`);
+    try {
+      // Pin to a single model per outer iteration so we control fallback
+      // for parse errors. The helper still handles 429/5xx within this
+      // single-model call by immediately throwing (since `models: [m]`
+      // has no inner fallback to try).
+      const { data } = await callGeminiWithFallback(
+        {
+          contents: [{ parts: [{ text: prompt }] }],
+          generationConfig: {
+            temperature: 0.3,
+            // 4096 — gemini-3-flash-preview's "thinking" eats ~half the
+            // budget before output, so we need headroom to fit a full
+            // card schema (12 fields + 4 quiz options + explanation).
+            maxOutputTokens: 4096,
+            responseMimeType: "application/json",
+          },
+        },
+        config.googleGenAI.apiKey,
+        { callerTag: "cardGenerator", models: [model] },
+      );
+
+      // Concatenate all parts so split responses don't truncate at the
+      // first part boundary
+      const candidates = (
+        data as { candidates?: Array<{ content?: { parts?: Array<{ text?: string }> } }> }
+      )?.candidates;
+      const parts: Array<{ text?: string }> = candidates?.[0]?.content?.parts ?? [];
+      const text = parts.map((p) => p.text ?? "").filter(Boolean).join("").trim();
+      if (!text) throw new Error("Gemini returned empty response");
+
+      const parsed = JSON.parse(text);
+      if (i > 0) {
+        console.log(`[cardGenerator] ✓ Fallback model "${model}" produced clean JSON`);
+      }
+      return parsed;
+    } catch (err) {
+      lastError = err instanceof Error ? err : new Error(String(err));
+      if (isLast) throw lastError;
+
+      const isParseError = lastError.message.includes("JSON")
+        || lastError.message.includes("Unterminated")
+        || lastError.message.includes("Unexpected");
+      const reason = isParseError ? "parse failure" : "API failure";
+      console.warn(
+        `[cardGenerator] ${model} ${reason} (${lastError.message.slice(0, 80)}), falling back to ${models[i + 1]}…`,
+      );
+      continue;
+    }
   }
 
-  const data = await response.json();
-  const text = data?.candidates?.[0]?.content?.parts?.[0]?.text;
-  if (!text) throw new Error("Gemini returned empty response");
-
-  return JSON.parse(text);
+  // Unreachable — the for-loop returns or throws
+  throw lastError ?? new Error("All Gemini fallback models exhausted");
 }
 
 // ── Generate a single card from a concept seed ───────────────────────────
-async function generateCardFromSeed(seed: ConceptSeed): Promise<GeneratedCard | null> {
+// Exported so the offline pre-generation script (scripts/generate-cards.ts)
+// can drive generation directly without going through the Supabase cache
+// path. The in-memory `cardCache` still serves runtime callers normally.
+export async function generateCardFromSeed(seed: ConceptSeed): Promise<GeneratedCard | null> {
   if (cardCache.has(seed.id)) {
     return cardCache.get(seed.id)!;
   }

@@ -4,6 +4,7 @@ import {
   pickAcademicReferences,
   userRequestedAcademic,
 } from "../lib/academicReferences";
+import { callGeminiWithFallback } from "../lib/geminiFallback";
 
 export interface ChatResponse {
   reply: string;
@@ -74,36 +75,39 @@ ${contextTexts || "No specific context found in database for this query."}
 ${userMessage}
 `;
 
-  // 5. Call Google Gemini API. Bumped maxOutputTokens to 2048 — the
-  // Gemini 3 preview models use part of the token budget for internal
-  // reasoning, so 800 tokens led to mid-sentence truncation.
-  const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${config.googleGenAI.apiKey}`;
-
-  const response = await fetch(url, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
+  // 5. Call Google Gemini API via the shared fallback ladder. Primary is
+  // gemini-3-flash-preview; auto-falls back to 2.5-flash-lite then
+  // 2.0-flash on quota exhaustion. maxOutputTokens stays at 2048 — the 3
+  // preview model reserves part of the token budget for internal reasoning
+  // and 800 tokens led to mid-sentence truncation.
+  const { data } = await callGeminiWithFallback(
+    {
       contents: [{ parts: [{ text: prompt }] }],
       generationConfig: {
         temperature: 0.7,
         maxOutputTokens: 2048,
       },
-    }),
-  });
+    },
+    config.googleGenAI.apiKey,
+    { callerTag: "chat" },
+  );
 
-  const data = await response.json();
+  const typedData = data as {
+    candidates?: Array<{
+      content?: { parts?: Array<{ text?: string }> };
+      finishReason?: string;
+    }>;
+  };
 
-  if (!response.ok || !data.candidates || data.candidates.length === 0) {
-    console.error("Gemini Chat Error:", data);
-    throw new Error(
-      `Failed to generate response: ${data?.error?.message || "Unknown error"}`,
-    );
+  if (!typedData.candidates || typedData.candidates.length === 0) {
+    console.error("Gemini Chat Error: no candidates in response", data);
+    throw new Error("Failed to generate response: empty response from Gemini");
   }
 
   // Gemini can split the answer across multiple `parts` (thinking models
   // especially). Reading only `parts[0]` produced the truncated answers
   // we saw in the UI. Concatenate every text part for the full reply.
-  const candidate = data.candidates[0];
+  const candidate = typedData.candidates[0];
   const parts: Array<{ text?: string }> = candidate?.content?.parts ?? [];
   const reply = parts
     .map((p) => p.text ?? "")

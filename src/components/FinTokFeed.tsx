@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Sparkles, Lock, HelpCircle } from "lucide-react";
 import type { Card } from "@/lib/learn/types";
-import { CARDS } from "@/lib/learn/cards";
+import { CARDS, POOL_CARDS } from "@/lib/learn/cards";
 import { MINI_SERIES, isUnlocked, progressFor } from "@/lib/learn/miniSeries";
 import { dueCardIds, recordFailure, recordPass } from "@/lib/learn/spacedRepetition";
 import { StoryCard } from "./learn/StoryCard";
@@ -119,9 +119,17 @@ export function FinTokFeed({ userId = "guest" }: FinTokFeedProps) {
     };
   }, []);
 
-  // ── Build the card order: today's auto-generated drop FIRST, then
-  // due-for-review, then onboarding-picked start. The daily card is the
-  // hook that brings users back every day. ──
+  // ── Build the card order. Sequence:
+  //   1. Today's auto-generated daily drop (if loaded) — fresh content first
+  //   2. Due-for-review curated cards — spaced-repetition takes priority
+  //   3. Remaining curated cards (1–12) — the hand-written core
+  //   4. Pool cards — RAG-generated, offline pre-baked. Free-tier safe
+  //      because they were generated once and ship as static JSON.
+  //
+  // POOL_CARDS deliberately come after curated content so reviewers see
+  // the polished cards first; pool cards extend the feed for users who
+  // scroll deep. Mini-series only references numeric ids (1–12), so pool
+  // cards never affect mini-series progress.
   const baseOrder = useMemo(() => {
     const due = dueCardIds(userId);
     const dueSet = new Set(due.map(String));
@@ -129,7 +137,7 @@ export function FinTokFeed({ userId = "guest" }: FinTokFeedProps) {
       .map((id) => CARDS.find((c) => String(c.id) === String(id)))
       .filter((c): c is Card => !!c);
     const remaining = CARDS.filter((c) => !dueSet.has(String(c.id)));
-    const curated = [...dueCards, ...remaining];
+    const curated = [...dueCards, ...remaining, ...POOL_CARDS];
     return dailyCard ? [dailyCard, ...curated] : curated;
   }, [userId, dailyCard]);
 

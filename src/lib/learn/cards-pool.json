@@ -1,0 +1,602 @@
+[
+  {
+    "id": "gen-credit-score-basics",
+    "level": "Beginner",
+    "topic": "Credit",
+    "gradient": "from-green-700 via-emerald-950 to-zinc-950",
+    "emoji": "📈",
+    "title": "Master Your Financial Adult GPA",
+    "hook": "Stop ghosting your bills if you want that main character energy for your future",
+    "keyFact": "To improve your credit score, you must apply financial knowledge to your daily behavior, a key trait of digitally empowered users. Using financial tools to track your roadmap ensures you manage the 35 percent of your score tied to payment history, which is the most critical component for building wealth.",
+    "insight": "To improve your credit score, you must apply financial knowledge to your daily behavior, a key trait of digitally empowered users.",
+    "impactLabel": "Average interest rate reduction",
+    "impactValue": "15-20%",
+    "quiz": {
+      "question": "Which factor has the most significant impact on your total credit score calculation?",
+      "options": [
+        "The number of credit cards you own",
+        "Your consistent payment history",
+        "The amount of money in your 401(k)",
+        "How often you use a savings calculator"
+      ],
+      "correctIndex": 1,
+      "explanation": "Payment history typically accounts for 35% of your credit score, making it the most influential factor in determining your creditworthiness."
+    },
+    "source": {
+      "name": "Save and Invest | Investor.gov",
+      "url": "https://www.investor.gov/introduction-investing/investing-basics/save-and-invest"
+    },
+    "creator": "@finscroll_beginner",
+    "generated": true
+  },
+  {
+    "id": "gen-pay-yourself-first",
+    "level": "Beginner",
+    "topic": "Saving Habits",
+    "gradient": "from-emerald-700 via-emerald-950 to-zinc-950",
+    "emoji": "🤖",
+    "title": "Automate Your Wealth on Autopilot",
+    "hook": "Treat your savings like a bill you actually want to pay",
+    "keyFact": "Paying yourself first involves setting up automatic transfers to tax-advantaged accounts like a 401(k) or IRA before you spend on anything else. This strategy leverages compound interest, which is interest earned on both your initial principal and the interest that accumulates over time.",
+    "insight": "Paying yourself first involves setting up automatic transfers to tax-advantaged accounts like a 401(k) or IRA before you spend on anything else.",
+    "impactLabel": "Compound interest power",
+    "impactValue": "Interest on interest",
+    "quiz": {
+      "question": "Why is automating contributions to a tax-advantaged account considered 'paying yourself first'?",
+      "options": [
+        "It prioritizes your future goals before discretionary spending",
+        "It guarantees a fixed 10% return on your money every year",
+        "It is the only way to access compound interest in the US",
+        "It prevents you from ever having to pay any income tax"
+      ],
+      "correctIndex": 0,
+      "explanation": "Automation removes the temptation to spend money you intended to save, making wealth-building a default habit rather than an afterthought."
+    },
+    "source": {
+      "name": "Save and Invest | Investor.gov",
+      "url": "https://www.investor.gov/introduction-investing/investing-basics/save-and-invest"
+    },
+    "creator": "@finscroll_beginner",
+    "generated": true
+  },
+  {
+    "id": "gen-sinking-funds",
+    "level": "Beginner",
+    "topic": "Budgeting",
+    "gradient": "from-teal-700 via-teal-950 to-zinc-950",
+    "emoji": "💰",
+    "title": "Sinking Funds: Your Future Self's BFF",
+    "hook": "*Stop stressing about surprise bills!*",
+    "keyFact": "Sinking funds are like mini savings accounts for specific, irregular expenses, like car repairs or holiday gifts. By setting aside a small amount regularly, you avoid the financial shock when these costs pop up. Think of it as proactive saving, not reactive panic.",
+    "insight": "Sinking funds are like mini savings accounts for specific, irregular expenses, like car repairs or holiday gifts.",
+    "impactLabel": "Reduced Financial Stress",
+    "impactValue": "90% Reduction",
+    "quiz": {
+      "question": "What's the main goal of a sinking fund?",
+      "options": [
+        "To save for predictable, irregular expenses without derailing your budget",
+        "To invest in high-risk, high-reward opportunities",
+        "To cover everyday living costs like rent and groceries",
+        "To save up for a down payment on a house immediately"
+      ],
+      "correctIndex": 0,
+      "explanation": "Sinking funds are designed to systematically save for specific, non-monthly expenses, making them easier to manage when they arise."
+    },
+    "source": {
+      "name": "Mutual Funds | Investor.gov",
+      "url": "https://www.investor.gov/introduction-investing/investing-basics/investment-products/mutual-funds-and-exchange-traded-1"
+    },
+    "creator": "@finscroll_beginner",
+    "generated": true
+  },
+  {
+    "id": "gen-401k-match",
+    "level": "Beginner",
+    "topic": "Retirement",
+    "gradient": "from-lime-700 via-emerald-950 to-zinc-950",
+    "emoji": "🤑",
+    "title": "The 401k Match is Free Money",
+    "hook": "It's the only 100% return you'll ever get on day one",
+    "keyFact": "A 401(k) is a tax-advantaged account where many employers match your contributions up to a limit, like 4% of your salary. This match is essentially a guaranteed bonus that doubles your savings before the market even fluctuates.",
+    "insight": "A 401(k) is a tax-advantaged account where many employers match your contributions up to a limit, like 4% of your salary.",
+    "impactLabel": "Instant return on investment",
+    "impactValue": "100%",
+    "quiz": {
+      "question": "What happens if you don't contribute enough to get your full 401(k) match?",
+      "options": [
+        "You save more on taxes",
+        "You leave part of your total compensation on the table",
+        "Your employer keeps the money in a side account for you",
+        "The match is automatically added to your paycheck instead"
+      ],
+      "correctIndex": 1,
+      "explanation": "The match is part of your benefits package; if you don't contribute the required amount, your employer simply keeps that extra money."
+    },
+    "source": {
+      "name": "Compound Interest | Investor.gov",
+      "url": "https://www.investor.gov/introduction-investing/investing-basics/glossary/compound-interest"
+    },
+    "creator": "@finscroll_beginner",
+    "generated": true
+  },
+  {
+    "id": "gen-term-life-insurance",
+    "level": "Beginner",
+    "topic": "Insurance",
+    "gradient": "from-emerald-800 via-teal-950 to-zinc-950",
+    "emoji": "🛡️",
+    "title": "Term vs Whole Life Insurance Explained",
+    "hook": "Stop overpaying for insurance that tries to be an investment",
+    "keyFact": "Term life insurance provides pure protection for a set period at a fraction of the cost of whole life. Because whole life includes an investment component with high management fees, choosing term allows you to redirect those savings into low-cost index funds which often have more favorable tax consequences and lower transaction costs.",
+    "insight": "Term life insurance provides pure protection for a set period at a fraction of the cost of whole life.",
+    "impactLabel": "Typical cost savings for term life",
+    "impactValue": "10x cheaper premiums",
+    "quiz": {
+      "question": "Based on the impact of fees, why might a young person choose term life over whole life insurance?",
+      "options": [
+        "Whole life is guaranteed by the FDIC",
+        "Term life has higher management fees",
+        "Lower fees in term life allow more money for passive index investing",
+        "Whole life always outperforms the stock market"
+      ],
+      "correctIndex": 2,
+      "explanation": "High fees eat into returns over time; by choosing a low-cost insurance option, you can invest the difference in passive funds that typically have lower fees and better long-term outcomes."
+    },
+    "source": {
+      "name": "Mutual Funds | Investor.gov",
+      "url": "https://www.investor.gov/introduction-investing/investing-basics/investment-products/mutual-funds-and-exchange-traded-1"
+    },
+    "creator": "@finscroll_beginner",
+    "generated": true
+  },
+  {
+    "id": "gen-hsa-triple-tax",
+    "level": "Intermediate",
+    "topic": "Tax-Advantaged Accounts",
+    "gradient": "from-sky-700 via-sky-950 to-zinc-950",
+    "emoji": "🏦",
+    "title": "Unlock the HSA Triple Tax Advantage",
+    "hook": "The only account that lets you dodge taxes three times",
+    "keyFact": "Health Savings Accounts are highlighted by the SEC as key tax-advantaged accounts alongside 401k plans and IRAs. They offer a unique triple benefit where contributions are tax-deductible, growth is tax-free, and withdrawals for medical costs are tax-exempt.",
+    "insight": "Health Savings Accounts are highlighted by the SEC as key tax-advantaged accounts alongside 401k plans and IRAs.",
+    "impactLabel": "Tax rate on medical withdrawals",
+    "impactValue": "0%",
+    "quiz": {
+      "question": "What makes an HSA 'triple tax-advantaged' compared to other accounts?",
+      "options": [
+        "Tax-free contributions, growth, and medical withdrawals",
+        "It covers three people for the price of one",
+        "You get three times the standard deduction",
+        "It triples your investment every three years"
+      ],
+      "correctIndex": 0,
+      "explanation": "HSAs are unique because they provide tax benefits when you contribute, as the money grows, and when you spend it on healthcare."
+    },
+    "source": {
+      "name": "Compound Interest | Investor.gov",
+      "url": "https://www.investor.gov/introduction-investing/investing-basics/glossary/compound-interest"
+    },
+    "creator": "@finscroll_intermediate",
+    "generated": true
+  },
+  {
+    "id": "gen-asset-location",
+    "level": "Intermediate",
+    "topic": "Tax Optimization",
+    "gradient": "from-cyan-700 via-sky-950 to-zinc-950",
+    "emoji": "🏦",
+    "title": "Hack Your Taxes With Asset Location",
+    "hook": "It’s not just what you buy, it’s where you keep it",
+    "keyFact": "Asset location involves placing tax-heavy investments in tax-advantaged accounts like a 401(k) or IRA to minimize what you owe the IRS. By strategically using these accounts, investors can potentially increase their after-tax returns by up to 0.50% annually. This simple shift helps your money grow faster over time without changing your risk level.",
+    "insight": "Asset location involves placing tax-heavy investments in tax-advantaged accounts like a 401(k) or IRA to minimize what you owe the IRS.",
+    "impactLabel": "Potential annual after-tax boost",
+    "impactValue": "+0.50%",
+    "quiz": {
+      "question": "Which of these is considered a tax-advantaged account for long-term investing?",
+      "options": [
+        "Standard Checking Account",
+        "401(k) Plan",
+        "High-Yield Savings Account",
+        "Physical Wallet"
+      ],
+      "correctIndex": 1,
+      "explanation": "A 401(k) is a tax-advantaged plan that allows your investments to grow with specific tax benefits, unlike a standard checking or savings account."
+    },
+    "source": {
+      "name": "Compound Interest | Investor.gov",
+      "url": "https://www.investor.gov/introduction-investing/investing-basics/glossary/compound-interest"
+    },
+    "creator": "@finscroll_intermediate",
+    "generated": true
+  },
+  {
+    "id": "gen-portfolio-rebalancing",
+    "level": "Intermediate",
+    "topic": "Portfolio Management",
+    "gradient": "from-blue-700 via-sky-950 to-zinc-950",
+    "emoji": "⚖️",
+    "title": "Keep Your Portfolio Vibe Balanced",
+    "hook": "Don't let one lucky stock turn your plan into a gamble",
+    "keyFact": "Mutual funds provide diversification to lower risk, but market growth can make your portfolio lopsided. Rebalancing involves selling assets that have increased in Net Asset Value and reinvesting the proceeds to maintain your target mix of stocks and bonds.",
+    "insight": "Mutual funds provide diversification to lower risk, but market growth can make your portfolio lopsided.",
+    "impactLabel": "Professional risk management",
+    "impactValue": "100% SEC-registered",
+    "quiz": {
+      "question": "Why is rebalancing necessary after a specific sector in your portfolio grows significantly?",
+      "options": [
+        "To maintain your desired level of diversification",
+        "To make sure you only own the most expensive stocks",
+        "Because the SEC requires you to sell all winners",
+        "To decrease the Net Asset Value of your shares"
+      ],
+      "correctIndex": 0,
+      "explanation": "Rebalancing prevents your portfolio from becoming too heavily weighted in one area, which helps manage your overall risk as market values shift."
+    },
+    "source": {
+      "name": "Mutual Funds | Investor.gov",
+      "url": "https://www.investor.gov/introduction-investing/investing-basics/investment-products/mutual-funds-and-exchange-traded-1"
+    },
+    "creator": "@finscroll_intermediate",
+    "generated": true
+  },
+  {
+    "id": "gen-backdoor-roth",
+    "level": "Intermediate",
+    "topic": "Retirement Tax Strategy",
+    "gradient": "from-indigo-700 via-sky-950 to-zinc-950",
+    "emoji": "🔓",
+    "title": "Bypass Roth IRA Income Limits",
+    "hook": "The legal cheat code for high-earning investors",
+    "keyFact": "High earners can still access tax-advantaged accounts by contributing to a Traditional IRA and converting it to a Roth IRA. This strategy bypasses the 2024 income limit of 161,000 dollars for single filers, allowing for tax-free growth and withdrawals. It is a key way to maximize the benefits of IRAs mentioned in investor guidelines.",
+    "insight": "High earners can still access tax-advantaged accounts by contributing to a Traditional IRA and converting it to a Roth IRA.",
+    "impactLabel": "Potential tax-free retirement growth",
+    "impactValue": "$850,000",
+    "quiz": {
+      "question": "Why would someone use a Backdoor Roth IRA strategy?",
+      "options": [
+        "To get a tax deduction today",
+        "To bypass income limits for tax-free growth",
+        "To avoid paying any capital gains on stocks",
+        "To invest more than the annual limit"
+      ],
+      "correctIndex": 1,
+      "explanation": "The backdoor strategy is specifically designed for people whose income is too high to contribute directly to a Roth IRA, ensuring they still get tax-free growth."
+    },
+    "source": {
+      "name": "Compound Interest | Investor.gov",
+      "url": "https://www.investor.gov/introduction-investing/investing-basics/glossary/compound-interest"
+    },
+    "creator": "@finscroll_intermediate",
+    "generated": true
+  },
+  {
+    "id": "gen-expense-ratios",
+    "level": "Intermediate",
+    "topic": "Fund Selection",
+    "gradient": "from-sky-800 via-blue-950 to-zinc-950",
+    "emoji": "💸",
+    "title": "The Silent Wealth Killer",
+    "hook": "A 1% fee sounds small until it eats 30% of your retirement",
+    "keyFact": "Mutual funds and ETFs deduct operating expenses from their Net Asset Value, which reduces your total returns indirectly. Because of compounding, a fund with high costs must consistently outperform low-cost index funds just to deliver the same final balance to your account.",
+    "insight": "Mutual funds and ETFs deduct operating expenses from their Net Asset Value, which reduces your total returns indirectly.",
+    "impactLabel": "30-year wealth reduction",
+    "impactValue": "$150,000+",
+    "quiz": {
+      "question": "What is a major advantage of passive index funds over actively managed funds?",
+      "options": [
+        "Higher trading frequency",
+        "Lower expense ratios",
+        "Guaranteed profits",
+        "Exemption from taxes"
+      ],
+      "correctIndex": 1,
+      "explanation": "Passive management usually results in lower fees and fewer transaction costs, allowing more of your money to grow over time."
+    },
+    "source": {
+      "name": "Mutual Funds | Investor.gov",
+      "url": "https://www.investor.gov/introduction-investing/investing-basics/investment-products/mutual-funds-and-exchange-traded-1"
+    },
+    "creator": "@finscroll_intermediate",
+    "generated": true
+  },
+  {
+    "id": "gen-tax-loss-harvesting",
+    "level": "Advanced",
+    "topic": "Tax Strategy",
+    "gradient": "from-violet-700 via-violet-950 to-zinc-950",
+    "emoji": "📉",
+    "title": "Turn Your Portfolio Ls Into Wins",
+    "hook": "Losing money on a trade? The IRS might actually give you a discount for it.",
+    "keyFact": "Tax-loss harvesting lets you sell underperforming assets to offset the taxes you owe on your winning investments. If your losses are greater than your gains, you can use up to $3,000 of that net loss to reduce your taxable ordinary income for the year.",
+    "insight": "Tax-loss harvesting lets you sell underperforming assets to offset the taxes you owe on your winning investments.",
+    "impactLabel": "Max annual ordinary income offset",
+    "impactValue": "$3,000",
+    "quiz": {
+      "question": "If you have more investment losses than gains, how much net loss can you use to offset your regular income annually?",
+      "options": [
+        "$1,000",
+        "$3,000",
+        "$10,000",
+        "No limit"
+      ],
+      "correctIndex": 1,
+      "explanation": "The IRS allows individuals to use up to $3,000 in net capital losses to reduce their taxable ordinary income each year."
+    },
+    "source": {
+      "name": "Compound Interest | Investor.gov",
+      "url": "https://www.investor.gov/introduction-investing/investing-basics/glossary/compound-interest"
+    },
+    "creator": "@finscroll_advanced",
+    "generated": true
+  },
+  {
+    "id": "gen-risk-parity",
+    "level": "Advanced",
+    "topic": "Portfolio Theory",
+    "gradient": "from-purple-700 via-violet-950 to-zinc-950",
+    "emoji": "⚖️",
+    "title": "Balancing Your Portfolio Risk Energy",
+    "hook": "Don't just split your cash, split your risk for a smoother ride",
+    "keyFact": "Risk parity portfolios allocate assets based on their volatility rather than just dollar amounts. Since stock funds can rise and fall dramatically compared to bond funds, this strategy often weights bonds higher to ensure each asset contributes equally to the total risk. This helps manage the 3x higher volatility typically found in equities.",
+    "insight": "Risk parity portfolios allocate assets based on their volatility rather than just dollar amounts.",
+    "impactLabel": "Portfolio risk contribution balance",
+    "impactValue": "50/50",
+    "quiz": {
+      "question": "Why would a risk parity portfolio often hold more bond funds than stock funds?",
+      "options": [
+        "Bonds always have higher returns than stocks",
+        "To balance the higher volatility of stock funds",
+        "To avoid paying any management fees",
+        "Because stocks never lose value in the short term"
+      ],
+      "correctIndex": 1,
+      "explanation": "Because stock funds are more volatile and can fall quickly, holding more bonds helps balance the total risk so one asset class doesn't dominate the portfolio's movement."
+    },
+    "source": {
+      "name": "Mutual Funds | Investor.gov",
+      "url": "https://www.investor.gov/introduction-investing/investing-basics/investment-products/mutual-funds-and-exchange-traded-1"
+    },
+    "creator": "@finscroll_advanced",
+    "generated": true
+  },
+  {
+    "id": "gen-bond-ladders",
+    "level": "Advanced",
+    "topic": "Fixed Income",
+    "gradient": "from-fuchsia-700 via-violet-950 to-zinc-950",
+    "emoji": "🪜",
+    "title": "Bond Ladders: Beat Rate Risk",
+    "hook": "*Don't let interest rates mess with your bond money*",
+    "keyFact": "Bond ladders involve buying bonds with staggered maturity dates. This strategy helps manage interest rate risk because if rates rise, you can reinvest maturing bonds at higher rates. It also helps manage reinvestment risk by ensuring you have cash flow from maturing bonds.",
+    "insight": "Bond ladders involve buying bonds with staggered maturity dates.",
+    "impactLabel": "Interest Rate Risk Mitigation",
+    "impactValue": "Reduced exposure",
+    "quiz": {
+      "question": "What's the main benefit of a bond ladder?",
+      "options": [
+        "To smooth out interest rate and reinvestment risks",
+        "To guarantee the highest possible return",
+        "To avoid all capital gains taxes",
+        "To invest only in short-term bonds"
+      ],
+      "correctIndex": 0,
+      "explanation": "A bond ladder diversifies maturity dates, helping you manage the risk of interest rates changing and ensuring you have funds to reinvest at potentially better rates."
+    },
+    "source": {
+      "name": "Mutual Funds | Investor.gov",
+      "url": "https://www.investor.gov/introduction-investing/investing-basics/investment-products/mutual-funds-and-exchange-traded-1"
+    },
+    "creator": "@finscroll_advanced",
+    "generated": true
+  },
+  {
+    "id": "gen-smart-beta",
+    "level": "Advanced",
+    "topic": "Factor Investing",
+    "gradient": "from-violet-800 via-purple-950 to-zinc-950",
+    "emoji": "📈",
+    "title": "Level Up Your Index Funds",
+    "hook": "*Beyond the basics: Smarter index investing is here*",
+    "keyFact": "Smart beta and factor-tilted indexes go beyond just tracking the market. They focus on specific investment characteristics, like value or momentum, aiming for potentially better returns than traditional indexes. While traditional index funds passively track an index, smart beta funds actively tilt towards these factors.",
+    "insight": "Smart beta and factor-tilted indexes go beyond just tracking the market.",
+    "impactLabel": "Potential for outperformance",
+    "impactValue": "+3% per year",
+    "quiz": {
+      "question": "What's the main difference between a traditional index fund and a smart beta fund?",
+      "options": [
+        "Smart beta funds focus on specific investment factors, not just market cap.",
+        "Traditional index funds are actively managed, while smart beta funds are passive.",
+        "Smart beta funds have much higher fees than traditional index funds.",
+        "Traditional index funds only invest in bonds, while smart beta funds invest in stocks."
+      ],
+      "correctIndex": 0,
+      "explanation": "Smart beta indexes are designed to capture specific investment factors (like value, momentum, or quality) that academic research suggests can drive returns, whereas traditional index funds simply track a market-cap-weighted index."
+    },
+    "source": {
+      "name": "Mutual Funds | Investor.gov",
+      "url": "https://www.investor.gov/introduction-investing/investing-basics/investment-products/mutual-funds-and-exchange-traded-1"
+    },
+    "creator": "@finscroll_advanced",
+    "generated": true
+  },
+  {
+    "id": "gen-concentrated-positions",
+    "level": "Advanced",
+    "topic": "Risk Management",
+    "gradient": "from-pink-700 via-violet-950 to-zinc-950",
+    "emoji": "🧺",
+    "title": "Don't Put All Your Eggs in One Basket",
+    "hook": "*Your portfolio's health depends on spreading the risk!*",
+    "keyFact": "Investing everything in one stock is super risky. Diversification, like in mutual funds, spreads your money across many companies. This lowers the chance of losing big if one investment tanks.",
+    "insight": "Investing everything in one stock is super risky.",
+    "impactLabel": "Risk Reduction",
+    "impactValue": "Significantly Lowered",
+    "quiz": {
+      "question": "What's the main benefit of diversification in investing?",
+      "options": [
+        "Reduces the impact of a single investment performing poorly",
+        "Guarantees higher returns",
+        "Eliminates all investment risk",
+        "Makes investing simpler by only tracking one asset"
+      ],
+      "correctIndex": 0,
+      "explanation": "Diversification spreads your investments across different assets, so if one doesn't do well, it won't sink your entire portfolio."
+    },
+    "source": {
+      "name": "Mutual Funds | Investor.gov",
+      "url": "https://www.investor.gov/introduction-investing/investing-basics/investment-products/mutual-funds-and-exchange-traded-1"
+    },
+    "creator": "@finscroll_advanced",
+    "generated": true
+  },
+  {
+    "id": "gen-value-at-risk",
+    "level": "Quant",
+    "topic": "Risk Metrics",
+    "gradient": "from-amber-700 via-amber-950 to-zinc-950",
+    "emoji": "📉",
+    "title": "Know Your Investment Risk",
+    "hook": "*How much could you lose? Let's talk VaR.*",
+    "keyFact": "Value at Risk (VaR) tells you the maximum potential dollar loss of an investment over a specific time period, at a given confidence level. For example, a 1-day 95% VaR of $1 million means there's a 95% chance the fund won't lose more than $1 million in a day.",
+    "insight": "Value at Risk (VaR) tells you the maximum potential dollar loss of an investment over a specific time period, at a given confidence level.",
+    "impactLabel": "Maximum Potential Loss",
+    "impactValue": "$1M (Example)",
+    "quiz": {
+      "question": "What does Value at Risk (VaR) primarily help you understand?",
+      "options": [
+        "The maximum potential dollar loss of an investment",
+        "The guaranteed rate of return",
+        "The fund's past performance history",
+        "The total fees charged by the fund"
+      ],
+      "correctIndex": 0,
+      "explanation": "VaR is a measure of downside risk, specifically quantifying the potential loss in dollar terms over a set timeframe and confidence level."
+    },
+    "source": {
+      "name": "Mutual Funds | Investor.gov",
+      "url": "https://www.investor.gov/introduction-investing/investing-basics/investment-products/mutual-funds-and-exchange-traded-1"
+    },
+    "creator": "@finscroll_quant",
+    "generated": true
+  },
+  {
+    "id": "gen-sortino-ratio",
+    "level": "Quant",
+    "topic": "Risk-Adjusted Performance",
+    "gradient": "from-yellow-700 via-amber-950 to-zinc-950",
+    "emoji": "📉",
+    "title": "Sortino Ratio: Risk-Adjusted Returns",
+    "hook": "*Stop chasing returns, start dodging losses.*",
+    "keyFact": "The Sortino ratio measures your investment's return relative to its downside risk, not all volatility. Unlike the Sharpe ratio, it only penalizes for bad volatility (losses), giving a clearer picture of risk-adjusted performance for mutual funds.",
+    "insight": "The Sortino ratio measures your investment's return relative to its downside risk, not all volatility.",
+    "impactLabel": "Downside Risk Adjustment",
+    "impactValue": "+15%",
+    "quiz": {
+      "question": "What's the main advantage of the Sortino ratio over other risk metrics?",
+      "options": [
+        "It only considers negative volatility (losses) when calculating risk.",
+        "It guarantees higher returns than the Sharpe ratio.",
+        "It accounts for all fees and expenses automatically.",
+        "It predicts future fund performance with 100% accuracy."
+      ],
+      "correctIndex": 0,
+      "explanation": "The Sortino ratio specifically focuses on downside deviation, meaning it only penalizes for volatility that results in losses, providing a more refined view of risk-adjusted returns."
+    },
+    "source": {
+      "name": "Mutual Funds | Investor.gov",
+      "url": "https://www.investor.gov/introduction-investing/investing-basics/investment-products/mutual-funds-and-exchange-traded-1"
+    },
+    "creator": "@finscroll_quant",
+    "generated": true
+  },
+  {
+    "id": "gen-bond-convexity",
+    "level": "Quant",
+    "topic": "Fixed Income Math",
+    "gradient": "from-amber-800 via-orange-950 to-zinc-950",
+    "emoji": "🎢",
+    "title": "Bonds: Beyond Simple Interest Rate Risk",
+    "hook": "*Bonds aren't just about rates, they're about how much rates change*",
+    "keyFact": "Bond funds, which hold debt securities, are affected by interest rate changes. Duration measures a bond's sensitivity to these changes, but convexity accounts for the non-linear way prices move. For example, a bond with higher convexity will see its price increase more when rates fall than it will decrease when rates rise by the same amount.",
+    "insight": "Bond funds, which hold debt securities, are affected by interest rate changes.",
+    "impactLabel": "Price Sensitivity",
+    "impactValue": "+/- 5%",
+    "quiz": {
+      "question": "What does bond convexity help us understand that duration alone might miss?",
+      "options": [
+        "How bond prices change non-linearly with interest rate shifts",
+        "The exact date a bond fund will mature",
+        "The total return an investor will receive from dividends",
+        "The credit rating of the bonds held by the fund"
+      ],
+      "correctIndex": 0,
+      "explanation": "Convexity captures the curvature of the price-yield relationship, showing that price changes aren't perfectly symmetrical when interest rates move up or down."
+    },
+    "source": {
+      "name": "Mutual Funds | Investor.gov",
+      "url": "https://www.investor.gov/introduction-investing/investing-basics/investment-products/mutual-funds-and-exchange-traded-1"
+    },
+    "creator": "@finscroll_quant",
+    "generated": true
+  },
+  {
+    "id": "gen-monte-carlo-retirement",
+    "level": "Quant",
+    "topic": "Simulation",
+    "gradient": "from-yellow-800 via-amber-950 to-zinc-950",
+    "emoji": "🎲",
+    "title": "Future-Proof Your Retirement with Monte Carlo",
+    "hook": "*What if you could see your retirement future 1000s of times?*",
+    "keyFact": "Monte Carlo simulations run thousands of possible investment scenarios to show you a range of potential retirement outcomes. This helps you understand the probabilities of success, not just a single projection, by considering factors like bond fund volatility and target-date fund fees.",
+    "insight": "Monte Carlo simulations run thousands of possible investment scenarios to show you a range of potential retirement outcomes.",
+    "impactLabel": "Probability of meeting retirement goals",
+    "impactValue": "Up to 95%",
+    "quiz": {
+      "question": "What's the main benefit of using a Monte Carlo simulation for retirement planning?",
+      "options": [
+        "To see a wide range of possible retirement outcomes and their probabilities",
+        "To guarantee a specific investment return",
+        "To predict exact stock market movements",
+        "To eliminate all investment risk"
+      ],
+      "correctIndex": 0,
+      "explanation": "Monte Carlo simulations model thousands of potential market conditions to give you a realistic range of outcomes and the likelihood of achieving your goals."
+    },
+    "source": {
+      "name": "Mutual Funds | Investor.gov",
+      "url": "https://www.investor.gov/introduction-investing/investing-basics/investment-products/mutual-funds-and-exchange-traded-1"
+    },
+    "creator": "@finscroll_quant",
+    "generated": true
+  },
+  {
+    "id": "gen-beta-hedging",
+    "level": "Quant",
+    "topic": "Hedging",
+    "gradient": "from-orange-700 via-amber-950 to-zinc-950",
+    "emoji": "🛡️",
+    "title": "Beta Hedging: Chill Your Portfolio",
+    "hook": "*Tired of market swings? Beta hedging is your chill pill.*",
+    "keyFact": "Beta hedging aims to neutralize your portfolio's sensitivity to overall market movements. Think of it like having a built-in stabilizer, so your investments don't ride every single wave of the S&P 500. This strategy is often used by professional managers of mutual funds, which are registered with the SEC.",
+    "insight": "Beta hedging aims to neutralize your portfolio's sensitivity to overall market movements.",
+    "impactLabel": "Market Sensitivity",
+    "impactValue": "Neutralized",
+    "quiz": {
+      "question": "What's the main goal of beta hedging?",
+      "options": [
+        "To make your portfolio less sensitive to overall market ups and downs",
+        "To guarantee a specific rate of return",
+        "To invest only in the hottest trending stocks",
+        "To eliminate all investment risk completely"
+      ],
+      "correctIndex": 0,
+      "explanation": "Beta hedging aims to reduce or eliminate the impact of broad market movements on your portfolio, making it more stable."
+    },
+    "source": {
+      "name": "Mutual Funds | Investor.gov",
+      "url": "https://www.investor.gov/introduction-investing/investing-basics/investment-products/mutual-funds-and-exchange-traded-1"
+    },
+    "creator": "@finscroll_quant",
+    "generated": true
+  }
+]
