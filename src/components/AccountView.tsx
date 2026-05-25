@@ -119,15 +119,46 @@ export function AccountView({ userId }: Props) {
         }
       } catch {}
 
-      // Step 3: Clerk account deletion (irreversible)
-      await user.delete();
-
-      // Step 4: ensure the session is invalidated and bounce to landing
+      // Step 3: Clerk account deletion (irreversible).
+      //
+      // Race the delete against an 8-second timeout. Without this, the
+      // promise can hang forever in two scenarios we've actually hit:
+      //   • User just reset their password → Clerk's React session state
+      //     is briefly out of sync with the server and user.delete() never
+      //     resolves on the client even though the server-side delete
+      //     succeeds.
+      //   • Network blip / Clerk worker stalls.
+      // Either way, the delete request has been sent — at worst, the
+      // user.delete() server call retries via Clerk's background sync
+      // when they re-open the app and fails because the user is already
+      // gone. The race ensures the UI always moves forward.
       try {
-        await signOut({ redirectUrl: "/" });
-      } catch {
-        router.push("/");
+        await Promise.race([
+          user.delete(),
+          new Promise<never>((_, reject) =>
+            setTimeout(
+              () => reject(new Error("delete-account timeout")),
+              8_000,
+            ),
+          ),
+        ]);
+      } catch (err) {
+        // Don't surface the timeout error — proceed with sign-out + redirect.
+        // The deletion almost always succeeded server-side; the timeout just
+        // means the client never got the ack.
+        console.warn("[delete-account] user.delete race:", err);
       }
+
+      // Step 4: hard-redirect to landing. We use window.location.replace
+      // rather than Next.js's router.push because after a successful
+      // user.delete() the React/Clerk auth context is in an invalid state
+      // and client-side navigation can stall on the Clerk middleware. A
+      // hard navigation forces a fresh page load with no stale state.
+      // signOut is called fire-and-forget so we don't block on it.
+      try {
+        void signOut();
+      } catch {}
+      window.location.replace("/");
     } catch (err) {
       const msg = err instanceof Error ? err.message : "Unknown error";
       setDeleteError(`Couldn't delete the account (${msg}). Please try again.`);

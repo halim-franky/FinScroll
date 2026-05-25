@@ -73,6 +73,21 @@
   color: #e4e4e7 !important;
 }
 
+/* "Last used" badge sitting next to a form-field label.
+   Clerk renders this with very low-contrast styling in dark mode, which
+   on our zinc-800 sign-in card is nearly invisible. We brighten the
+   text and border so it reads as a clear hint without standing out.
+   Excludes `input` so we never touch the email field, and excludes
+   `cl-formFieldLabel` so the label itself keeps its own color rule. */
+[class*="cl-formFieldLabelRow"] > *:not(input):not([class*="cl-formFieldLabel"]) {
+  color: #d4d4d8 !important;
+  border-color: #71717a !important;
+  opacity: 1 !important;
+}
+[class*="cl-formFieldLabelRow"] > *:not(input):not([class*="cl-formFieldLabel"]) * {
+  color: #d4d4d8 !important;
+}
+
 /* Header title & subtitle — applies to sign-in, sign-up, and UserProfile.
    The selectors are repeated with extra specificity (incl. inside modals and
    pages) because Clerk's own stylesheet sometimes loads after ours. */
@@ -187,9 +202,162 @@
   color: #ffffff !important;
 }
 
+/* Catch-all for every Clerk text input variant. Sign-in/sign-up already
+   style `cl-formFieldInput` via the appearance prop, but Clerk uses
+   different class names for OTP / verification-code / one-time-password
+   boxes (each digit gets its own input). Without this, the typed digits
+   render in the default black color and disappear against the zinc-700
+   background.
+
+   The `text-decoration: none` + `font-style: normal` overrides clean up
+   Clerk's focus animation, which otherwise renders the active digit with
+   an italic + strike-through "in-progress" effect that looks like a
+   scribble against the white text. */
+[class*="cl-formFieldInput"],
+[class*="cl-formFieldInputGroup"] input,
+[class*="cl-input"] {
+  color: #ffffff !important;
+  caret-color: #ffffff !important;
+  text-decoration: none !important;
+  font-style: normal !important;
+  font-variant: normal !important;
+  font-feature-settings: normal !important;
+}
+
+/* OTP / one-time-code inputs work differently — Clerk renders ONE hidden
+   <input> positioned absolutely on top of six visible "digit boxes". The
+   input itself is intentionally `color: transparent` so only the visual
+   boxes show digits. If we override that transparency, the hidden input's
+   text renders on top of the visual boxes → "double-exposure" letters.
+   These two selectors find that hidden input by its attributes and keep
+   it transparent. */
+input[data-input-otp="true"],
+input[autocomplete="one-time-code"] {
+  color: transparent !important;
+  caret-color: transparent !important;
+  background: transparent !important;
+}
+
+/* The visible digit boxes — they sit as children of `cl-otpCodeFieldInputs`
+   and render the actual digits via Clerk's JS. White text so the digits
+   are clearly readable on the zinc-700 box backgrounds. */
+[class*="cl-otpCodeFieldInputs"] {
+  color: #ffffff !important;
+}
+
+/* Kill the pseudo-element cursor animations on every visible OTP box.
+   Clerk runs TWO of them on an empty input — one for the "placeholder
+   next-to-type" position, one for the click-focus position — which
+   shows up as two competing vertical lines in different boxes. The
+   real focus stays on the hidden input regardless, so the user can
+   still type and digits land in order. Removing these animations gives
+   a single source of truth: the box ring + the digit value itself. */
+[class*="cl-otpCodeFieldInputs"] > [class*="cl-otpCodeFieldInput"]::before,
+[class*="cl-otpCodeFieldInputs"] > [class*="cl-otpCodeFieldInput"]::after,
+[class*="cl-otpCodeFieldInputs"] [class*="cl-otpCodeFieldInput"] *::before,
+[class*="cl-otpCodeFieldInputs"] [class*="cl-otpCodeFieldInput"] *::after {
+  display: none !important;
+  content: none !important;
+  animation: none !important;
+}
+
+/* Regular form-field placeholders stay visible at low contrast. */
+[class*="cl-formFieldInput"]::placeholder {
+  color: #a1a1aa !important;
+}
+
+/* OTP / verification-code placeholders are HIDDEN: Clerk uses a thin
+   vertical-bar character ("|") as the placeholder to mark empty boxes,
+   which renders as a fake cursor and conflicts with the real browser
+   caret in the focused box (looks like two cursors at once). The focus
+   ring already signals which box is active, so we don't need the
+   placeholder indicator. */
+[class*="cl-otpCodeFieldInput"]::placeholder,
+[class*="cl-otpCodeField"] input::placeholder,
+[class*="cl-verificationCodeField"] input::placeholder {
+  color: transparent !important;
+  opacity: 0 !important;
+}
+
+/* Some Clerk focus animations draw on top of input chars via pseudo
+   elements. Hide any ::before / ::after rendered on OTP inputs that
+   could overlap the digit (the "scribble" effect on the active box). */
+[class*="cl-otpCodeFieldInput"]::before,
+[class*="cl-otpCodeFieldInput"]::after,
+[class*="cl-otpCodeField"] input::before,
+[class*="cl-otpCodeField"] input::after,
+[class*="cl-verificationCodeField"] input::before,
+[class*="cl-verificationCodeField"] input::after {
+  content: none !important;
+  display: none !important;
+}
+
 /* Provider names like "Google", "Apple" in connected accounts */
 [class*="cl-providerIcon"] + *,
 [class*="cl-connectedAccountProvider"] {
   color: #ffffff !important;
+}
+
+/* ── Reset-password page secondary text ───────────────────────────────
+   The /sign-in/reset-password page renders several pieces of helper /
+   hint text that default to a very dark gray in Clerk's theme:
+     • "Your password must contain 8 or more characters." (hint)
+     • "Your password works, but could be stronger." (warning)
+     • "Sign out of all other devices" (checkbox label)
+   They all disappear against our zinc-900 card background. Brighten
+   them to a readable light zinc — secondary hierarchy (not as loud as
+   labels, but actually legible). */
+[class*="cl-formFieldHintText"],
+[class*="cl-formFieldInfoText"],
+[class*="cl-formFieldHelperText"],
+[class*="cl-formInfoText"],
+[class*="cl-formHelpText"],
+[class*="cl-passwordStrengthText"],
+[class*="cl-formFieldWarningText"] {
+  color: #d4d4d8 !important;
+}
+
+/* Checkbox + radio labels — these are interactive controls, so they get
+   full white for the same hierarchy as form labels. */
+[class*="cl-formFieldCheckboxLabel"],
+[class*="cl-formFieldRadioLabel"],
+[class*="cl-checkboxLabel"],
+[class*="cl-formFieldCheckbox"] + label,
+[class*="cl-formFieldCheckbox"] ~ label {
+  color: #ffffff !important;
+}
+
+/* Success message ("Passwords match.") is already emerald — leave it.
+   Error message stays in Clerk's red. Just ensure neither gets dimmed
+   below readable contrast. */
+[class*="cl-formFieldSuccessText"] {
+  color: #34d399 !important;
+}
+[class*="cl-formFieldErrorText"] {
+  color: #f87171 !important;
+}
+
+/* Card-level status messages — the most common offender is the
+   post-reset confirmation ("Your password was reset. Signing you in,
+   please wait..."), which Clerk renders in a near-invisible dim color
+   over a brief loading state. Other examples: "We sent a verification
+   link to your email", various inline subtitle text inside cards.
+
+   The previous narrow selectors didn't catch the post-reset message
+   because Clerk uses a hashed `cl-internal-XXXXX` class on it. Brute-
+   force fallback: any <p> sitting inside any Clerk-prefixed element
+   gets brightened. Form-field success/error messages are spans (not
+   <p>) so they're unaffected; same with Clerk button labels. */
+[class*="cl-cardSubtitle"],
+[class*="cl-formSubtitle"],
+[class*="cl-formMessageText"],
+[class*="cl-formMessage"]:not([class*="cl-formMessageError"]) {
+  color: #d4d4d8 !important;
+}
+
+/* Bulletproof catch-all: every <p> inside a Clerk container */
+[class^="cl-"] p,
+[class*=" cl-"] p {
+  color: #d4d4d8 !important;
 }
 
