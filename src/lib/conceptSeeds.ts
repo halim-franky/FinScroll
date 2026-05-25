@@ -17,6 +17,13 @@ export interface ConceptSeed {
   level: Level;
   topic: string;
   gradient: string;
+  /** Pre-curated YouTube embed URL (https://www.youtube.com/embed/VIDEO_ID).
+   *  Trusted manual selection — we don't ask the LLM to produce these
+   *  because hallucinated video IDs would break the iframe at runtime. */
+  videoEmbedUrl?: string;
+  /** Human-readable creator name shown in the "Curated by FinScroll ·
+   *  sourced from {videoCreator} on YouTube" footer below the player. */
+  videoCreator?: string;
 }
 
 export const CONCEPT_SEEDS: readonly ConceptSeed[] = [
@@ -27,6 +34,8 @@ export const CONCEPT_SEEDS: readonly ConceptSeed[] = [
     level: "Beginner",
     topic: "Saving Habits",
     gradient: "from-emerald-700 via-emerald-950 to-zinc-950",
+    videoEmbedUrl: "https://www.youtube.com/embed/k-RTEIaYvAg",
+    videoCreator: "Khan Academy",
   },
   {
     id: "sinking-funds",
@@ -34,6 +43,8 @@ export const CONCEPT_SEEDS: readonly ConceptSeed[] = [
     level: "Beginner",
     topic: "Budgeting",
     gradient: "from-teal-700 via-teal-950 to-zinc-950",
+    videoEmbedUrl: "https://www.youtube.com/embed/TcSmd2lmc7E",
+    videoCreator: "The Budget Mom",
   },
   {
     id: "credit-score-basics",
@@ -41,6 +52,8 @@ export const CONCEPT_SEEDS: readonly ConceptSeed[] = [
     level: "Beginner",
     topic: "Credit",
     gradient: "from-green-700 via-emerald-950 to-zinc-950",
+    videoEmbedUrl: "https://www.youtube.com/embed/T5UHXCrW0gI",
+    videoCreator: "Practical Personal Finance",
   },
   {
     id: "401k-match",
@@ -48,6 +61,8 @@ export const CONCEPT_SEEDS: readonly ConceptSeed[] = [
     level: "Beginner",
     topic: "Retirement",
     gradient: "from-lime-700 via-emerald-950 to-zinc-950",
+    videoEmbedUrl: "https://www.youtube.com/embed/nFWljN551dM",
+    videoCreator: "Finance for Investors",
   },
   {
     id: "term-life-insurance",
@@ -55,6 +70,8 @@ export const CONCEPT_SEEDS: readonly ConceptSeed[] = [
     level: "Beginner",
     topic: "Insurance",
     gradient: "from-emerald-800 via-teal-950 to-zinc-950",
+    videoEmbedUrl: "https://www.youtube.com/embed/yTN5GmyNUAI",
+    videoCreator: "The Money Guy Show",
   },
 
   // ── Intermediate ─────────────────────────────────────────────────────
@@ -64,6 +81,8 @@ export const CONCEPT_SEEDS: readonly ConceptSeed[] = [
     level: "Intermediate",
     topic: "Tax-Advantaged Accounts",
     gradient: "from-sky-700 via-sky-950 to-zinc-950",
+    videoEmbedUrl: "https://www.youtube.com/embed/K2K77UFkGM8",
+    videoCreator: "The Money Guy Show",
   },
   {
     id: "asset-location",
@@ -71,6 +90,8 @@ export const CONCEPT_SEEDS: readonly ConceptSeed[] = [
     level: "Intermediate",
     topic: "Tax Optimization",
     gradient: "from-cyan-700 via-sky-950 to-zinc-950",
+    videoEmbedUrl: "https://www.youtube.com/embed/ciW1kM6cX4c",
+    videoCreator: "Ben Felix",
   },
   {
     id: "portfolio-rebalancing",
@@ -78,6 +99,8 @@ export const CONCEPT_SEEDS: readonly ConceptSeed[] = [
     level: "Intermediate",
     topic: "Portfolio Management",
     gradient: "from-blue-700 via-sky-950 to-zinc-950",
+    videoEmbedUrl: "https://www.youtube.com/embed/-82wfugD1fc",
+    videoCreator: "Vanguard",
   },
   {
     id: "backdoor-roth",
@@ -85,6 +108,8 @@ export const CONCEPT_SEEDS: readonly ConceptSeed[] = [
     level: "Intermediate",
     topic: "Retirement Tax Strategy",
     gradient: "from-indigo-700 via-sky-950 to-zinc-950",
+    videoEmbedUrl: "https://www.youtube.com/embed/IbDEHci_oQo",
+    videoCreator: "Mark J. Kohler",
   },
   {
     id: "expense-ratios",
@@ -92,6 +117,8 @@ export const CONCEPT_SEEDS: readonly ConceptSeed[] = [
     level: "Intermediate",
     topic: "Fund Selection",
     gradient: "from-sky-800 via-blue-950 to-zinc-950",
+    videoEmbedUrl: "https://www.youtube.com/embed/9pJhiAbdjvo",
+    videoCreator: "The Plain Bagel",
   },
 
   // ── Advanced ─────────────────────────────────────────────────────────
@@ -101,6 +128,8 @@ export const CONCEPT_SEEDS: readonly ConceptSeed[] = [
     level: "Advanced",
     topic: "Tax Strategy",
     gradient: "from-violet-700 via-violet-950 to-zinc-950",
+    videoEmbedUrl: "https://www.youtube.com/embed/N3FE6xuU7gY",
+    videoCreator: "Tae Kim",
   },
   {
     id: "risk-parity",
@@ -108,6 +137,8 @@ export const CONCEPT_SEEDS: readonly ConceptSeed[] = [
     level: "Advanced",
     topic: "Portfolio Theory",
     gradient: "from-purple-700 via-violet-950 to-zinc-950",
+    videoEmbedUrl: "https://www.youtube.com/embed/p-UXVsbKPcs",
+    videoCreator: "Derek Moore",
   },
   {
     id: "bond-ladders",
@@ -115,6 +146,8 @@ export const CONCEPT_SEEDS: readonly ConceptSeed[] = [
     level: "Advanced",
     topic: "Fixed Income",
     gradient: "from-fuchsia-700 via-violet-950 to-zinc-950",
+    videoEmbedUrl: "https://www.youtube.com/embed/IjZ12Eh0SCo",
+    videoCreator: "The Money Guy Show",
   },
   {
     id: "smart-beta",
@@ -122,6 +155,8 @@ export const CONCEPT_SEEDS: readonly ConceptSeed[] = [
     level: "Advanced",
     topic: "Factor Investing",
     gradient: "from-violet-800 via-purple-950 to-zinc-950",
+    videoEmbedUrl: "https://www.youtube.com/embed/ROt2njtP4hE",
+    videoCreator: "ETF Insider",
   },
   {
     id: "concentrated-positions",
@@ -129,6 +164,7 @@ export const CONCEPT_SEEDS: readonly ConceptSeed[] = [
     level: "Advanced",
     topic: "Risk Management",
     gradient: "from-pink-700 via-violet-950 to-zinc-950",
+    // No curated standalone video found — falls back to "Find a related video" CTA
   },
 
   // ── Quant ────────────────────────────────────────────────────────────
@@ -138,6 +174,8 @@ export const CONCEPT_SEEDS: readonly ConceptSeed[] = [
     level: "Quant",
     topic: "Risk Metrics",
     gradient: "from-amber-700 via-amber-950 to-zinc-950",
+    videoEmbedUrl: "https://www.youtube.com/embed/2SMkbMDypXI",
+    videoCreator: "Ryan O'Connell, CFA, FRM",
   },
   {
     id: "sortino-ratio",
@@ -145,6 +183,8 @@ export const CONCEPT_SEEDS: readonly ConceptSeed[] = [
     level: "Quant",
     topic: "Risk-Adjusted Performance",
     gradient: "from-yellow-700 via-amber-950 to-zinc-950",
+    videoEmbedUrl: "https://www.youtube.com/embed/S6clqyKlFNI",
+    videoCreator: "PortfoliosLab",
   },
   {
     id: "beta-hedging",
@@ -152,6 +192,7 @@ export const CONCEPT_SEEDS: readonly ConceptSeed[] = [
     level: "Quant",
     topic: "Hedging",
     gradient: "from-orange-700 via-amber-950 to-zinc-950",
+    // No curated standalone video found — falls back to "Find a related video" CTA
   },
   {
     id: "bond-convexity",
@@ -159,6 +200,8 @@ export const CONCEPT_SEEDS: readonly ConceptSeed[] = [
     level: "Quant",
     topic: "Fixed Income Math",
     gradient: "from-amber-800 via-orange-950 to-zinc-950",
+    videoEmbedUrl: "https://www.youtube.com/embed/9GOfBq5Go9U",
+    videoCreator: "Ryan O'Connell, CFA, FRM",
   },
   {
     id: "monte-carlo-retirement",
@@ -166,6 +209,8 @@ export const CONCEPT_SEEDS: readonly ConceptSeed[] = [
     level: "Quant",
     topic: "Simulation",
     gradient: "from-yellow-800 via-amber-950 to-zinc-950",
+    videoEmbedUrl: "https://www.youtube.com/embed/ZsPkmGcdNzc",
+    videoCreator: "Boldin",
   },
 ] as const;
 

@@ -47,6 +47,8 @@ export interface GeneratedCard extends CardPayload {
   creator: string;
   source: string;
   sourceUrl: string;
+  videoEmbedUrl?: string;
+  videoCreator?: string;
   generated: true;
 }
 
@@ -190,6 +192,8 @@ Rules:
       creator: `@finscroll_${seed.level.toLowerCase()}`,
       source: topTitle ?? topSource ?? "SEC Investor.gov & Academic Sources",
       sourceUrl: topSource ?? "investor.gov",
+      videoEmbedUrl: seed.videoEmbedUrl,
+      videoCreator: seed.videoCreator,
       generated: true,
     };
 
@@ -261,6 +265,8 @@ export function toLearnCard(g: GeneratedCard): Card {
     quiz: g.quiz,
     source: { name: g.source, url: g.sourceUrl },
     creator: g.creator,
+    videoEmbedUrl: g.videoEmbedUrl,
+    videoCreator: g.videoCreator,
     generated: true,
   };
 }

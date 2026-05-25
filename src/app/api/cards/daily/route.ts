@@ -57,7 +57,17 @@ export async function GET(req: Request) {
       );
     }
 
-    return NextResponse.json({ card: toLearnCard(generated), dateKey });
+    // Always re-attach the video fields from the CURRENT seed in case the
+    // cached card was generated before the seed had a videoEmbedUrl. This
+    // makes seed-level video curation take effect without forcing an LLM
+    // regeneration — important when Gemini's daily quota is exhausted.
+    const card = toLearnCard(generated);
+    if (seed.videoEmbedUrl) {
+      card.videoEmbedUrl = seed.videoEmbedUrl;
+      card.videoCreator = seed.videoCreator;
+    }
+
+    return NextResponse.json({ card, dateKey });
   } catch (err) {
     Sentry.captureException(err, { tags: { route: "api/cards/daily" } });
     return NextResponse.json(

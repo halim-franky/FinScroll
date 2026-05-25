@@ -4,29 +4,31 @@
     "level": "Beginner",
     "topic": "Credit",
     "gradient": "from-green-700 via-emerald-950 to-zinc-950",
-    "emoji": "📈",
-    "title": "Master Your Financial Adult GPA",
-    "hook": "Stop ghosting your bills if you want that main character energy for your future",
-    "keyFact": "To improve your credit score, you must apply financial knowledge to your daily behavior, a key trait of digitally empowered users. Using financial tools to track your roadmap ensures you manage the 35 percent of your score tied to payment history, which is the most critical component for building wealth.",
-    "insight": "To improve your credit score, you must apply financial knowledge to your daily behavior, a key trait of digitally empowered users.",
-    "impactLabel": "Average interest rate reduction",
-    "impactValue": "15-20%",
+    "emoji": "💳",
+    "title": "Boost Your Credit Score Game",
+    "hook": "*Your credit score is your financial superpower*",
+    "keyFact": "Your credit score is built on several factors, with payment history being the most important. Making on-time payments is crucial for a good score. Using credit responsibly can lead to better financial opportunities.",
+    "insight": "Your credit score is built on several factors, with payment history being the most important.",
+    "impactLabel": "Payment History Weight",
+    "impactValue": "~35%",
     "quiz": {
-      "question": "Which factor has the most significant impact on your total credit score calculation?",
+      "question": "What's the BIGGEST factor in your credit score?",
       "options": [
-        "The number of credit cards you own",
-        "Your consistent payment history",
-        "The amount of money in your 401(k)",
-        "How often you use a savings calculator"
+        "Payment History",
+        "Credit Utilization",
+        "Length of Credit History",
+        "New Credit"
       ],
-      "correctIndex": 1,
-      "explanation": "Payment history typically accounts for 35% of your credit score, making it the most influential factor in determining your creditworthiness."
+      "correctIndex": 0,
+      "explanation": "Payment history makes up the largest portion of your credit score, showing lenders if you pay your bills on time."
     },
     "source": {
       "name": "Save and Invest | Investor.gov",
       "url": "https://www.investor.gov/introduction-investing/investing-basics/save-and-invest"
     },
     "creator": "@finscroll_beginner",
+    "videoEmbedUrl": "https://www.youtube.com/embed/T5UHXCrW0gI",
+    "videoCreator": "Practical Personal Finance",
     "generated": true
   },
   {
@@ -57,7 +59,9 @@
       "url": "https://www.investor.gov/introduction-investing/investing-basics/save-and-invest"
     },
     "creator": "@finscroll_beginner",
-    "generated": true
+    "generated": true,
+    "videoEmbedUrl": "https://www.youtube.com/embed/k-RTEIaYvAg",
+    "videoCreator": "Khan Academy"
   },
   {
     "id": "gen-sinking-funds",
@@ -65,28 +69,30 @@
     "topic": "Budgeting",
     "gradient": "from-teal-700 via-teal-950 to-zinc-950",
     "emoji": "💰",
-    "title": "Sinking Funds: Your Future Self's BFF",
-    "hook": "*Stop stressing about surprise bills!*",
-    "keyFact": "Sinking funds are like mini savings accounts for specific, irregular expenses, like car repairs or holiday gifts. By setting aside a small amount regularly, you avoid the financial shock when these costs pop up. Think of it as proactive saving, not reactive panic.",
-    "insight": "Sinking funds are like mini savings accounts for specific, irregular expenses, like car repairs or holiday gifts.",
-    "impactLabel": "Reduced Financial Stress",
-    "impactValue": "90% Reduction",
+    "title": "Master Your Irregular Expenses",
+    "hook": "Stop letting surprise bills wreck your vibe and your bank account",
+    "keyFact": "Sinking funds are targeted savings buckets for non-monthly costs like travel or car repairs. By using savings goal calculators found on official .gov sites, you can apply financial knowledge to turn a large annual expense into a manageable monthly habit.",
+    "insight": "Sinking funds are targeted savings buckets for non-monthly costs like travel or car repairs.",
+    "impactLabel": "Monthly cost for a $1,200 bill",
+    "impactValue": "$100",
     "quiz": {
-      "question": "What's the main goal of a sinking fund?",
+      "question": "How does a sinking fund differ from a standard emergency fund?",
       "options": [
-        "To save for predictable, irregular expenses without derailing your budget",
-        "To invest in high-risk, high-reward opportunities",
-        "To cover everyday living costs like rent and groceries",
-        "To save up for a down payment on a house immediately"
+        "It is for specific, known future costs rather than unexpected crises",
+        "It must be invested in high-risk stock funds",
+        "It is only used for paying monthly rent or utilities",
+        "It requires a double layer of fees like some target date funds"
       ],
       "correctIndex": 0,
-      "explanation": "Sinking funds are designed to systematically save for specific, non-monthly expenses, making them easier to manage when they arise."
+      "explanation": "While emergency funds are for the unknown, sinking funds are for planned but irregular expenses like holidays or car maintenance."
     },
     "source": {
       "name": "Mutual Funds | Investor.gov",
       "url": "https://www.investor.gov/introduction-investing/investing-basics/investment-products/mutual-funds-and-exchange-traded-1"
     },
     "creator": "@finscroll_beginner",
+    "videoEmbedUrl": "https://www.youtube.com/embed/TcSmd2lmc7E",
+    "videoCreator": "The Budget Mom",
     "generated": true
   },
   {
@@ -94,29 +100,31 @@
     "level": "Beginner",
     "topic": "Retirement",
     "gradient": "from-lime-700 via-emerald-950 to-zinc-950",
-    "emoji": "🤑",
-    "title": "The 401k Match is Free Money",
-    "hook": "It's the only 100% return you'll ever get on day one",
-    "keyFact": "A 401(k) is a tax-advantaged account where many employers match your contributions up to a limit, like 4% of your salary. This match is essentially a guaranteed bonus that doubles your savings before the market even fluctuates.",
-    "insight": "A 401(k) is a tax-advantaged account where many employers match your contributions up to a limit, like 4% of your salary.",
-    "impactLabel": "Instant return on investment",
-    "impactValue": "100%",
+    "emoji": "💰",
+    "title": "Your 401(k) Match Is Free Cash",
+    "hook": "*Don't leave free money on the table!*",
+    "keyFact": "Many employers offer a 401(k) match, meaning they'll contribute money to your retirement account based on your contributions. For example, if your employer matches 50% of your contributions up to 6% of your salary, and you contribute 6%, they'll add an extra 3% for free. This is a key benefit of tax-advantaged accounts like 401(k)s.",
+    "insight": "Many employers offer a 401(k) match, meaning they'll contribute money to your retirement account based on your contributions.",
+    "impactLabel": "Potential Extra Annual Contribution",
+    "impactValue": "+3% (example)",
     "quiz": {
-      "question": "What happens if you don't contribute enough to get your full 401(k) match?",
+      "question": "What's the best way to think about your employer's 401(k) match?",
       "options": [
-        "You save more on taxes",
-        "You leave part of your total compensation on the table",
-        "Your employer keeps the money in a side account for you",
-        "The match is automatically added to your paycheck instead"
+        "It's essentially free money to boost your retirement savings.",
+        "It's a loan you have to pay back later.",
+        "It's a bonus that only applies if you leave the company.",
+        "It's an optional perk you can ignore if you don't need it."
       ],
-      "correctIndex": 1,
-      "explanation": "The match is part of your benefits package; if you don't contribute the required amount, your employer simply keeps that extra money."
+      "correctIndex": 0,
+      "explanation": "An employer match is a contribution your employer makes to your 401(k) based on your own contributions, effectively increasing your savings without you having to contribute more yourself."
     },
     "source": {
       "name": "Compound Interest | Investor.gov",
       "url": "https://www.investor.gov/introduction-investing/investing-basics/glossary/compound-interest"
     },
     "creator": "@finscroll_beginner",
+    "videoEmbedUrl": "https://www.youtube.com/embed/nFWljN551dM",
+    "videoCreator": "Finance for Investors",
     "generated": true
   },
   {
@@ -147,66 +155,72 @@
       "url": "https://www.investor.gov/introduction-investing/investing-basics/investment-products/mutual-funds-and-exchange-traded-1"
     },
     "creator": "@finscroll_beginner",
-    "generated": true
+    "generated": true,
+    "videoEmbedUrl": "https://www.youtube.com/embed/yTN5GmyNUAI",
+    "videoCreator": "The Money Guy Show"
   },
   {
     "id": "gen-hsa-triple-tax",
     "level": "Intermediate",
     "topic": "Tax-Advantaged Accounts",
     "gradient": "from-sky-700 via-sky-950 to-zinc-950",
-    "emoji": "🏦",
-    "title": "Unlock the HSA Triple Tax Advantage",
-    "hook": "The only account that lets you dodge taxes three times",
-    "keyFact": "Health Savings Accounts are highlighted by the SEC as key tax-advantaged accounts alongside 401k plans and IRAs. They offer a unique triple benefit where contributions are tax-deductible, growth is tax-free, and withdrawals for medical costs are tax-exempt.",
-    "insight": "Health Savings Accounts are highlighted by the SEC as key tax-advantaged accounts alongside 401k plans and IRAs.",
-    "impactLabel": "Tax rate on medical withdrawals",
-    "impactValue": "0%",
+    "emoji": "💰",
+    "title": "HSA: Your Triple Tax-Free Money",
+    "hook": "*Unlock a financial superpower: the HSA's triple tax advantage!*",
+    "keyFact": "A Health Savings Account (HSA) offers a triple tax advantage. Contributions are tax-deductible, growth is tax-free, and withdrawals for qualified medical expenses are also tax-free. This makes it a powerful tool for managing healthcare costs and saving for the future.",
+    "insight": "A Health Savings Account (HSA) offers a triple tax advantage.",
+    "impactLabel": "Tax Savings",
+    "impactValue": "Triple Tax-Free",
     "quiz": {
-      "question": "What makes an HSA 'triple tax-advantaged' compared to other accounts?",
+      "question": "What makes an HSA a 'triple tax advantage' account?",
       "options": [
-        "Tax-free contributions, growth, and medical withdrawals",
-        "It covers three people for the price of one",
-        "You get three times the standard deduction",
-        "It triples your investment every three years"
+        "Contributions, growth, and qualified withdrawals are all tax-free.",
+        "You get a tax deduction on contributions and tax-free growth.",
+        "It offers tax-free growth and tax credits for medical expenses.",
+        "All contributions are tax-deductible, and you can invest freely."
       ],
       "correctIndex": 0,
-      "explanation": "HSAs are unique because they provide tax benefits when you contribute, as the money grows, and when you spend it on healthcare."
+      "explanation": "The triple tax advantage comes from tax-deductible contributions, tax-free growth on investments within the account, and tax-free withdrawals for qualified medical expenses."
     },
     "source": {
       "name": "Compound Interest | Investor.gov",
       "url": "https://www.investor.gov/introduction-investing/investing-basics/glossary/compound-interest"
     },
     "creator": "@finscroll_intermediate",
-    "generated": true
+    "generated": true,
+    "videoEmbedUrl": "https://www.youtube.com/embed/K2K77UFkGM8",
+    "videoCreator": "The Money Guy Show"
   },
   {
     "id": "gen-asset-location",
     "level": "Intermediate",
     "topic": "Tax Optimization",
     "gradient": "from-cyan-700 via-sky-950 to-zinc-950",
-    "emoji": "🏦",
-    "title": "Hack Your Taxes With Asset Location",
-    "hook": "It’s not just what you buy, it’s where you keep it",
-    "keyFact": "Asset location involves placing tax-heavy investments in tax-advantaged accounts like a 401(k) or IRA to minimize what you owe the IRS. By strategically using these accounts, investors can potentially increase their after-tax returns by up to 0.50% annually. This simple shift helps your money grow faster over time without changing your risk level.",
-    "insight": "Asset location involves placing tax-heavy investments in tax-advantaged accounts like a 401(k) or IRA to minimize what you owe the IRS.",
-    "impactLabel": "Potential annual after-tax boost",
-    "impactValue": "+0.50%",
+    "emoji": "📍",
+    "title": "Smart Investing: Where to Park Your Cash",
+    "hook": "*Don't just invest, invest SMARTER!*",
+    "keyFact": "Asset location is about putting the right investments in the right accounts. For example, placing investments that generate a lot of taxable income in tax-advantaged accounts like 401(k)s or IRAs can save you money on taxes over time. These accounts offer tax benefits to help your money grow.",
+    "insight": "Asset location is about putting the right investments in the right accounts.",
+    "impactLabel": "Potential Tax Savings",
+    "impactValue": "+10-20%*",
     "quiz": {
-      "question": "Which of these is considered a tax-advantaged account for long-term investing?",
+      "question": "What is the main idea behind 'asset location'?",
       "options": [
-        "Standard Checking Account",
-        "401(k) Plan",
-        "High-Yield Savings Account",
-        "Physical Wallet"
+        "Placing specific types of investments in the most tax-advantageous accounts.",
+        "Investing only in accounts that offer the highest potential returns.",
+        "Spreading your investments across as many different account types as possible.",
+        "Focusing solely on growth stocks within your retirement accounts."
       ],
-      "correctIndex": 1,
-      "explanation": "A 401(k) is a tax-advantaged plan that allows your investments to grow with specific tax benefits, unlike a standard checking or savings account."
+      "correctIndex": 0,
+      "explanation": "Asset location is about optimizing your investment placement to take advantage of tax benefits offered by different account types, like 401(k)s and IRAs."
     },
     "source": {
       "name": "Compound Interest | Investor.gov",
       "url": "https://www.investor.gov/introduction-investing/investing-basics/glossary/compound-interest"
     },
     "creator": "@finscroll_intermediate",
+    "videoEmbedUrl": "https://www.youtube.com/embed/ciW1kM6cX4c",
+    "videoCreator": "Ben Felix",
     "generated": true
   },
   {
@@ -215,28 +229,30 @@
     "topic": "Portfolio Management",
     "gradient": "from-blue-700 via-sky-950 to-zinc-950",
     "emoji": "⚖️",
-    "title": "Keep Your Portfolio Vibe Balanced",
-    "hook": "Don't let one lucky stock turn your plan into a gamble",
-    "keyFact": "Mutual funds provide diversification to lower risk, but market growth can make your portfolio lopsided. Rebalancing involves selling assets that have increased in Net Asset Value and reinvesting the proceeds to maintain your target mix of stocks and bonds.",
-    "insight": "Mutual funds provide diversification to lower risk, but market growth can make your portfolio lopsided.",
-    "impactLabel": "Professional risk management",
-    "impactValue": "100% SEC-registered",
+    "title": "Rebalance Your Portfolio Like a Pro",
+    "hook": "*Don't let your investments drift away!*",
+    "keyFact": "Portfolio rebalancing is like hitting the reset button on your investments. It means selling some assets that have grown a lot and buying more of those that haven't, bringing your portfolio back to your original target mix. This helps manage risk and can lock in gains before they disappear.",
+    "insight": "Portfolio rebalancing is like hitting the reset button on your investments.",
+    "impactLabel": "Risk Reduction",
+    "impactValue": "Up to 50% less volatility",
     "quiz": {
-      "question": "Why is rebalancing necessary after a specific sector in your portfolio grows significantly?",
+      "question": "Why is rebalancing your investment portfolio important?",
       "options": [
-        "To maintain your desired level of diversification",
-        "To make sure you only own the most expensive stocks",
-        "Because the SEC requires you to sell all winners",
-        "To decrease the Net Asset Value of your shares"
+        "To bring your asset allocation back to your target and manage risk",
+        "To chase the hottest trending stocks",
+        "To avoid paying any taxes on your investments",
+        "To guarantee you make a profit every year"
       ],
       "correctIndex": 0,
-      "explanation": "Rebalancing prevents your portfolio from becoming too heavily weighted in one area, which helps manage your overall risk as market values shift."
+      "explanation": "Rebalancing helps ensure your portfolio's risk level stays aligned with your goals by selling winners and buying underperformers to return to your target allocation."
     },
     "source": {
       "name": "Mutual Funds | Investor.gov",
       "url": "https://www.investor.gov/introduction-investing/investing-basics/investment-products/mutual-funds-and-exchange-traded-1"
     },
     "creator": "@finscroll_intermediate",
+    "videoEmbedUrl": "https://www.youtube.com/embed/-82wfugD1fc",
+    "videoCreator": "Vanguard",
     "generated": true
   },
   {
@@ -244,29 +260,31 @@
     "level": "Intermediate",
     "topic": "Retirement Tax Strategy",
     "gradient": "from-indigo-700 via-sky-950 to-zinc-950",
-    "emoji": "🔓",
-    "title": "Bypass Roth IRA Income Limits",
-    "hook": "The legal cheat code for high-earning investors",
-    "keyFact": "High earners can still access tax-advantaged accounts by contributing to a Traditional IRA and converting it to a Roth IRA. This strategy bypasses the 2024 income limit of 161,000 dollars for single filers, allowing for tax-free growth and withdrawals. It is a key way to maximize the benefits of IRAs mentioned in investor guidelines.",
-    "insight": "High earners can still access tax-advantaged accounts by contributing to a Traditional IRA and converting it to a Roth IRA.",
-    "impactLabel": "Potential tax-free retirement growth",
-    "impactValue": "$850,000",
+    "emoji": "🔑",
+    "title": "Roth IRA Hack for High Earners",
+    "hook": "*Unlock tax-free growth even if you earn too much*",
+    "keyFact": "High earners can use the 'Backdoor Roth IRA' strategy. This involves contributing to a traditional IRA and then converting it to a Roth IRA. This bypasses the income limits for direct Roth IRA contributions, allowing you to benefit from tax-advantaged growth.",
+    "insight": "High earners can use the 'Backdoor Roth IRA' strategy.",
+    "impactLabel": "Tax-Free Growth Potential",
+    "impactValue": "Unlimited",
     "quiz": {
-      "question": "Why would someone use a Backdoor Roth IRA strategy?",
+      "question": "What's the main benefit of a Backdoor Roth IRA for high earners?",
       "options": [
-        "To get a tax deduction today",
-        "To bypass income limits for tax-free growth",
-        "To avoid paying any capital gains on stocks",
-        "To invest more than the annual limit"
+        "To bypass income limits for Roth IRA contributions",
+        "To get an immediate tax deduction on contributions",
+        "To invest in high-risk, high-reward assets",
+        "To avoid paying any taxes on investment gains ever"
       ],
-      "correctIndex": 1,
-      "explanation": "The backdoor strategy is specifically designed for people whose income is too high to contribute directly to a Roth IRA, ensuring they still get tax-free growth."
+      "correctIndex": 0,
+      "explanation": "The Backdoor Roth IRA strategy is specifically designed to allow individuals who exceed the direct Roth IRA income limits to still contribute and benefit from tax-free growth."
     },
     "source": {
       "name": "Compound Interest | Investor.gov",
       "url": "https://www.investor.gov/introduction-investing/investing-basics/glossary/compound-interest"
     },
     "creator": "@finscroll_intermediate",
+    "videoEmbedUrl": "https://www.youtube.com/embed/IbDEHci_oQo",
+    "videoCreator": "Mark J. Kohler",
     "generated": true
   },
   {
@@ -297,7 +315,9 @@
       "url": "https://www.investor.gov/introduction-investing/investing-basics/investment-products/mutual-funds-and-exchange-traded-1"
     },
     "creator": "@finscroll_intermediate",
-    "generated": true
+    "generated": true,
+    "videoEmbedUrl": "https://www.youtube.com/embed/9pJhiAbdjvo",
+    "videoCreator": "The Plain Bagel"
   },
   {
     "id": "gen-tax-loss-harvesting",
@@ -327,7 +347,9 @@
       "url": "https://www.investor.gov/introduction-investing/investing-basics/glossary/compound-interest"
     },
     "creator": "@finscroll_advanced",
-    "generated": true
+    "generated": true,
+    "videoEmbedUrl": "https://www.youtube.com/embed/N3FE6xuU7gY",
+    "videoCreator": "Tae Kim"
   },
   {
     "id": "gen-risk-parity",
@@ -357,7 +379,9 @@
       "url": "https://www.investor.gov/introduction-investing/investing-basics/investment-products/mutual-funds-and-exchange-traded-1"
     },
     "creator": "@finscroll_advanced",
-    "generated": true
+    "generated": true,
+    "videoEmbedUrl": "https://www.youtube.com/embed/p-UXVsbKPcs",
+    "videoCreator": "Derek Moore"
   },
   {
     "id": "gen-bond-ladders",
@@ -387,7 +411,9 @@
       "url": "https://www.investor.gov/introduction-investing/investing-basics/investment-products/mutual-funds-and-exchange-traded-1"
     },
     "creator": "@finscroll_advanced",
-    "generated": true
+    "generated": true,
+    "videoEmbedUrl": "https://www.youtube.com/embed/IjZ12Eh0SCo",
+    "videoCreator": "The Money Guy Show"
   },
   {
     "id": "gen-smart-beta",
@@ -417,7 +443,9 @@
       "url": "https://www.investor.gov/introduction-investing/investing-basics/investment-products/mutual-funds-and-exchange-traded-1"
     },
     "creator": "@finscroll_advanced",
-    "generated": true
+    "generated": true,
+    "videoEmbedUrl": "https://www.youtube.com/embed/ROt2njtP4hE",
+    "videoCreator": "ETF Insider"
   },
   {
     "id": "gen-concentrated-positions",
@@ -456,27 +484,29 @@
     "gradient": "from-amber-700 via-amber-950 to-zinc-950",
     "emoji": "📉",
     "title": "Know Your Investment Risk",
-    "hook": "*How much could you lose? Let's talk VaR.*",
-    "keyFact": "Value at Risk (VaR) tells you the maximum potential dollar loss of an investment over a specific time period, at a given confidence level. For example, a 1-day 95% VaR of $1 million means there's a 95% chance the fund won't lose more than $1 million in a day.",
-    "insight": "Value at Risk (VaR) tells you the maximum potential dollar loss of an investment over a specific time period, at a given confidence level.",
-    "impactLabel": "Maximum Potential Loss",
-    "impactValue": "$1M (Example)",
+    "hook": "*Don't guess your losses, measure 'em!*",
+    "keyFact": "Value at Risk (VaR) tells you the maximum potential dollar loss on an investment over a specific time period with a certain confidence level. For example, a 1-day 95% VaR of $1,000 means there's a 95% chance you won't lose more than $1,000 in a single day.",
+    "insight": "Value at Risk (VaR) tells you the maximum potential dollar loss on an investment over a specific time period with a certain confidence level.",
+    "impactLabel": "Max Potential Loss",
+    "impactValue": "$1,000 (Example)",
     "quiz": {
       "question": "What does Value at Risk (VaR) primarily help you understand?",
       "options": [
         "The maximum potential dollar loss of an investment",
-        "The guaranteed rate of return",
-        "The fund's past performance history",
-        "The total fees charged by the fund"
+        "The guaranteed return of an investment",
+        "The exact future price of a stock",
+        "The total fees you will pay for a mutual fund"
       ],
       "correctIndex": 0,
-      "explanation": "VaR is a measure of downside risk, specifically quantifying the potential loss in dollar terms over a set timeframe and confidence level."
+      "explanation": "VaR is a risk management tool that quantifies the potential downside of an investment in terms of dollar amount."
     },
     "source": {
       "name": "Mutual Funds | Investor.gov",
       "url": "https://www.investor.gov/introduction-investing/investing-basics/investment-products/mutual-funds-and-exchange-traded-1"
     },
     "creator": "@finscroll_quant",
+    "videoEmbedUrl": "https://www.youtube.com/embed/2SMkbMDypXI",
+    "videoCreator": "Ryan O'Connell, CFA, FRM",
     "generated": true
   },
   {
@@ -507,7 +537,9 @@
       "url": "https://www.investor.gov/introduction-investing/investing-basics/investment-products/mutual-funds-and-exchange-traded-1"
     },
     "creator": "@finscroll_quant",
-    "generated": true
+    "generated": true,
+    "videoEmbedUrl": "https://www.youtube.com/embed/S6clqyKlFNI",
+    "videoCreator": "PortfoliosLab"
   },
   {
     "id": "gen-bond-convexity",
@@ -537,7 +569,9 @@
       "url": "https://www.investor.gov/introduction-investing/investing-basics/investment-products/mutual-funds-and-exchange-traded-1"
     },
     "creator": "@finscroll_quant",
-    "generated": true
+    "generated": true,
+    "videoEmbedUrl": "https://www.youtube.com/embed/9GOfBq5Go9U",
+    "videoCreator": "Ryan O'Connell, CFA, FRM"
   },
   {
     "id": "gen-monte-carlo-retirement",
@@ -567,7 +601,9 @@
       "url": "https://www.investor.gov/introduction-investing/investing-basics/investment-products/mutual-funds-and-exchange-traded-1"
     },
     "creator": "@finscroll_quant",
-    "generated": true
+    "generated": true,
+    "videoEmbedUrl": "https://www.youtube.com/embed/ZsPkmGcdNzc",
+    "videoCreator": "Boldin"
   },
   {
     "id": "gen-beta-hedging",

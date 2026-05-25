@@ -93,7 +93,11 @@ export function FinTokFeed({ userId = "guest" }: FinTokFeedProps) {
       try {
         const today = new Date();
         const dateKey = `${today.getUTCFullYear()}-${String(today.getUTCMonth() + 1).padStart(2, "0")}-${String(today.getUTCDate()).padStart(2, "0")}`;
-        const cacheKey = `fs_daily_${dateKey}`;
+        // `v2` suffix invalidates older localStorage entries that were
+        // saved before we started attaching curated video URLs to seeds.
+        // Without bumping the key, browsers keep showing the cached
+        // card-without-video forever.
+        const cacheKey = `fs_daily_v2_${dateKey}`;
         const cached = localStorage.getItem(cacheKey);
         if (cached) {
           try {
