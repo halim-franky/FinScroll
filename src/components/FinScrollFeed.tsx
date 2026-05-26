@@ -21,7 +21,7 @@ import { useInfiniteCards } from "@/lib/learn/useInfiniteCards";
 const STORAGE_KEY = (uid: string) => `finscroll_v3_${uid}`;
 const MODE_STORAGE_KEY = "finscroll_learn_mode";
 
-interface FinTokFeedProps {
+interface FinScrollFeedProps {
   userId?: string;
 }
 
@@ -40,7 +40,7 @@ interface PersistedProgress {
 
 const STORY_FRAME_COUNT = 5;
 
-export function FinTokFeed({ userId = "guest" }: FinTokFeedProps) {
+export function FinScrollFeed({ userId = "guest" }: FinScrollFeedProps) {
   const [active, setActive] = useState(0);
   const [activeFrame, setActiveFrame] = useState(0);
   const [hasScrolled, setHasScrolled] = useState(false);
@@ -160,13 +160,21 @@ export function FinTokFeed({ userId = "guest" }: FinTokFeedProps) {
   });
 
   const cardOrder = useMemo(() => {
-    // Just concatenate base + any RAG-generated extras. When the API is
-    // in cooldown (fallback=true) and we have no extras yet, the feed
-    // gracefully stops at the base length — the user sees the existing
-    // 12 + daily cards and the mini-series banner at the end. Recycling
-    // the base would create duplicate keys (every card.id appears twice)
-    // and React refuses to render that.
-    return [...baseOrder, ...extraCards];
+    // Concatenate base + any RAG-generated extras, then dedupe by id.
+    // The dedupe matters because the on-demand RAG generator can produce
+    // the same seed (e.g. `gen-sortino-ratio`) that's already in the
+    // static pool — the client's exclude-list doesn't know about pool
+    // seedIds at hook init time. Without dedupe, React errors on the
+    // duplicate keys when ReadingView / AudioModeView map by `c.id`.
+    const seen = new Set<string>();
+    const out: Card[] = [];
+    for (const c of [...baseOrder, ...extraCards]) {
+      const id = String(c.id);
+      if (seen.has(id)) continue;
+      seen.add(id);
+      out.push(c);
+    }
+    return out;
   }, [baseOrder, extraCards]);
 
   // Surface the fallback state in the console only — no UI yet. If we
@@ -174,7 +182,7 @@ export function FinTokFeed({ userId = "guest" }: FinTokFeedProps) {
   // hang it off.
   if (process.env.NODE_ENV === "development" && infiniteFallback) {
     // eslint-disable-next-line no-console
-    console.debug("[FinTokFeed] Infinite-card API in cooldown — using base feed only.");
+    console.debug("[FinScrollFeed] Infinite-card API in cooldown — using base feed only.");
   }
 
   // ── First-time visitors: scroll to the card matching their struggle ──

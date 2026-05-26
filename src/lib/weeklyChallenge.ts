@@ -2,7 +2,7 @@
  * Weekly challenge logic.
  *
  * A "week" begins at Monday 00:00 in the user's local timezone.
- * Progress is computed from the FinTokFeed's persisted weeklyLog
+ * Progress is computed from the FinScrollFeed's persisted weeklyLog
  * (an array of millisecond timestamps when the user answered a
  * quiz correctly). The current challenge is fixed for the MVP —
  * future versions can rotate from a pool.

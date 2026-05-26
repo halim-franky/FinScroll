@@ -22,7 +22,7 @@ export function ReadingView({ cards, onSelectCard }: Props) {
       <article className="max-w-2xl mx-auto px-4 pt-16 pb-8">
         <header className="pb-4 mb-6 border-b border-zinc-800">
           <h1 className="text-2xl font-black text-zinc-50 tracking-tight">
-            FinTok Library
+            FinScroll Library
           </h1>
           <p className="text-xs text-zinc-400 mt-1.5">
             {cards.length} concepts · grounded in SEC and peer-reviewed research
@@ -32,7 +32,9 @@ export function ReadingView({ cards, onSelectCard }: Props) {
         <div className="space-y-5">
           {cards.map((card, i) => (
             <section
-              key={card.id}
+              // Index-prefixed key — defense-in-depth against duplicate
+              // card ids reaching this component (parent dedupes too).
+              key={`${i}-${card.id}`}
               id={`card-${card.id}`}
               className="relative rounded-2xl bg-zinc-900/50 border border-zinc-800 p-5 space-y-3 overflow-hidden shadow-[0_2px_8px_rgba(0,0,0,0.3)]"
             >

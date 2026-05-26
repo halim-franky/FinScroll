@@ -5,7 +5,7 @@
  * calls Gemini with structured JSON output → validates with Zod →
  * caches result in memory.
  *
- * The generated cards conform to the same shape that FinTokFeed
+ * The generated cards conform to the same shape that FinScrollFeed
  * already renders, so they slot in alongside the curated cards.
  */
 import { z } from "zod";

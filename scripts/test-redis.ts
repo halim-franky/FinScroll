@@ -160,19 +160,19 @@ async function main() {
   console.log("\n6. Cleanup verification");
   const lingeringKeys: string[] = [];
   // Scan all our test keys (test-* prefix)
-  let cursor: string | number = 0;
+  let cursor: string = "0";
   do {
-    const scan = await redis.scan(cursor, { match: "rl:test-*", count: 50 });
-    cursor = scan[0];
-    lingeringKeys.push(...scan[1]);
-  } while (cursor !== 0 && cursor !== "0");
+    const result: [string, string[]] = await redis.scan(cursor, { match: "rl:test-*", count: 50 });
+    cursor = result[0];
+    lingeringKeys.push(...result[1]);
+  } while (cursor !== "0");
 
-  cursor = 0;
+  cursor = "0";
   do {
-    const scan = await redis.scan(cursor, { match: "card:test-*", count: 50 });
-    cursor = scan[0];
-    lingeringKeys.push(...scan[1]);
-  } while (cursor !== 0 && cursor !== "0");
+    const result: [string, string[]] = await redis.scan(cursor, { match: "card:test-*", count: 50 });
+    cursor = result[0];
+    lingeringKeys.push(...result[1]);
+  } while (cursor !== "0");
 
   check(
     "No leftover test keys in Redis",

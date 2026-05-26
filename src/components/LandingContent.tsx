@@ -41,11 +41,11 @@ function ScrollCostCounter() {
 
 const features = [
   {
-    icon: TrendingUp, color: "emerald", title: "FinTok Feed",
+    icon: TrendingUp, color: "emerald", title: "FinScroll Feed",
     description: "TikTok-style vertical scroll cards. Every fact is grounded in SEC publications and peer-reviewed research. Same format, zero speculation.",
   },
   {
-    icon: BookOpen, color: "sky", title: "FinTok Library",
+    icon: BookOpen, color: "sky", title: "FinScroll Library",
     description: "Every concept reframed as a long-form, source-linked article. Read mode for when you want the deep dive without the swipes.",
   },
   {
@@ -140,7 +140,10 @@ export function LandingContent() {
           viewport={viewportOnce}
         >
           {stats.map((s) => (
-            <motion.div key={s.label} variants={pop} className="text-center space-y-1">
+            // fadeUp (not pop) — smooth slide-up with opacity ramp. The bold
+            // numbers read as a "blink" with pop's scale-keyframe entrance;
+            // a gentle ease-out rise feels premium instead.
+            <motion.div key={s.label} variants={fadeUp} className="text-center space-y-1">
               <div className={`text-4xl font-black tracking-tighter ${s.color === "rose" ? "text-rose-400" : s.color === "orange" ? "text-orange-400" : "text-red-400"}`}>
                 {s.value}
               </div>
@@ -200,8 +203,19 @@ export function LandingContent() {
               <motion.div
                 key={f.title}
                 variants={pop}
-                whileHover={{ y: -4, scale: 1.01 }}
-                transition={SPRING_BOUNCY}
+                // Hover IN: snappy ease-out tween (180 ms) — feels tactile
+                //   without the spring overshoot that made the previous
+                //   bouncy version visibly oscillate.
+                // Hover OUT: same easing, slightly longer (220 ms) so the
+                //   card settles gently. Tweens never overshoot by
+                //   definition, so the exit is guaranteed smooth no matter
+                //   how fast or slow the cursor leaves.
+                whileHover={{
+                  y: -4,
+                  scale: 1.01,
+                  transition: { duration: 0.18, ease: [0.22, 1, 0.36, 1] },
+                }}
+                transition={{ duration: 0.22, ease: [0.22, 1, 0.36, 1] }}
                 className="p-6 bg-zinc-900 border border-zinc-800 rounded-2xl hover:border-zinc-700 transition-colors text-left space-y-3"
               >
                 <div className="flex items-center gap-3">
@@ -234,7 +248,7 @@ export function LandingContent() {
           </motion.h2>
           <motion.div variants={staggerFast} className="grid grid-cols-1 sm:grid-cols-3 gap-6">
             {[
-              { step: "1", title: "Scroll & Learn", desc: "Swipe through bite-sized finance cards in the FinTok feed. Same format as TikTok, but every fact is SEC-verified." },
+              { step: "1", title: "Scroll & Learn", desc: "Swipe through bite-sized finance cards in the FinScroll feed. Same format as TikTok, but every fact is SEC-verified." },
               { step: "2", title: "Quiz to Unlock", desc: "Answer the knowledge check on each card. Correct answers build your streak and advance your level." },
               { step: "3", title: "Build Your Streak", desc: "Stats and weekly challenges turn one-off learning into a daily habit. Share your progress and stay accountable." },
             ].map((item) => (

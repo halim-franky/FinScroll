@@ -1,5 +1,5 @@
 /**
- * Financial concept seeds for dynamic FinTok card generation.
+ * Financial concept seeds for dynamic FinScroll card generation.
  *
  * Each seed names a single, well-bounded financial concept that the
  * card generator will research via Pinecone semantic search and

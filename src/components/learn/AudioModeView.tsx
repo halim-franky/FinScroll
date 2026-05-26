@@ -20,6 +20,11 @@ export function AudioModeView({ cards }: Props) {
   const indexRef = useRef(index);
   indexRef.current = index;
   const listRef = useRef<HTMLDivElement | null>(null);
+  // Session id invalidates pending `onend` callbacks. Web Speech API
+  // fires `onend` even when we cancel() — without this guard, pausing
+  // would trigger the canceled utterance's onend, which auto-advances
+  // and starts a new utterance, defeating the pause.
+  const sessionRef = useRef(0);
 
   const card = cards[index];
 
@@ -28,10 +33,12 @@ export function AudioModeView({ cards }: Props) {
       setIsPlaying(false);
       return;
     }
+    const mySession = ++sessionRef.current;
     const c = cards[i];
     const text = `${c.title}. ${c.hook}. ${c.keyFact}. The impact: ${c.impactValue}.`;
     speak(text, {
       onEnd: () => {
+        if (sessionRef.current !== mySession) return;
         const nextIdx = indexRef.current + 1;
         if (nextIdx < cards.length) {
           setIndex(nextIdx);
@@ -40,12 +47,16 @@ export function AudioModeView({ cards }: Props) {
           setIsPlaying(false);
         }
       },
-      onError: () => setIsPlaying(false),
+      onError: () => {
+        if (sessionRef.current !== mySession) return;
+        setIsPlaying(false);
+      },
     });
   };
 
   const handlePlayPause = () => {
     if (isPlaying) {
+      sessionRef.current++;
       stopSpeech();
       setIsPlaying(false);
     } else {
@@ -55,6 +66,7 @@ export function AudioModeView({ cards }: Props) {
   };
 
   const handleNext = () => {
+    sessionRef.current++;
     stopSpeech();
     const next = Math.min(index + 1, cards.length - 1);
     setIndex(next);
@@ -62,6 +74,7 @@ export function AudioModeView({ cards }: Props) {
   };
 
   const handlePrev = () => {
+    sessionRef.current++;
     stopSpeech();
     const prev = Math.max(index - 1, 0);
     setIndex(prev);
@@ -69,9 +82,15 @@ export function AudioModeView({ cards }: Props) {
   };
 
   const handleSelect = (i: number) => {
+    // Always start playback when a track is tapped — the per-track Play
+    // icon in the playlist row signals "tap to play this", and the
+    // expected UX (every podcast app) is that tapping a track starts it.
+    // Without this, the icon does nothing from a paused/initial state.
+    sessionRef.current++;
     stopSpeech();
     setIndex(i);
-    if (isPlaying) playCurrent(i);
+    setIsPlaying(true);
+    playCurrent(i);
   };
 
   useEffect(() => {
@@ -121,7 +140,9 @@ export function AudioModeView({ cards }: Props) {
           const active = i === index;
           return (
             <button
-              key={c.id}
+              // Index-prefixed key survives any duplicate ids in the cards
+              // list (the parent dedupes, but this is defense-in-depth).
+              key={`${i}-${c.id}`}
               data-track-index={i}
               onClick={() => handleSelect(i)}
               className={`w-full flex items-center gap-3 p-3 rounded-2xl border text-left transition-colors ${

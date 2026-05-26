@@ -40,7 +40,7 @@ export default function NotFound() {
           href="/feed"
           className="inline-flex items-center gap-2 px-6 py-3 bg-emerald-500 hover:bg-emerald-400 text-zinc-950 font-extrabold text-sm rounded-2xl transition-all shadow-[0_0_25px_rgba(16,185,129,0.3)]"
         >
-          Back to FinTok
+          Back to FinScroll
           <ChevronRight className="w-4 h-4" />
         </Link>
         <Link

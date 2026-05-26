@@ -1,5 +1,5 @@
 import { currentUser } from "@clerk/nextjs/server";
-import { FinTokFeed } from "@/components/FinTokFeed";
+import { FinScrollFeed } from "@/components/FinScrollFeed";
 import { OnboardingGate } from "@/components/OnboardingGate";
 
 export default async function FeedPage() {
@@ -9,7 +9,7 @@ export default async function FeedPage() {
   return (
     <div className="h-full overflow-hidden">
       <OnboardingGate userId={uid}>
-        <FinTokFeed userId={uid} />
+        <FinScrollFeed userId={uid} />
       </OnboardingGate>
     </div>
   );

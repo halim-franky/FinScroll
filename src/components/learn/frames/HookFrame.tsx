@@ -102,21 +102,28 @@ export function HookFrame({ card, isActive, userId }: Props) {
         {/* Three-band flex layout: top hint, video, bottom hint.
             pt-24 pb-16 clears the HUD and the chevron bar respectively. */}
         <div className="relative h-full flex flex-col pt-24 pb-16 px-4">
-          {/* Top band — topic chip, wealth ticker, fullscreen */}
+          {/* Top band — topic chip, wealth ticker, fullscreen button.
+              `min-w-0` on the inner flex container is required so children
+              can shrink below their intrinsic content width on narrow
+              viewports. Each chip carries `max-w-[X]` + `truncate` so its
+              text gets an ellipsis rather than pushing the row past the
+              screen edge. Fullscreen button stays `shrink-0` so it's
+              always visible. */}
           <div className="flex items-center justify-between gap-2 py-3 shrink-0">
-            <div className="flex items-center gap-2 min-w-0">
+            <div className="flex items-center gap-2 min-w-0 flex-1">
               {/* Auto-generated "Today's Drop" badge replaces the topic chip
-                  on RAG-generated cards (id prefix `daily-`). Lets users
-                  spot the daily card at a glance in the feed. */}
+                  on RAG-generated cards (id prefix `daily-`). Compact —
+                  the actual topic appears in the card title below, no need
+                  to duplicate it in the chip. */}
               {String(card.id).startsWith("daily-") ? (
                 <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-amber-500/15 border border-amber-500/50 text-amber-200 text-[10px] font-black uppercase tracking-widest backdrop-blur-sm shrink-0">
                   <Sparkles className="w-3 h-3" />
-                  Today&apos;s Drop · {card.topic}
+                  Today&apos;s Drop
                 </span>
               ) : (
-                <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-emerald-500/15 border border-emerald-500/40 text-emerald-300 text-[10px] font-black uppercase tracking-widest backdrop-blur-sm shrink-0">
-                  <Sparkles className="w-3 h-3" />
-                  {card.topic}
+                <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-emerald-500/15 border border-emerald-500/40 text-emerald-300 text-[10px] font-black uppercase tracking-widest backdrop-blur-sm min-w-0 max-w-[60%]">
+                  <Sparkles className="w-3 h-3 shrink-0" />
+                  <span className="truncate">{card.topic}</span>
                 </span>
               )}
               <WealthTicker active={isActive} userId={userId} />
