@@ -67,6 +67,16 @@ AGENTS.md
 PRD.md
 .agents/
 
+# ── Personal interview-prep docs (keep local, never publish) ─────────
+docs/CHEAT_SHEET.md
+docs/CONVERT.md
+docs/INTERVIEW_DECK.md
+docs/FinScroll — Interview Cheat Sheet.pdf
+docs/FinScroll — Portfolio Interview Deck.docx
+
+# ── Demo video (258 MB — exceeds GitHub's 100 MB limit; host externally)
+docs/demo/
+
 # ── OS artifacts ──────────────────────────────────────────────────────
 .DS_Store
 Thumbs.db
