@@ -22,6 +22,11 @@ interface Props {
   onJumpToCard: (cardId: string | number) => void;
   /** Notify parent of current frame so it can render a sticky progress bar. */
   onFrameChange?: (frame: number) => void;
+  /**
+   * Frame to open on when this card becomes active (default 0 = hook).
+   * The Library's "Quiz yourself" CTA passes 3 to jump straight to the quiz.
+   */
+  initialFrame?: number;
 }
 
 const FRAME_NAMES = ["Video", "Visual", "Insight", "Quiz", "Proof"] as const;
@@ -35,10 +40,16 @@ function StoryCardImpl({
   onAnswer,
   onJumpToCard,
   onFrameChange,
+  initialFrame,
 }: Props) {
   const [frame, setFrame] = useState(0);
   const [direction, setDirection] = useState(1);  // 1 = forward, -1 = back
   const startX = useRef<number | null>(null);
+  // Read via ref so the activation effect doesn't re-run (and snap the user
+  // away) when the parent clears the target after we've consumed it — it
+  // only reads the value at the moment isActive flips.
+  const initialFrameRef = useRef(initialFrame ?? 0);
+  initialFrameRef.current = initialFrame ?? 0;
 
   // Quiz gate: the user must answer the quiz correctly before reaching
   // the Proof frame. We surface a transient message when they try to
@@ -82,9 +93,10 @@ function StoryCardImpl({
     if (quizPassed) setGateMessage(null);
   }, [quizPassed]);
 
-  // Reset to frame 0 whenever this card becomes active
+  // Reset to the initial frame whenever this card becomes active. Normally
+  // 0 (hook); the Library quiz CTA opens straight on the quiz (frame 3).
   useEffect(() => {
-    if (isActive) setFrame(0);
+    if (isActive) setFrame(initialFrameRef.current);
   }, [isActive, card.id]);
 
   // Bubble current frame up so the parent can render a sticky progress bar
@@ -335,4 +347,7 @@ export const StoryCard = memo(StoryCardImpl, (prev, next) =>
   prev.onAnswer === next.onAnswer &&
   prev.onJumpToCard === next.onJumpToCard &&
   prev.onFrameChange === next.onFrameChange,
+  // NOTE: initialFrame is intentionally NOT compared. It's read via a ref at
+  // activation time, so a change (the parent clearing the quiz target) should
+  // not force a re-render. Adding it here would re-render needlessly.
 );

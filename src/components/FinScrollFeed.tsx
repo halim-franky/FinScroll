@@ -50,7 +50,15 @@ export function FinScrollFeed({ userId = "guest" }: FinScrollFeedProps) {
   const [completed, setCompleted] = useState<Record<string, boolean>>({});
   const [quizAnswers, setQuizAnswers] = useState<Record<string, number>>({});
   const [dailyCard, setDailyCard] = useState<Card | null>(null);
+  // Id of the card the "Quiz yourself" CTA wants to open straight on its
+  // quiz frame. Read by the matching StoryCard via `initialFrame`, then
+  // cleared once consumed so a later revisit starts at the hook again.
+  const [quizTargetId, setQuizTargetId] = useState<string | null>(null);
   const feedRef = useRef<HTMLDivElement>(null);
+  // When the quiz CTA is tapped from read/audio mode the story feed isn't
+  // mounted yet, so feedRef is null. Stash the target index here and let
+  // the mode-change effect perform the scroll once the feed mounts.
+  const pendingScrollRef = useRef<number | null>(null);
 
   // ── Load persisted state on mount ────────────────────────────────
   useEffect(() => {
@@ -283,6 +291,45 @@ export function FinScrollFeed({ userId = "guest" }: FinScrollFeedProps) {
     [cardOrder]
   );
 
+  // "Quiz yourself" from the Library (read mode): switch to the story feed,
+  // scroll to the matching card, and open it directly on its quiz frame.
+  // jumpToCard alone can't do this — it no-ops in read mode (feedRef is
+  // unmounted) and always lands on the hook frame.
+  const quizCard = useCallback(
+    (cardId: string | number) => {
+      const idx = cardOrder.findIndex((c) => String(c.id) === String(cardId));
+      if (idx < 0) return;
+      setQuizTargetId(String(cardId));
+      setActive(idx);
+      if (mode === "story" && feedRef.current) {
+        feedRef.current.scrollTop = feedRef.current.clientHeight * idx;
+      } else {
+        // Feed isn't mounted in read/audio mode — defer the scroll until the
+        // mode-change effect fires after the feed renders.
+        pendingScrollRef.current = idx;
+        setMode("story");
+      }
+    },
+    [cardOrder, mode]
+  );
+
+  // Perform the deferred scroll once the story feed has mounted.
+  useEffect(() => {
+    if (mode === "story" && pendingScrollRef.current !== null && feedRef.current) {
+      feedRef.current.scrollTop = feedRef.current.clientHeight * pendingScrollRef.current;
+      pendingScrollRef.current = null;
+    }
+  }, [mode]);
+
+  // Once the quiz target is the active card, the StoryCard has already read
+  // its initialFrame, so clear the target — a later revisit should start at
+  // the hook. Effects run child-first, so frame=3 is set before this clears.
+  useEffect(() => {
+    if (quizTargetId !== null && String(cardOrder[active]?.id) === quizTargetId) {
+      setQuizTargetId(null);
+    }
+  }, [active, quizTargetId, cardOrder]);
+
   // ── Audio toggle ─────────────────────────────────────────────────
   const handleAudioToggle = (next: boolean) => {
     setAudioEnabled(next);
@@ -420,6 +467,9 @@ export function FinScrollFeed({ userId = "guest" }: FinScrollFeedProps) {
                 onAnswer={handleAnswer}
                 onJumpToCard={jumpToCard}
                 onFrameChange={setActiveFrame}
+                initialFrame={
+                  quizTargetId !== null && String(card.id) === quizTargetId ? 3 : 0
+                }
               />
             );
           })}
@@ -509,7 +559,7 @@ export function FinScrollFeed({ userId = "guest" }: FinScrollFeedProps) {
         </div>
       )}
 
-      {mode === "read" && <ReadingView cards={cardOrder} onSelectCard={jumpToCard} />}
+      {mode === "read" && <ReadingView cards={cardOrder} onSelectCard={quizCard} />}
       {mode === "audio" && <AudioModeView cards={cardOrder} />}
 
       {/* First-time gestures tutorial. Renders only in story mode where the
