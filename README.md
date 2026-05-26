@@ -8,6 +8,12 @@ A financial literacy app for younger users worldwide that hijacks the doomscroll
 
 ---
 
+## Demo
+
+https://github.com/user-attachments/assets/cbc39634-c74f-49bc-954c-fb2c3ce140fc
+
+---
+
 ## The problem
 
 Younger generations worldwide spend **~6 hours/day** scrolling content that makes them poorer:
