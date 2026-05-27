@@ -3,6 +3,8 @@ import { ClerkProvider } from "@clerk/nextjs";
 import { dark } from "@clerk/themes";
 import { PWARegister } from "@/components/PWARegister";
 import { InstallPrompt } from "@/components/InstallPrompt";
+import { Analytics } from "@vercel/analytics/next";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 import "./globals.css";
 
 /**
@@ -145,6 +147,11 @@ export default function RootLayout({
           <PWARegister />
           {children}
           <InstallPrompt />
+          {/* Vercel Web Analytics (page views/visitors) + Speed Insights
+              (Core Web Vitals from real users). Both no-op in local dev and
+              only send beacons from Vercel-hosted deployments. */}
+          <Analytics />
+          <SpeedInsights />
         </body>
       </html>
     </ClerkProvider>
