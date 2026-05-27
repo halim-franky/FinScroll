@@ -202,7 +202,12 @@ export function LandingContent() {
             return (
               <motion.div
                 key={f.title}
-                variants={pop}
+                // fadeUp (not pop) — a gentle slide-up + opacity ramp. pop's
+                //   scale keyframes ([0.6, 1.12, 1]) overshoot past final size
+                //   on entrance, which read as a bouncy "spring back" on these
+                //   large text cards. fadeUp's ease-out never overshoots, so
+                //   the reveal settles cleanly. Matches the Stats section.
+                variants={fadeUp}
                 // Hover IN: snappy ease-out tween (180 ms) — feels tactile
                 //   without the spring overshoot that made the previous
                 //   bouncy version visibly oscillate.
