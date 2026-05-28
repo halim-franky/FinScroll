@@ -35,9 +35,9 @@ FinScroll intercepts the habit loop. Same addictive vertical scroll mechanics th
 | Surface | What it does |
 |---|---|
 | **Learn (FinScroll Feed)** | 5-frame story cards: Video → Visual → Insight → Quiz → Proof. 33+ cards (12 hand-curated + daily RAG drop + 20 pre-generated pool), inline YouTube embeds, source citations |
-| **Roast Mode** | 24-myth library across 5 categories with severity ratings; AI roasts user-submitted finfluencer claims with grounded citations |
 | **Coach** | RAG chatbot grounded in Pinecone vector search + curated academic references. "Ask Coach about this concept" deep-links from any Learn card |
 | **Stats** | Streak hero, concepts-mastered counter, weekly log, shareable streak card (PNG via `html-to-image`, Web Share API) |
+| **Account** | Manage user account, including edit profile, change password, manage connected accounts, replay tutorial, reset onboarding, clear all local data, delete account, or sign out remote devices | 
 
 ---
 
